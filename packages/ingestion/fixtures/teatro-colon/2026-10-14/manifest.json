@@ -1,0 +1,229 @@
+{
+  "source": "teatro-colon",
+  "capturedAt": "2026-10-14T16:40:00.000Z",
+  "note": "Relevamiento manual del 14-oct-2026 (CulturaBA-Research/0.1, <=1 petición en vuelo, >=1.5 s entre peticiones). Respuestas crudas sin modificar. El sitio es WordPress (Yoast, tema 'tc', CPT 'production'). El calendario es HTML server-side por mes (?a=YYYY&mes=M) y solo lista funciones desde hoy en el mes corriente. admin-ajax 'mobile-calendar' devuelve JSON (servido como text/html) con solo una grilla de días con has_event, sin datos de eventos; el nonce f507a89540 es el que traía la página ese día y caduca. wp-json/wp/v2/productions expone id/slug/modified/class_list (places-*, production-category-*, season-*) pero acf=[]: las funciones solo están en el HTML de detalle (section.dates .day). 010 fue capturado por Playwright (page.on('response')) y no por curl. No se observó ninguna función agotada ni cancelada ese día (ver style.css: .day.sold_out, .button.is_sold_out).",
+  "entries": [
+    {
+      "url": "https://teatrocolon.org.ar/robots.txt",
+      "file": "001-robots.txt",
+      "status": 200,
+      "contentType": "text/plain; charset=utf-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/sitemap_index.xml",
+      "file": "002-sitemap_index.xml",
+      "status": 200,
+      "contentType": "text/xml;charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/production-sitemap.xml",
+      "file": "003-production-sitemap.xml",
+      "status": 200,
+      "contentType": "text/xml; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/places-sitemap.xml",
+      "file": "004-places-sitemap.xml",
+      "status": 200,
+      "contentType": "text/xml; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/production-category-sitemap.xml",
+      "file": "005-production-category-sitemap.xml",
+      "status": 200,
+      "contentType": "text/xml; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/calendario/",
+      "file": "006-calendario-2026-10.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/calendario/?a=2026&mes=11",
+      "file": "007-calendario-2026-11.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/calendario/?a=2026&mes=12",
+      "file": "008-calendario-2026-12.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/wp-admin/admin-ajax.php?action=mobile-calendar&nonce=f507a89540&year=2026&month=11",
+      "file": "009-admin-ajax-mobile-calendar-2026-11.json",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/wp-admin/admin-ajax.php?action=mobile-calendar&nonce=f507a89540&year=2026&month=10",
+      "file": "010-admin-ajax-mobile-calendar-2026-10.json",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/wp-json/wp/v2/types",
+      "file": "011-wp-json-types.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/wp-json/wp/v2/production?per_page=3&_fields=id,slug,link,modified,title,production-category,places",
+      "file": "012-wp-json-production-404.json",
+      "status": 404,
+      "contentType": "application/json; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/wp-json/wp/v2/productions?per_page=3",
+      "file": "013-wp-json-productions-per3.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/wp-json/wp/v2/productions?per_page=100&_fields=id,slug,link,modified,title,class_list",
+      "file": "014-wp-json-productions-per100.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/les-contes-dhoffmann/",
+      "file": "015-produccion-les-contes-dhoffmann.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/las-ruinas/",
+      "file": "016-produccion-las-ruinas.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/vida-de-heroe/",
+      "file": "017-produccion-vida-de-heroe.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/berliner-philharmoniker/",
+      "file": "018-produccion-berliner-philharmoniker.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/el-barbero-de-sevilla/",
+      "file": "019-produccion-el-barbero-de-sevilla.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/historias-secretas-del-teatro-colon/",
+      "file": "020-produccion-historias-secretas-del-teatro-colon.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/festival-chopiniana-goran-filipec/",
+      "file": "021-produccion-festival-chopiniana-goran-filipec.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/la-intimidad-de-la-voz/",
+      "file": "022-produccion-la-intimidad-de-la-voz.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/monteverdi-choir-english-baroque-soloists/",
+      "file": "023-produccion-monteverdi-choir-english-baroque-soloists.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/la-tempestad/",
+      "file": "024-produccion-la-tempestad.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/manon/",
+      "file": "025-produccion-manon.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/un-sueno-navideno/",
+      "file": "026-produccion-un-sueno-navideno.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/die-walkure/",
+      "file": "027-produccion-die-walkure.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/colon-fabrica/",
+      "file": "028-colon-fabrica.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/centro-de-experimentacion-del-teatro-colon/",
+      "file": "029-cetc.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/boleteria/",
+      "file": "030-boleteria.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/ubicacion/sala-principal/",
+      "file": "031-ubicacion-sala-principal.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/ubicacion/teatro-colon-fabrica/",
+      "file": "032-ubicacion-teatro-colon-fabrica.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/temporada/temporada-2026/",
+      "file": "033-temporada-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/categoria-produccion/opera/",
+      "file": "034-categoria-produccion-opera.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/",
+      "file": "035-home.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/wp-content/themes/tc/js/mobile-calendar.js?ver=1.0.240",
+      "file": "036-mobile-calendar.js",
+      "status": 200,
+      "contentType": "text/javascript"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/feed/",
+      "file": "037-feed.xml",
+      "status": 200,
+      "contentType": "text/xml;charset=UTF-8"
+    }
+  ]
+}

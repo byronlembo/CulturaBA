@@ -1,0 +1,11 @@
+# START YOAST BLOCK
+# ---------------------------
+User-agent: *
+Disallow:
+
+User-agent: AdsBot
+Disallow: /
+
+Sitemap: https://teatrocolon.org.ar/sitemap_index.xml
+# ---------------------------
+# END YOAST BLOCK
