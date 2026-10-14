@@ -1,9 +1,9 @@
 -- Reference data. Idempotent: safe to re-run.
 --
--- Addresses are widely published facts for these institutions but have NOT been
--- re-verified from this environment (network to the official sites was blocked
--- at seed time): address_verified_at stays NULL until step 0 of the roadmap
--- confirms them against address_source_url.
+-- Venue addresses: Teatro Colón's was verified on 2026-10-14 against the footer of
+-- teatrocolon.org.ar ("Cerrito 628, Ciudad Autónoma de Buenos Aires"). MNBA and
+-- Palacio Libertad sit behind an interactive Cloudflare challenge, so their widely
+-- published addresses stay with address_verified_at NULL until someone confirms them.
 
 insert into public.disciplines (slug, label_es, short_label_es, selectable, sort_order, fallback_image_key) values
   ('opera_clasica',             'Ópera y música clásica',      'Ópera y clásica', true,  10,  'opera_clasica'),
@@ -30,22 +30,23 @@ insert into public.institutions (slug, name, website_url) values
   ('complejo-teatral', 'Complejo Teatral de Buenos Aires', 'https://complejoteatral.gob.ar')
 on conflict (slug) do update set name = excluded.name, website_url = excluded.website_url;
 
-insert into public.venues (slug, institution_id, name, address, neighborhood, city, address_source_url) values
+insert into public.venues (slug, institution_id, name, address, neighborhood, city, address_source_url, address_verified_at) values
   ('teatro-colon',
     (select id from public.institutions where slug = 'teatro-colon'),
-    'Teatro Colón', 'Cerrito 628', 'San Nicolás', 'CABA', 'https://teatrocolon.org.ar'),
+    'Teatro Colón', 'Cerrito 628', 'San Nicolás', 'CABA', 'https://teatrocolon.org.ar/', '2026-10-14T12:00:00-03:00'),
   ('mnba',
     (select id from public.institutions where slug = 'mnba'),
-    'Museo Nacional de Bellas Artes', 'Av. del Libertador 1473', 'Recoleta', 'CABA', 'https://bellasartes.gob.ar'),
+    'Museo Nacional de Bellas Artes', 'Av. del Libertador 1473', 'Recoleta', 'CABA', 'https://bellasartes.gob.ar', null),
   ('palacio-libertad',
     (select id from public.institutions where slug = 'palacio-libertad'),
-    'Palacio Libertad', 'Sarmiento 151', 'San Nicolás', 'CABA', 'https://palaciolibertad.gob.ar')
+    'Palacio Libertad', 'Sarmiento 151', 'San Nicolás', 'CABA', 'https://palaciolibertad.gob.ar', null)
 on conflict (slug) do update set
   institution_id = excluded.institution_id,
   name = excluded.name,
   address = excluded.address,
   neighborhood = excluded.neighborhood,
-  address_source_url = excluded.address_source_url;
+  address_source_url = excluded.address_source_url,
+  address_verified_at = excluded.address_verified_at;
 
 -- `kind` is the working hypothesis until the source research confirms the best
 -- extraction method; the connector reports the real one on each run.
