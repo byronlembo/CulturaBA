@@ -1,0 +1,111 @@
+[
+  {
+    "source": "agenda-ba",
+    "externalId": "ede41966-e6d9-4f2d-b2fc-98c8e3d9200b",
+    "url": "https://linda.buenosaires.gob.ar/eventos/el-barbero-de-sevilla-1",
+    "capturedAt": "2026-10-14T12:00:00.000-03:00",
+    "title": "El Barbero De Sevilla",
+    "description": "Ópera en un acto, adaptada en versión libre, en el Teatro Colón.\n\nEl Colón para Niños presenta El Barbero de Sevilla\nFunciones el domingo 11 de octubre a las 11:00, y el viernes 16 a las 15:00 horas.\nEdad recomendada desde los 5 años.\nComo parte de la programación del Ciclo Colón para Niños, alumnos de las Carreras de Dirección Escénica de Ópera, Preparación Musical de Ópera, Canto Lírico, Danza, Artes Escenotécnicas -Orientaciones en Caracterización y Sastrería- del Instituto Superior de Arte del Teatro Colón y su Orquesta académica bajo la dirección musical de Juan Miceli, presentan una adaptación de la icónica creación de Gioachino Rossini, en una versión libre de un acto.\nEn esta historia con textos, dramaturgia y dirección escénica de Rita Cosentino, versión literaria al español de las partes musicales de Mercedes Polledo y Javier Almuzara, y coreografía de Ignacio González Cano, se transforma la clásica ópera en un espectáculo pensado especialmente para los más jóvenes, donde la música y el humor se convierten en una puerta de entrada al universo mágico del teatro y la ópera, acercando a los más pequeños a una obra que conserva toda su vitalidad y encanto.\nEl ingenioso barbero Fígaro ayuda a su amigo el Conde (de Almaviva) a conquistar el amor de Rosina, enfrentando los obstáculos que le impone el celoso Doctor Bartolo y el siniestro profesor de música Don Basilio. La célebre ópera de Gioachino Rossini despliega un argumento lleno de enredos y comicidad que, más allá de su dinamismo, refleja el contraste entre generaciones y sus distintas formas de ver el mundo.\n\nReparto\nAlumnos y exalumnos de la Carrera de Canto Lírico del ISATC\nEl Conde – estrella del pop\nNorberto Miranda (tenor)\nFigaro – barbero italiano\nMartín Catriel Rodríguez (barítono)\nCristian Chun (barítono)\nDon Bartolo – doctor dentista\nAugusto Nicolás Nureña (bajo)\nFranco Gómez (bajo barítono)\nRosina – jovencita que trabaja como secretaria en el consultorio de Bartolo\nLuciana Bueno (mezzosoprano)\nMonique Nogales (mezzosoprano) – cover\nDon Basilio – maestro de música, sacerdote, abogado, entre otras cosas\nRamiro José Brandán (bajo)\nFranco Gómez (bajo barítono)\nAlumnos de la Carrera de Danza del ISATC\nBerta\nZaira Morena Taboda\nAmbroggio\nJeremías Kuharo\nActores / Bailarines\nCamila Rodríguez Mammana\nMalena Sforzini\nMilagros Pilar Cerruti Ruiz\nFacundo Federico Ezequiel Espíndola\nSamuel Santino Casado\nTiago Nicolino Lorenzo\nAlumnos de la Carrera de Artes Escenotécnicas del ISATC\nOrientación en Caracterización\nJuan Cruz Fuster\nYesica Lozano Elías\nJulia Bozzarelli\nMisky Hada Naomi Fernández Nagy\nAriadna Das Airas\nAna Chiaramello\nOrientación en Sastrería\nValentina Bono Barthel\nPablo Enrique D’uva Sánchez Negrette\nSol Daniela García\nAzul Ahumada Notrica\nAgostina Renata Artusa\nTiziana Góngora\nMaría Paula Torres\nRegente de la Carrera de Danza\nSabrina Streiff\nCoordinadora de la Carrera de Danza\nVictoria Lanestosa\nDirector principal invitado de la Orquesta Académica\nJuan Miceli\nRegente de la Carrera de Academia Orquestal\nPablo Bocchimuzzi\nCoordinador de la Orquesta Académica y ensambles de la Academia Orquestal\nMartín Zárate Brítez\nAuxiliares de la Academia Orquestal\nMiranda Bejanuel\nJuan Williamson\n\nSinopsis\nEl ingenioso barbero Figaro ayuda a su amigo el Conde (de Almaviva) a conquistar el amor de Rosina, enfrentando los obstáculos que le impone el celoso Doctor Bartolo y el siniestro profesor de música Don Basilio. Esta versión de la célebre creación de Gioachino Rossini, con dramaturgia y puesta en escena de Rita Cosentino, transforma la obra original en un espectáculo especialmente ideado para los más jóvenes, donde la música y el humor se convierten en una puerta de entrada al universo mágico del teatro y la ópera.\n\nFunción distendida\nEl viernes 16 de octubre a las 15 horas, se realizará una función distendida de este espectáculo pensado para los más pequeños. Se trata de una propuesta adaptada que reduce y adecua los estímulos sensoriales, como la iluminación y el sonido, para brindar una experiencia más accesible y confortable. Está dirigida a personas neurodivergentes y a quienes presentan sensibilidad sensorial, favoreciendo su participación y el disfrute en igualdad de condiciones.",
+    "attribution": "Texto: Linda, agenda oficial de la Ciudad de Buenos Aires",
+    "disciplines": [
+      "opera_clasica"
+    ],
+    "institutionSlug": "teatro-colon",
+    "officialUrl": "https://linda.buenosaires.gob.ar/eventos/el-barbero-de-sevilla-1",
+    "ticketsUrl": "https://teatrocolon.org.ar/produccion/el-barbero-de-sevilla/",
+    "imageUrl": "https://buenosaires.gob.ar/sites/default/files/2026-10/barbero%20de%20sevilla%20flyer%20colon.png",
+    "isFree": false,
+    "priceVerified": false,
+    "tags": [
+      "Música y Shows",
+      "Arte y cultura"
+    ],
+    "occurrences": [
+      {
+        "externalId": "ede41966-e6d9-4f2d-b2fc-98c8e3d9200b|2026-10-11T14:00:00.000Z",
+        "kind": "timed",
+        "startsAt": "2026-10-11T11:00:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-11",
+        "endDate": "2026-10-11",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "2026-10-11T14:00:00.000Z",
+        "venue": {
+          "slug": "teatro-colon",
+          "name": "Teatro Colón"
+        },
+        "status": "scheduled",
+        "ticketsUrl": "https://teatrocolon.org.ar/produccion/el-barbero-de-sevilla/",
+        "price": null
+      },
+      {
+        "externalId": "ede41966-e6d9-4f2d-b2fc-98c8e3d9200b|2026-10-16T18:00:00.000Z",
+        "kind": "timed",
+        "startsAt": "2026-10-16T15:00:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-16",
+        "endDate": "2026-10-16",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "2026-10-16T18:00:00.000Z",
+        "venue": {
+          "slug": "teatro-colon",
+          "name": "Teatro Colón"
+        },
+        "status": "scheduled",
+        "ticketsUrl": "https://teatrocolon.org.ar/produccion/el-barbero-de-sevilla/",
+        "price": null
+      }
+    ]
+  },
+  {
+    "source": "agenda-ba",
+    "externalId": "9a565d18-ebb5-4de1-b5a5-b84048921540",
+    "url": "https://linda.buenosaires.gob.ar/eventos/jorge-lavelli-el-gesto-incoformista",
+    "capturedAt": "2026-10-14T12:00:00.000-03:00",
+    "title": "Jorge Lavelli: El gesto incoformista",
+    "description": "Sin dudas una de las figuras más influyentes del teatro y la ópera en el siglo XX fue Jorge Lavelli. Muestra homenaje al gran director argentino.\n\n“Jorge Lavelli: el gesto inconformista”, una muestra homenaje en el Teatro San Martín\nLa exposición dedicada al gran director argentino mostrará imágenes de sus montajes más emblemáticos.\nEl Complejo Teatral de Buenos Aires inaugurará el próximo martes 6 de octubre la muestra “Jorge Lavelli: el gesto inconformista”, un homenaje dedicado al director argentino, en el Hall Alfredo Alcón del San Martín (Av. Corrientes 1530, primer piso).\nLa exposición propone un recorrido por algunos de los espectáculos más emblemáticos del destacado director teatral que fueron presentados en esta casa: Yvonne, princesa de Borgoña, Macbett de Eugène Ionesco (1993), Seis personajes en busca de autor de Luigi Pirandello (1998), Mein Kampf, farsa de George Tabori (2000), La hija del aire de Pedro Calderón de la Barca (2004) y Rey Lear de William Shakespeare (2006).\nReconocido por haber fundado el Théâtre National de la Colline en Francia y por consolidar la figura del director como un creador total, Lavelli se convirtió en el gran impulsor de la dramaturgia contemporánea al llevar a la escena a autores como Copi y Gombrowicz. Su poética se caracterizó por un marcado inconformismo estético que rompió con el realismo tradicional mediante puestas abstractas, un uso plástico del espacio, iluminación expresionista y un equilibrio perfecto entre la farsa y la tragedia. Desde esta óptica moderna e iconoclasta, provocó profundas lecturas con sus vanguardistas montajes de clásicos como Calderón, Molière, Goethe, Chéjov y Shakespeare.\nLa muestra estará abierta al público de martes a viernes, de 14 a 21 horas, y los sábados y domingos de 13 a 20 horas, con entrada sin costo.",
+    "attribution": "Texto: Linda, agenda oficial de la Ciudad de Buenos Aires",
+    "disciplines": [
+      "museos_exposiciones"
+    ],
+    "institutionSlug": "complejo-teatral",
+    "officialUrl": "https://linda.buenosaires.gob.ar/eventos/jorge-lavelli-el-gesto-incoformista",
+    "imageUrl": "https://buenosaires.gob.ar/sites/default/files/2026-09/Jorge%20Lavelli%20El%20gesto%20incoformista%20%281%29.jpeg",
+    "priceText": "Libre y gratuita",
+    "isFree": true,
+    "priceVerified": true,
+    "tags": [
+      "Arte y cultura"
+    ],
+    "occurrences": [
+      {
+        "externalId": "9a565d18-ebb5-4de1-b5a5-b84048921540|muestra",
+        "kind": "range",
+        "startsAt": "2026-10-09T00:00:00-03:00",
+        "endsAt": "2026-11-01T23:59:59-03:00",
+        "startDate": "2026-10-09",
+        "endDate": "2026-11-01",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": "La muestra estará abierta al público de martes a viernes, de 14 a 21 horas, y los sábados y domingos de 13 a 20 horas, con entrada sin costo.",
+        "recurrenceRule": null,
+        "sourceDateText": "2026-10-09T17:00:00.000Z … 2026-11-01T16:00:00.000Z (21 fechas publicadas)",
+        "venue": {
+          "name": "Teatro San Martín",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://linda.buenosaires.gob.ar/eventos/jorge-lavelli-el-gesto-incoformista"
+        },
+        "status": "scheduled",
+        "ticketsUrl": null,
+        "price": {
+          "text": "Libre y gratuita",
+          "isFree": true,
+          "verified": true
+        }
+      }
+    ]
+  }
+]
