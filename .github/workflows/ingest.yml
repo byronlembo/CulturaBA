@@ -1,0 +1,78 @@
+name: Ingest
+
+on:
+  schedule:
+    # Cada 6 horas (UTC). GitHub puede retrasar los cron varios minutos.
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      source:
+        description: 'Conector (slug) o "all"'
+        default: all
+        required: true
+      dry_run:
+        description: 'Ejecutar sin persistir'
+        type: boolean
+        default: false
+
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # URI del SESSION POOLER de Supabase (IPv4). Nunca el host db.<ref>.supabase.co.
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      INGEST_USER_AGENT: ${{ vars.INGEST_USER_AGENT || 'CulturaBA-Ingest/0.1 (+https://culturaba.lembodiseno.com/bot)' }}
+      LOG_LEVEL: info
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Comprobar configuración
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::Falta el secreto DATABASE_URL (session pooler de Supabase)"; exit 1
+          fi
+      - name: Ejecutar conectores
+        id: run
+        run: |
+          set -o pipefail
+          SOURCE="${{ github.event.inputs.source || 'all' }}"
+          DRY="${{ github.event.inputs.dry_run == 'true' && '--dry-run' || '' }}"
+          if [ "$SOURCE" = "all" ]; then ARGS="--all"; else ARGS="--source $SOURCE"; fi
+          pnpm -s ingest run $ARGS --trigger cron --json $DRY 2>ingest.log | tee summary.json
+      - name: Resumen
+        if: always()
+        run: |
+          {
+            echo "## Ingestión"
+            if [ -s summary.json ]; then
+              node -e '
+                const s = JSON.parse(require("fs").readFileSync("summary.json","utf8"));
+                console.log("| fuente | estado | descubiertos | ok | incompletos | creados | publicados | mayores | menores | ausencias |");
+                console.log("|---|---|---|---|---|---|---|---|---|---|");
+                for (const r of s) { const t = r.stats; console.log(`| ${r.source} | ${r.status}${r.dryRun ? " (dry-run)" : ""} | ${t.discovered} | ${t.parsed_ok} | ${t.parsed_incomplete} | ${t.events_created} | ${t.events_published} | ${t.changes_major} | ${t.changes_minor} | ${t.missing_marked} |`); }
+                for (const r of s) for (const w of r.warnings) console.log(`\n⚠ **${r.source}**: ${w}`);
+              '
+            else
+              echo "Sin resumen (ver logs)."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Guardar logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ingest-logs-${{ github.run_id }}
+          path: |
+            ingest.log
+            summary.json
+          retention-days: 14

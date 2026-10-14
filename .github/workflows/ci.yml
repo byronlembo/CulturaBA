@@ -12,7 +12,7 @@ concurrency:
 jobs:
   checks:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     services:
       postgres:
         image: postgres:16
@@ -27,7 +27,11 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     env:
+      CI: 'true'
       TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:54329/culturaba_test
+      # Para que `expo export` tenga un origen de datos configurado (no se usa en CI).
+      EXPO_PUBLIC_API_MODE: dev
+      EXPO_PUBLIC_DEV_API_URL: http://localhost:8787
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -47,5 +51,9 @@ jobs:
           psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/tests/local_auth_stub.sql
           for f in supabase/migrations/*.sql; do psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -q -f "$f"; done
           psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/seed.sql
-      - name: Tests
+      - name: RLS smoke test
+        run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/tests/rls.sql
+      - name: Tests (vitest + jest)
         run: pnpm test
+      - name: Web export (bundle smoke test)
+        run: pnpm --filter @culturaba/mobile export:web

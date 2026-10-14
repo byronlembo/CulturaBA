@@ -107,6 +107,13 @@ program
           ? [getConnector(opts.source)]
           : [];
       if (connectors.length === 0) {
+        if (opts.all) {
+          console.log('[]');
+          console.error(
+            'No hay conectores de producción registrados todavía (ver docs/source-inventory.md).',
+          );
+          process.exit(0);
+        }
         console.error('Indicar --source <slug> o --all');
         process.exit(2);
       }
