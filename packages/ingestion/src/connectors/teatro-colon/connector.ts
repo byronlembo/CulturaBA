@@ -23,6 +23,11 @@ import {
  *            /calendario/?a=YYYY&mes=M para los MONTHS_AHEAD meses siguientes.
  *            Una fila `div.calendar-item` por función; se agrupan por producción
  *            (`externalId` = slug de /produccion/<slug>/). IO acotado: ≤ 3 páginas.
+ *            TODO o nada: si una página falla, no es un calendario o trae otro mes
+ *            (p. ej. un HTML cacheado del mes anterior), discover LANZA. Así el
+ *            pipeline marca la corrida como fallida y no cuenta ausencias con un
+ *            descubrimiento parcial (que pasaría la guardia del 50 % y dejaría como
+ *            `missing` las funciones de los meses no leídos).
  *  enrich:   GET /produccion/<slug>/ (una por producción, ~30 hoy).
  *  parse:    puro, sobre el HTML de detalle + las filas del listado (ver parse.ts).
  *
@@ -52,21 +57,26 @@ export const teatroColonConnector: SourceConnector = {
 
     for (let i = 0; i <= MONTHS_AHEAD; i += 1) {
       const month = now.startOf('month').plus({ months: i });
+      const expected = `${month.year}-${month.month}`;
+      // El mes corriente va sin parámetros: es la vista que lista desde hoy (con
+      // ?a=&mes= no está verificado que omita los días pasados). Un HTML cacheado de
+      // otro mes se detecta abajo por data-currentyear/data-currentmonth.
       const url = i === 0 ? CALENDAR_URL : `${CALENDAR_URL}?a=${month.year}&mes=${month.month}`;
       let html: string;
       try {
         html = (await ctx.http.get(url, { timeoutMs: REQUEST_TIMEOUT_MS })).body;
       } catch (err) {
-        // El mes corriente es obligatorio; un mes futuro que falle no tira la corrida.
-        if (i === 0) throw err;
-        ctx.logger.warn({ url, err: (err as Error).message }, 'mes del calendario no disponible');
-        continue;
+        throw new Error(`calendario ${expected} no disponible (${url}): ${(err as Error).message}`);
       }
       const page = parseCalendarPage(html, { year: month.year, month: month.month });
+      if (!page.recognized) {
+        throw new Error(
+          `${url} no es una página de calendario (sin table#calendar-table ni h1.month)`,
+        );
+      }
       if (page.year !== month.year || page.month !== month.month) {
-        ctx.logger.warn(
-          { url, expected: `${month.year}-${month.month}`, got: `${page.year}-${page.month}` },
-          'el calendario devolvió otro mes',
+        throw new Error(
+          `el calendario devolvió ${page.year}-${page.month} en lugar de ${expected} (${url})`,
         );
       }
       for (const w of page.warnings) ctx.logger.warn({ url, warning: w }, 'aviso del listado');

@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { assessPublishability, BA_TZ, type NormalizedEvent } from '@culturaba/shared';
 import { DateTime } from 'luxon';
 import type { ParseResult, RawRecord } from '../../core/connector';
+import { type HttpClient, HttpError } from '../../http/client';
 import { FixtureHttpClient } from '../../http/fixtureClient';
 import { fixtureSetDir } from '../../http/fixtures';
 import { silentLogger } from '../../logger';
@@ -106,6 +107,68 @@ describe('teatro-colon · fixtures 2026-10-14', () => {
     );
   });
 
+  describe('discover es todo o nada (no entrega descubrimientos parciales)', () => {
+    /** Cliente de fixtures con una regla de reemplazo por URL. */
+    function patchedCtx(patch: (url: string, real: HttpClient) => Promise<string> | null) {
+      const real = new FixtureHttpClient(FIXTURE_DIR);
+      const http: HttpClient = {
+        stats: real.stats,
+        get: async (url, options) => {
+          const body = patch(url, real);
+          if (body === null) return real.get(url, options);
+          return { status: 200, url, body: await body, headers: {} };
+        },
+      };
+      return { http, logger: silentLogger, now: () => NOW };
+    }
+    const fixture = (name: string) => readFileSync(join(FIXTURE_DIR, name), 'utf8');
+
+    it('lanza si falla un mes futuro (antes: 16 de 30 producciones y un warn)', async () => {
+      const ctx503 = patchedCtx((url) =>
+        url.includes('mes=') ? Promise.reject(new HttpError(url, 503)) : null,
+      );
+      await expect(teatroColonConnector.discover(ctx503)).rejects.toThrow(
+        /calendario 2026-11 no disponible .*HTTP 503/,
+      );
+    });
+
+    it('lanza si falla el mes corriente', async () => {
+      const ctx = patchedCtx((url) =>
+        url.endsWith('/calendario/') ? Promise.reject(new HttpError(url, 500)) : null,
+      );
+      await expect(teatroColonConnector.discover(ctx)).rejects.toThrow(/calendario 2026-10/);
+    });
+
+    it('lanza si una página trae otro mes (p. ej. HTML cacheado)', async () => {
+      // /calendario/ responde el HTML de noviembre: data-currentmonth=11 ≠ 10.
+      const stale = patchedCtx((url) =>
+        url.endsWith('/calendario/')
+          ? Promise.resolve(fixture('007-calendario-2026-11.html'))
+          : null,
+      );
+      await expect(teatroColonConnector.discover(stale)).rejects.toThrow(
+        /devolvió 2026-11 en lugar de 2026-10/,
+      );
+      const wrongFuture = patchedCtx((url) =>
+        url.includes('mes=12') ? Promise.resolve(fixture('007-calendario-2026-11.html')) : null,
+      );
+      await expect(teatroColonConnector.discover(wrongFuture)).rejects.toThrow(
+        /devolvió 2026-11 en lugar de 2026-12/,
+      );
+    });
+
+    it('lanza si la respuesta no es una página de calendario (challenge, error 200)', async () => {
+      const ctx = patchedCtx((url) =>
+        url.includes('mes=11')
+          ? Promise.resolve('<html><body><h1>Just a moment...</h1></body></html>')
+          : null,
+      );
+      await expect(teatroColonConnector.discover(ctx)).rejects.toThrow(
+        /no es una página de calendario/,
+      );
+    });
+  });
+
   it('discover respeta ctx.limit sin pedir meses de más', async () => {
     const fresh = makeCtx();
     const raws = await teatroColonConnector.discover({ ...fresh, limit: 5 });
@@ -113,7 +176,7 @@ describe('teatro-colon · fixtures 2026-10-14', () => {
     expect(raws.length).toBeGreaterThanOrEqual(5);
   });
 
-  it('parse de TODOS los ítems: 28 ok · 2 incomplete (visitas sin categoría) · 0 invalid', () => {
+  it('parse de TODOS los ítems: 30 ok · 0 incomplete · 0 invalid', () => {
     expect(ctx.http.stats.requests).toBe(33); // 3 listados + 30 detalles
     const counts = { ok: 0, incomplete: 0, invalid: 0 };
     const incomplete: Record<string, string[]> = {};
@@ -129,11 +192,15 @@ describe('teatro-colon · fixtures 2026-10-14', () => {
         incomplete[slug] = pub.reasons;
       }
     }
-    expect(counts).toEqual({ ok: 28, incomplete: 2, invalid: 0 });
-    expect(incomplete).toEqual({
-      'historias-secretas-del-teatro-colon': ['missing:discipline'],
-      'atardecer-en-el-teatro-colon': ['missing:discipline'],
-    });
+    expect(counts).toEqual({ ok: 30, incomplete: 0, invalid: 0 });
+    expect(incomplete).toEqual({});
+  });
+
+  it('ningún estado distinto de scheduled en los fixtures (no hay marcas de estado ese día)', () => {
+    for (const [, { result }] of items) {
+      if (!result.ok) continue;
+      for (const o of result.event.occurrences) expect(o.status).toBe('scheduled');
+    }
   });
 
   it('reglas de datos: nunca precios inventados, instantes -03:00, venues resolubles o nulos', () => {
@@ -311,10 +378,13 @@ describe('teatro-colon · fixtures 2026-10-14', () => {
     ]);
   });
 
-  // Cotejado contra 020 (categoría "Temporada 2026" = sin disciplina) y 018 (sala vacía, gclid)
-  it('visitas sin categoría cultural quedan candidatas; sala vacía ⇒ sede sin room', () => {
+  // Cotejado contra 020/039 (solo "Temporada 2026": disciplina por señales de la fuente)
+  // y 018 (sala vacía, gclid)
+  it('visitas con solo temporada: disciplina por señales; sala vacía ⇒ sede sin room', () => {
     const visita = eventOf(items, 'historias-secretas-del-teatro-colon');
-    expect(visita.disciplines).toEqual([]);
+    // entradasba /visitas/115 + "experiencia teatral itinerante" (meta description)
+    expect(visita.disciplines).toEqual(['historia_patrimonio', 'teatro_escenicas']);
+    expect(visita.tags).toEqual(['Temporada 2026']);
     expect(visita.occurrences.map((o) => o.startsAt)).toEqual([
       '2026-10-18T17:00:00-03:00',
       '2026-10-18T18:00:00-03:00',
@@ -327,7 +397,20 @@ describe('teatro-colon · fixtures 2026-10-14', () => {
       room: 'Plaza Vaticano y Teatro Colón',
     });
     expect(visita.ticketsUrl).toBe('https://entradasba.buenosaires.gob.ar/visitas/115');
-    expect(publishability(visita).reasons).toEqual(['missing:discipline']);
+    expect(publishability(visita)).toEqual({ publishable: true, reasons: [] });
+    expect(warningsOf(items, 'historias-secretas-del-teatro-colon')).toContain(
+      'sin categoría informativa (solo temporada o ninguna): disciplina por señales de la fuente (historia_patrimonio, teatro_escenicas)',
+    );
+
+    // "visita guiada privada … historia y valor patrimonial … música clásica en vivo"
+    const atardecer = eventOf(items, 'atardecer-en-el-teatro-colon');
+    expect(atardecer.disciplines).toEqual(['historia_patrimonio', 'opera_clasica']);
+    expect(atardecer.ticketsUrl).toBe('https://entradasba.buenosaires.gob.ar/visitas/120');
+    expect(atardecer.occurrences.map((o) => o.startsAt)).toEqual([
+      '2026-10-18T20:00:00-03:00',
+      '2026-10-25T20:00:00-03:00',
+    ]);
+    expect(publishability(atardecer)).toEqual({ publishable: true, reasons: [] });
 
     const berliner = eventOf(items, 'berliner-philharmoniker');
     expect(berliner.occurrences).toHaveLength(3);
@@ -406,6 +489,8 @@ function detailHtml(opts: {
   title?: string;
   place?: string;
   category?: string;
+  /** Texto de `.production-info-switch .data p`. */
+  data?: string;
   months?: { name: string; days: string[] }[];
   withDates?: boolean;
 }) {
@@ -423,6 +508,7 @@ function detailHtml(opts: {
     <section class="hero-module"><div class="content"><div class="category">${opts.category ?? 'Ópera'}</div>
     <h1 itemprop="name">${opts.title ?? 'Obra <i>X</i>'}</h1></div></section>
     <div itemprop="location"><meta itemprop="name" content="Teatro Colón"/></div>
+    <section class="production-details"><div class="production-info-switch"><div class="data hide-mobile"><h2>Obra</h2><p>${opts.data ?? ''}</p></div></div></section>
     ${dates}
     <section class="sinopsis" id="sinopsis"><h4 id="the_place">${opts.place ?? 'Sala principal'}</h4><p>Texto.</p></section>
   </main></body></html>`;
@@ -440,6 +526,28 @@ function rawOf(body: string, rows: unknown[] = []): RawRecord {
 }
 
 const parseCtx = { now: () => NOW, logger: silentLogger };
+
+function listingRowOf(o: {
+  month: number;
+  day: number;
+  time: { hour: number; minute: number };
+  dataText?: string;
+}) {
+  return {
+    slug: 'obra-x',
+    detailUrl: 'https://teatrocolon.org.ar/produccion/obra-x/',
+    title: 'Obra X',
+    category: 'Ópera',
+    dataText: o.dataText ?? '',
+    ticketsUrl: null,
+    imageUrl: null,
+    year: 2026,
+    month: o.month,
+    day: o.day,
+    time: o.time,
+    dateText: `${o.day}.`,
+  };
+}
 
 describe('buildEvent · estados y marcadores', () => {
   it('sold_out por clase, cancelada/postergada por texto, pasada omitida, próximamente sin link', () => {
@@ -478,6 +586,144 @@ describe('buildEvent · estados y marcadores', () => {
       ['2026-10-19', 'scheduled', null],
     ]);
     expect(res.warnings).toContain('1 funciones pasadas (div.day.inactive) omitidas');
+  });
+
+  it('inactive con fecha futura NO se descarta: sold_out o scheduled sin link, con aviso', () => {
+    const html = detailHtml({
+      months: [
+        {
+          name: 'octubre',
+          days: [
+            // Hoy a las 11 (now = 12:00): ya pasó ⇒ se omite.
+            dayHtml({ text: 'miércoles 14/10, 11:00 hs', classes: 'inactive', href: null }),
+            dayHtml({
+              text: 'viernes 16/10, 20:00 hs',
+              classes: 'inactive sold_out',
+              href: null,
+              button: '-',
+            }),
+            dayHtml({ text: 'viernes 30/10, 20:00 hs', classes: 'inactive', button: '-' }),
+          ],
+        },
+      ],
+    });
+    const res = buildEvent(rawOf(html), parseCtx);
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+    expect(
+      res.event.occurrences.map((o) => [o.startsAt, o.status, o.ticketsUrl, o.statusReason]),
+    ).toEqual([
+      ['2026-10-16T20:00:00-03:00', 'sold_out', null, 'marcada como agotada en el sitio'],
+      ['2026-10-30T20:00:00-03:00', 'scheduled', null, undefined],
+    ]);
+    expect(res.warnings).toContain('1 funciones pasadas (div.day.inactive) omitidas');
+    expect(res.warnings).toContain(
+      "funciones futuras marcadas inactive (sin venta online), se publican sin link de entradas: 'viernes 16/10, 20:00 hs', 'viernes 30/10, 20:00 hs'",
+    );
+  });
+
+  it('inactive con año inferido fuera de orden cronológico se toma como pasada', () => {
+    // 20/07 (86 días atrás) ⇒ inferYear lo lleva a 2027, pero la página lo lista ANTES
+    // del 18/10/2026: es una función vieja. Sin fila del listado que confirme el año.
+    const html = detailHtml({
+      months: [
+        { name: 'julio', days: [dayHtml({ text: 'lunes 20/07, 20:00 hs', classes: 'inactive' })] },
+        { name: 'octubre', days: [dayHtml({ text: 'domingo 18/10, 20:00 hs' })] },
+      ],
+    });
+    const res = buildEvent(rawOf(html), parseCtx);
+    expect(res.ok && res.event.occurrences.map((o) => o.startsAt)).toEqual([
+      '2026-10-18T20:00:00-03:00',
+    ]);
+    expect(res.ok && res.warnings.join(' ')).toMatch(/fuera de orden cronológico.*20\/07/);
+
+    // Con una fila del listado que confirma el año, una inactive futura se publica.
+    const row = listingRowOf({ month: 10, day: 30, time: { hour: 20, minute: 0 } });
+    const confirmed = buildEvent(
+      rawOf(
+        detailHtml({
+          months: [
+            {
+              name: 'octubre',
+              days: [
+                dayHtml({ text: 'viernes 30/10, 20:00 hs', classes: 'inactive' }),
+                dayHtml({ text: 'sábado 17/10, 20:00 hs' }),
+              ],
+            },
+          ],
+        }),
+        [row],
+      ),
+      parseCtx,
+    );
+    expect(confirmed.ok && confirmed.event.occurrences.map((o) => o.startDate)).toEqual([
+      '2026-10-30',
+      '2026-10-17',
+    ]);
+  });
+
+  it('estado por texto de la producción (título, .data) y del .data del listado por función', () => {
+    const days = [
+      dayHtml({ text: 'viernes 16/10, 20:00 hs' }),
+      dayHtml({ text: 'sábado 17/10, 20:00 hs' }),
+    ];
+    const months = [{ name: 'octubre', days }];
+
+    const suspendido = buildEvent(
+      rawOf(detailHtml({ title: 'Recital X – SUSPENDIDO', months })),
+      parseCtx,
+    );
+    expect(suspendido.ok).toBe(true);
+    if (!suspendido.ok) return;
+    expect(suspendido.event.occurrences.map((o) => [o.status, o.statusReason])).toEqual([
+      ['cancelled', 'Recital X – SUSPENDIDO'],
+      ['cancelled', 'Recital X – SUSPENDIDO'],
+    ]);
+    expect(suspendido.warnings).toContain(
+      "estado 'cancelled' de toda la producción por texto de la fuente: 'Recital X – SUSPENDIDO'",
+    );
+
+    const postergada = buildEvent(
+      rawOf(detailHtml({ data: 'Funciones postergadas hasta nuevo aviso', months })),
+      parseCtx,
+    );
+    expect(postergada.ok && postergada.event.occurrences.map((o) => o.status)).toEqual([
+      'postponed',
+      'postponed',
+    ]);
+
+    // `.data` de UNA fila del listado ⇒ solo esa función (misma fecha y hora).
+    const cancelRow = listingRowOf({
+      month: 10,
+      day: 16,
+      time: { hour: 20, minute: 0 },
+      dataText: 'FUNCIÓN CANCELADA',
+    });
+    const okRow = listingRowOf({ month: 10, day: 17, time: { hour: 20, minute: 0 } });
+    const porFila = buildEvent(rawOf(detailHtml({ months }), [cancelRow, okRow]), parseCtx);
+    expect(
+      porFila.ok && porFila.event.occurrences.map((o) => [o.startDate, o.status, o.statusReason]),
+    ).toEqual([
+      ['2026-10-16', 'cancelled', 'FUNCIÓN CANCELADA'],
+      ['2026-10-17', 'scheduled', undefined],
+    ]);
+
+    // Gana la marca más grave: agotada (clase) + producción postergada ⇒ postponed.
+    const mixta = buildEvent(
+      rawOf(
+        detailHtml({
+          data: 'Postergada',
+          months: [
+            {
+              name: 'octubre',
+              days: [dayHtml({ text: 'viernes 16/10, 20:00 hs', classes: 'sold_out' })],
+            },
+          ],
+        }),
+      ),
+      parseCtx,
+    );
+    expect(mixta.ok && mixta.event.occurrences.map((o) => o.status)).toEqual(['postponed']);
   });
 
   it('sin hora confirmada no hay ocurrencia; sin detalle falla; sin fechas usa el listado', () => {
@@ -634,10 +880,14 @@ describe('venues', () => {
 
 describe('disciplines', () => {
   it('mapea categorías del sitio', () => {
-    expect(disciplinesFor(['Ópera'])).toEqual({ disciplines: ['opera_clasica'], tags: [] });
+    expect(disciplinesFor(['Ópera'])).toEqual({
+      disciplines: ['opera_clasica'],
+      tags: [],
+      basis: 'categories',
+    });
     expect(disciplinesFor(['Ballet']).disciplines).toEqual(['danza']);
     expect(disciplinesFor(['CETC']).disciplines).toEqual(['teatro_escenicas', 'opera_clasica']);
-    expect(disciplinesFor(['Colón para niños'])).toEqual({
+    expect(disciplinesFor(['Colón para niños'])).toMatchObject({
       disciplines: ['opera_clasica'],
       tags: ['infantil'],
     });
@@ -649,8 +899,45 @@ describe('disciplines', () => {
     expect(disciplinesFor(['cine-documental']).disciplines).toEqual(['cine']);
     expect(disciplinesFor(['talleres']).disciplines).toEqual(['otros']);
     expect(disciplinesFor(['Ciclo inédito']).disciplines).toEqual(['otros']);
-    expect(disciplinesFor(['Temporada 2026']).disciplines).toEqual([]);
-    expect(disciplinesFor(['', null, undefined]).disciplines).toEqual([]);
+    expect(disciplinesFor(['', null, undefined])).toEqual({
+      disciplines: [],
+      tags: [],
+      basis: 'none',
+    });
+  });
+
+  it('solo temporada: señales deterministas de la fuente o, sin ellas, otros', () => {
+    // Sin señales: actividad de la programación no mapeable ⇒ otros (no candidato).
+    expect(disciplinesFor(['Temporada 2026', 'production-category-temporada-2025'])).toEqual({
+      disciplines: ['otros'],
+      tags: [],
+      basis: 'season-only',
+    });
+    expect(
+      disciplinesFor(['Temporada 2026'], {
+        ticketUrls: [null, 'https://entradasba.buenosaires.gob.ar/visitas/115'],
+      }),
+    ).toMatchObject({ disciplines: ['historia_patrimonio'], basis: 'signals' });
+    expect(
+      disciplinesFor(['Temporada 2026'], {
+        text: 'La actividad incluye una visita guiada privada… y música clásica en vivo',
+      }).disciplines,
+    ).toEqual(['historia_patrimonio', 'opera_clasica']);
+    expect(
+      disciplinesFor(['Temporada 2026'], { text: 'Una EXPERIENCIA TEATRAL itinerante' })
+        .disciplines,
+    ).toEqual(['teatro_escenicas']);
+    // Una categoría informativa manda: las señales no se miran.
+    expect(
+      disciplinesFor(['Ópera', 'Temporada 2026'], {
+        ticketUrls: ['https://entradasba.buenosaires.gob.ar/visitas/115'],
+      }).disciplines,
+    ).toEqual(['opera_clasica']);
+    // Señales sin ninguna categoría también cuentan; "recorrido" solo no es señal.
+    expect(disciplinesFor([], { text: 'Visitas guiadas por el teatro' }).disciplines).toEqual([
+      'historia_patrimonio',
+    ]);
+    expect(disciplinesFor([], { text: 'Un recorrido por Beethoven' }).disciplines).toEqual([]);
   });
 });
 

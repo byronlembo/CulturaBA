@@ -5,9 +5,12 @@ import { type DisciplineSlug, stripDiacriticsLower } from '@culturaba/shared';
  * etiqueta visible en `.category`) → disciplinas de CulturaBA.
  *
  *  · Clave = slug de la taxonomía o etiqueta "slugificada" ("Música de Cámara" → musica-de-camara).
- *  · `temporada-YYYY` es una temporada, no una categoría: no aporta información.
  *  · Categoría conocida pero sin disciplina clara → ['otros'].
- *  · Sin ninguna categoría → [] (el evento queda candidato por disciplina).
+ *  · `temporada-YYYY` es una temporada, no una disciplina. Si es la ÚNICA categoría
+ *    publicada (visitas "Historias secretas" y "Atardecer", fixtures 020 y 039), se
+ *    usan señales deterministas de la propia fuente (ver `disciplinesFromSignals`);
+ *    sin señales, es actividad cultural no mapeable → ['otros'].
+ *  · Sin ninguna categoría ni señal → [] (el evento queda candidato por disciplina).
  */
 
 const OPERA_CLASICA: DisciplineSlug[] = ['opera_clasica'];
@@ -84,9 +87,27 @@ const CHILDREN_KEYS = new Set([
 
 const SEASON_RE = /^temporada-\d{4}$/;
 
+/** Entradas de visitas guiadas en la ticketera de la Ciudad: /visitas/115, /visitas/120. */
+const VISIT_TICKETS_RE = /^https?:\/\/entradasba\.buenosaires\.gob\.ar\/visitas\/\d+/i;
+/** Sobre texto sin tildes y en minúsculas (stripDiacriticsLower). */
+const VISIT_TEXT_RE = /\bvisitas? guiadas?\b/;
+const THEATRE_TEXT_RE = /\bexperiencia teatral\b/;
+const CLASSICAL_TEXT_RE = /\bmusica clasica\b/;
+
+export interface DisciplineSignals {
+  /** URLs de entradas publicadas por la fuente (funciones, listado). */
+  ticketUrls?: readonly (string | null | undefined)[];
+  /** Texto propio de la fuente: título, resumen, sinopsis. */
+  text?: string;
+}
+
+export type DisciplineBasis = 'categories' | 'signals' | 'season-only' | 'none';
+
 export interface DisciplineMapping {
   disciplines: DisciplineSlug[];
   tags: string[];
+  /** De dónde salió la disciplina (para avisos y trazabilidad). */
+  basis: DisciplineBasis;
 }
 
 /** "Música de Cámara" → "musica-de-camara"; "production-category-ofba" → "ofba". */
@@ -98,19 +119,46 @@ export function categoryKey(text: string): string {
 }
 
 /**
+ * Señales deterministas que la fuente publica cuando no hay categoría informativa:
+ *  · entradas en entradasba `/visitas/<n>` o texto "visita(s) guiada(s)" → historia_patrimonio
+ *    ("visita guiada privada … para apreciar su historia y valor patrimonial", fixture 039);
+ *  · "experiencia teatral" → teatro_escenicas (fixture 020);
+ *  · "música clásica" → opera_clasica (fixture 039).
+ * Solo frases literales: nada de inferencias sobre texto libre.
+ */
+export function disciplinesFromSignals(signals: DisciplineSignals): DisciplineSlug[] {
+  const text = stripDiacriticsLower(signals.text ?? '').replace(/\s+/g, ' ');
+  const out: DisciplineSlug[] = [];
+  const visit =
+    (signals.ticketUrls ?? []).some((u) => VISIT_TICKETS_RE.test(u ?? '')) ||
+    VISIT_TEXT_RE.test(text);
+  if (visit) out.push('historia_patrimonio');
+  if (THEATRE_TEXT_RE.test(text)) out.push('teatro_escenicas');
+  if (CLASSICAL_TEXT_RE.test(text)) out.push('opera_clasica');
+  return out;
+}
+
+/**
  * Mapea una o más categorías (etiquetas visibles y/o slugs de la taxonomía) a
- * disciplinas, en orden: la primera es la primaria.
+ * disciplinas, en orden: la primera es la primaria. Las señales solo se miran
+ * cuando ninguna categoría es informativa (p. ej. solo "Temporada 2026").
  */
 export function disciplinesFor(
   categories: readonly (string | null | undefined)[],
+  signals: DisciplineSignals = {},
 ): DisciplineMapping {
   const disciplines: DisciplineSlug[] = [];
   const tags: string[] = [];
   let informative = 0;
+  let seasons = 0;
 
   for (const raw of categories) {
     const key = categoryKey(raw ?? '');
-    if (!key || SEASON_RE.test(key)) continue;
+    if (!key) continue;
+    if (SEASON_RE.test(key)) {
+      seasons += 1;
+      continue;
+    }
     informative += 1;
     const mapped = BY_KEY[key];
     if (mapped) {
@@ -119,6 +167,14 @@ export function disciplinesFor(
     if (CHILDREN_KEYS.has(key) && !tags.includes('infantil')) tags.push('infantil');
   }
 
-  if (disciplines.length === 0 && informative > 0) disciplines.push('otros');
-  return { disciplines, tags };
+  if (informative > 0) {
+    if (disciplines.length === 0) disciplines.push('otros');
+    return { disciplines, tags, basis: 'categories' };
+  }
+
+  const fromSignals = disciplinesFromSignals(signals);
+  if (fromSignals.length > 0) return { disciplines: fromSignals, tags, basis: 'signals' };
+  // Solo temporada: la fuente la publica en su programación pero sin disciplina mapeable.
+  if (seasons > 0) return { disciplines: ['otros'], tags, basis: 'season-only' };
+  return { disciplines: [], tags, basis: 'none' };
 }

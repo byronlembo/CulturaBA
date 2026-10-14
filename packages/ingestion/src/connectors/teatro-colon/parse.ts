@@ -71,6 +71,12 @@ export interface ListingRow {
 export interface ListingPage {
   year: number;
   month: number;
+  /**
+   * La página trae los marcadores del calendario (`table#calendar-table` con
+   * data-currentyear/month o `h1.month`). False = no es una página de calendario
+   * (challenge, error, cambio de tema) y year/month son solo el respaldo pedido.
+   */
+  recognized: boolean;
   rows: ListingRow[];
   warnings: string[];
 }
@@ -146,11 +152,11 @@ export function parseCalendarPage(
   const yearAttr = Number(table.attr('data-currentyear'));
   const monthAttr = Number(table.attr('data-currentmonth'));
   const monthFromHeading = monthNumberEs($('h1.month').first().text());
-  const year = Number.isInteger(yearAttr) && yearAttr > 2000 ? yearAttr : fallback.year;
-  const month =
-    Number.isInteger(monthAttr) && monthAttr >= 1 && monthAttr <= 12
-      ? monthAttr
-      : (monthFromHeading ?? fallback.month);
+  const yearOk = Number.isInteger(yearAttr) && yearAttr > 2000;
+  const monthOk = Number.isInteger(monthAttr) && monthAttr >= 1 && monthAttr <= 12;
+  const year = yearOk ? yearAttr : fallback.year;
+  const month = monthOk ? monthAttr : (monthFromHeading ?? fallback.month);
+  const recognized = (yearOk && monthOk) || monthFromHeading !== null;
   if (monthFromHeading !== null && monthFromHeading !== month) {
     warnings.push(`h1.month (${monthFromHeading}) no coincide con data-currentmonth (${month})`);
   }
@@ -187,7 +193,7 @@ export function parseCalendarPage(
     });
   });
 
-  return { year, month, rows, warnings };
+  return { year, month, recognized, rows, warnings };
 }
 
 function splitTitleHtmlForListing(html: string | null): { title: string } {
@@ -205,7 +211,11 @@ export interface DetailFunction {
   day: number | null;
   year: number | null;
   time: LocalTimeParts | null;
-  /** `div.day.inactive` sin `coming_soon` = función pasada (el sitio la deja sin botón). */
+  /**
+   * `div.day.inactive` (sin venta online). Sin `coming_soon` es, en los fixtures,
+   * una función pasada; pero la clase no garantiza que lo sea (una agotada o con la
+   * venta cerrada podría venir igual): buildEvent compara la fecha con `now`.
+   */
   inactive: boolean;
   /** `div.day.inactive.coming_soon` + "Próximamente" = aún no a la venta. */
   comingSoon: boolean;
@@ -232,6 +242,12 @@ export interface DetailPage {
   locationName: string | null;
   imageUrl: string | null;
   metaDescription: string;
+  /**
+   * `.production-info-switch .data p`: compositor, rango de fechas, abono o nota
+   * ("9 al 16 de octubre", "Funciones del 21, 22 y 23 de octubre de 2026"). Es texto
+   * libre de la producción: ahí aparecería un aviso de suspensión o cancelación.
+   */
+  dataText: string;
   synopsisText: string;
   functions: DetailFunction[];
   durationMinutes: number | null;
@@ -284,6 +300,14 @@ export function parseDetailPage(html: string): DetailPage {
     ) ?? absoluteImageUrl($('meta[property="og:image"]').attr('content'));
 
   const metaDescription = clean(htmlToText($('meta[name="description"]').attr('content') ?? ''));
+  const dataText = clean(
+    main
+      .find('.production-info-switch .data p')
+      .map((_, p) => clean($(p).text()))
+      .get()
+      .filter((t) => t.length > 0)
+      .join(' '),
+  );
   const synopsis = $('section#sinopsis').first().clone();
   synopsis.find('h4#the_place').remove();
   const synopsisText = htmlToText(synopsis.html() ?? '');
@@ -367,6 +391,7 @@ export function parseDetailPage(html: string): DetailPage {
     locationName: locationName || null,
     imageUrl,
     metaDescription,
+    dataText,
     synopsisText,
     functions,
     durationMinutes,
@@ -384,6 +409,34 @@ function statusFromText(text: string): ParsedOccurrenceStatus | null {
     return detected;
   }
   return null;
+}
+
+/** Estado afirmado por la fuente + texto literal que lo afirma (statusReason). */
+interface StatusClaim {
+  status: ParsedOccurrenceStatus;
+  reason: string;
+}
+
+const STATUS_RANK: Record<ParsedOccurrenceStatus, number> = {
+  scheduled: 0,
+  sold_out: 1,
+  postponed: 2,
+  cancelled: 3,
+};
+
+function claimFromText(text: string | null | undefined): StatusClaim | null {
+  const t = clean(text);
+  const status = t ? statusFromText(t) : null;
+  return status ? { status, reason: t } : null;
+}
+
+/** El estado más grave entre todas las marcas (cancelada > postergada > agotada). */
+function strongestClaim(claims: readonly (StatusClaim | null)[]): StatusClaim | null {
+  let best: StatusClaim | null = null;
+  for (const c of claims) {
+    if (c && (!best || STATUS_RANK[c.status] > STATUS_RANK[best.status])) best = c;
+  }
+  return best;
 }
 
 function listingDataOf(raw: RawRecord): ListingData | null {
@@ -422,19 +475,45 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
 
   // Año de cada función: el listado mensual lo conoce; el detalle solo trae dd/mm.
   const listingYears = new Map<string, number>();
+  // Filas del listado por (mes, día, hora): su `.data` es texto libre POR FUNCIÓN.
+  const rowsByKey = new Map<string, ListingRow[]>();
   for (const row of listingRows) {
-    listingYears.set(dayTimeKey(row.month, row.day, row.time), row.year);
+    const key = dayTimeKey(row.month, row.day, row.time);
+    listingYears.set(key, row.year);
+    rowsByKey.set(key, [...(rowsByKey.get(key) ?? []), row]);
   }
 
-  const occurrences: NormalizedOccurrenceInput[] = [];
-  const seen = new Set<string>();
-  let skippedPast = 0;
+  // Marcas de estado de TODA la producción: título/subtítulo, `.data` y categoría del
+  // detalle (el relevamiento §11: una cancelación solo aparecería como texto libre).
+  const productionClaim = strongestClaim([
+    claimFromText(title),
+    claimFromText(detail.subtitle),
+    claimFromText(detail.dataText),
+    claimFromText(detail.categoryLabel),
+  ]);
+  if (productionClaim) {
+    warnings.push(
+      `estado '${productionClaim.status}' de toda la producción por texto de la fuente: '${productionClaim.reason}'`,
+    );
+  }
+  const rowClaimsOf = (key: string): (StatusClaim | null)[] =>
+    (rowsByKey.get(key) ?? []).flatMap((row) => [
+      claimFromText(row.dataText),
+      claimFromText(row.title),
+    ]);
 
+  interface Candidate {
+    f: DetailFunction;
+    time: LocalTimeParts;
+    key: string;
+    /** Año explícito en el texto o confirmado por una fila del listado mensual. */
+    yearConfirmed: boolean;
+    startsAt: string;
+    startDate: string;
+    startMs: number;
+  }
+  const candidates: Candidate[] = [];
   for (const f of detail.functions) {
-    if (f.inactive && !f.comingSoon) {
-      skippedPast += 1;
-      continue;
-    }
     if (f.month === null || f.day === null) {
       warnings.push(`función sin fecha legible: '${f.text}'`);
       continue;
@@ -443,50 +522,96 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
       warnings.push(`función sin hora confirmada, se omite: '${f.text}'`);
       continue;
     }
+    const key = dayTimeKey(f.month, f.day, f.time);
     const year = f.year ?? resolveYear(f.month, f.day, f.time, listingYears, now);
     if (year === null) {
       warnings.push(`función fuera de la ventana de inferencia de año, se omite: '${f.text}'`);
       continue;
     }
-    let startsAt: string;
-    let startDate: string;
     try {
-      startsAt = toIsoInstant(baDateTime({ year, month: f.month, day: f.day }, f.time));
-      startDate = partsToLocalDate({ year, month: f.month, day: f.day });
+      const startsAt = toIsoInstant(baDateTime({ year, month: f.month, day: f.day }, f.time));
+      candidates.push({
+        f,
+        time: f.time,
+        key,
+        yearConfirmed: f.year !== null || listingYears.has(key),
+        startsAt,
+        startDate: partsToLocalDate({ year, month: f.month, day: f.day }),
+        startMs: Date.parse(startsAt),
+      });
     } catch (err) {
       warnings.push(`fecha inválida '${f.text}': ${(err as Error).message}`);
-      continue;
     }
-    const externalId = `${slug}|${startDate}|${timeKey(f.time)}`;
-    if (seen.has(externalId)) continue;
+  }
+
+  const occurrences: NormalizedOccurrenceInput[] = [];
+  const seen = new Set<string>();
+  const nowMs = now.toMillis();
+  let skippedPast = 0;
+  const outOfOrder: string[] = [];
+  const inactiveFuture: string[] = [];
+
+  candidates.forEach((c, i) => {
+    const { f } = c;
+    // `div.day.inactive` (sin coming_soon) = sin venta online. Se omite SOLO si ya pasó.
+    if (f.inactive && !f.comingSoon) {
+      if (c.startMs < nowMs) {
+        skippedPast += 1;
+        return;
+      }
+      // section.dates es cronológica: una inactive con año inferido que queda DESPUÉS
+      // de una función posterior en la página es una fecha vieja (> 60 días) que
+      // inferYear pasó al año siguiente. Publicarla sería inventar el año.
+      if (!c.yearConfirmed && candidates.slice(i + 1).some((n) => n.startMs < c.startMs)) {
+        outOfOrder.push(f.text);
+        return;
+      }
+      inactiveFuture.push(f.text);
+    }
+
+    const externalId = `${slug}|${c.startDate}|${timeKey(c.time)}`;
+    if (seen.has(externalId)) return;
     seen.add(externalId);
 
-    const status: ParsedOccurrenceStatus = f.soldOut
-      ? 'sold_out'
-      : (statusFromText(f.nearText) ?? 'scheduled');
+    const claim = strongestClaim([
+      f.soldOut ? { status: 'sold_out', reason: 'marcada como agotada en el sitio' } : null,
+      claimFromText(f.nearText),
+      ...rowClaimsOf(c.key),
+      productionClaim,
+    ]);
+    const status: ParsedOccurrenceStatus = claim?.status ?? 'scheduled';
     const isFree = detectFreeEs(f.buttonText) === true;
     const occurrence: NormalizedOccurrenceInput = {
       externalId,
       kind: 'timed',
-      startsAt,
+      startsAt: c.startsAt,
       endsAt: null,
-      startDate,
-      endDate: startDate,
+      startDate: c.startDate,
+      endDate: c.startDate,
       timezone: BA_TZ,
       scheduleText: null,
       recurrenceRule: null,
       sourceDateText: f.monthHeading ? `${f.text} (${f.monthHeading})` : f.text,
       venue,
       status,
-      ticketsUrl: f.comingSoon ? null : f.ticketsUrl,
+      // Sin link si el sitio no la vende online (próximamente o inactive).
+      ticketsUrl: f.comingSoon || f.inactive ? null : f.ticketsUrl,
       price: isFree ? { text: f.buttonText, isFree: true, verified: true } : null,
     };
-    if (status !== 'scheduled') {
-      occurrence.statusReason = f.soldOut ? 'marcada como agotada en el sitio' : f.nearText;
-    }
+    if (claim) occurrence.statusReason = claim.reason;
     occurrences.push(occurrence);
-  }
+  });
   if (skippedPast) warnings.push(`${skippedPast} funciones pasadas (div.day.inactive) omitidas`);
+  if (outOfOrder.length) {
+    warnings.push(
+      `funciones inactive fuera de orden cronológico (año no confirmado), se toman como pasadas: ${outOfOrder.map((t) => `'${t}'`).join(', ')}`,
+    );
+  }
+  if (inactiveFuture.length) {
+    warnings.push(
+      `funciones futuras marcadas inactive (sin venta online), se publican sin link de entradas: ${inactiveFuture.map((t) => `'${t}'`).join(', ')}`,
+    );
+  }
 
   // Respaldo: detalle sin sección de funciones pero listado con fecha y hora publicadas.
   if (detail.functions.length === 0 && listingRows.length > 0) {
@@ -506,7 +631,12 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
       const externalId = `${slug}|${startDate}|${timeKey(row.time)}`;
       if (seen.has(externalId)) continue;
       seen.add(externalId);
-      const status = statusFromText(`${row.title} ${row.dataText}`) ?? 'scheduled';
+      const claim = strongestClaim([
+        claimFromText(row.dataText),
+        claimFromText(row.title),
+        productionClaim,
+      ]);
+      const status: ParsedOccurrenceStatus = claim?.status ?? 'scheduled';
       occurrences.push({
         externalId,
         kind: 'timed',
@@ -522,23 +652,39 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
         status,
         ticketsUrl: row.ticketsUrl,
         price: null,
-        ...(status !== 'scheduled' ? { statusReason: row.dataText } : {}),
+        ...(claim ? { statusReason: claim.reason } : {}),
       });
     }
   }
 
+  // Entradas a nivel evento: la URL común de las funciones o, si no, la del listado.
+  const ticketUrls = [...new Set(occurrences.map((o) => o.ticketsUrl).filter(Boolean))] as string[];
+  const ticketsUrl = ticketUrls[0] ?? listingRows.find((r) => r.ticketsUrl)?.ticketsUrl ?? null;
+
   // Disciplinas: categoría del detalle, taxonomía del CMS y, como respaldo, la del listado.
+  // Si solo hay temporada ("Temporada 2026"), señales deterministas de la propia fuente.
   const listingCategory = listingRows.find((r) => r.category)?.category ?? null;
-  const mapping = disciplinesFor([detail.categoryLabel, ...detail.categorySlugs, listingCategory]);
-  if (mapping.disciplines.length === 0) warnings.push('sin categoría mapeable a disciplina');
+  const mapping = disciplinesFor([detail.categoryLabel, ...detail.categorySlugs, listingCategory], {
+    ticketUrls: [
+      ...ticketUrls,
+      ...listingRows.map((r) => r.ticketsUrl),
+      ...detail.functions.map((f) => f.ticketsUrl),
+    ],
+    text: [title, detail.subtitle ?? '', detail.metaDescription, detail.synopsisText].join('\n'),
+  });
+  if (mapping.basis === 'signals') {
+    warnings.push(
+      `sin categoría informativa (solo temporada o ninguna): disciplina por señales de la fuente (${mapping.disciplines.join(', ')})`,
+    );
+  } else if (mapping.basis === 'season-only') {
+    warnings.push('categoría solo de temporada y sin señales: disciplina otros');
+  } else if (mapping.disciplines.length === 0) {
+    warnings.push('sin categoría mapeable a disciplina');
+  }
 
   const tags = [
     ...new Set([detail.categoryLabel || listingCategory || '', ...mapping.tags]),
   ].filter((t) => t.length > 0);
-
-  // Entradas a nivel evento: la URL común de las funciones o, si no, la del listado.
-  const ticketUrls = [...new Set(occurrences.map((o) => o.ticketsUrl).filter(Boolean))] as string[];
-  const ticketsUrl = ticketUrls[0] ?? listingRows.find((r) => r.ticketsUrl)?.ticketsUrl ?? null;
 
   const allFree = occurrences.length > 0 && occurrences.every((o) => o.price?.isFree === true);
 
