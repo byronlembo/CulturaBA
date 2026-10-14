@@ -61,9 +61,15 @@ insert into public.sources (slug, name, institution_id, base_url, kind, priority
     'https://palaciolibertad.gob.ar/agenda/', 'html', 100),
   ('complejo-teatral', 'Programación Complejo Teatral de Buenos Aires',
     (select id from public.institutions where slug = 'complejo-teatral'),
-    'https://complejoteatral.gob.ar/', 'html', 100)
+    'https://complejoteatral.gob.ar/', 'html', 100),
+  -- Agregador oficial de la Ciudad (Linda): prioridad baja, la institución sale de cada evento.
+  ('agenda-ba', 'Agenda oficial de la Ciudad (Linda)', null,
+    'https://linda.buenosaires.gob.ar/', 'json_api', 10)
 on conflict (slug) do update set
   name = excluded.name,
   institution_id = excluded.institution_id,
   base_url = excluded.base_url,
   priority = excluded.priority;
+
+-- La API de Linda devuelve conjuntos algo distintos entre llamadas: exigir 3 ausencias.
+update public.sources set config = config || '{"missThreshold": 3}'::jsonb where slug = 'agenda-ba';

@@ -45,6 +45,20 @@ export async function getInstitutionBySlug(
   return rows[0] ?? null;
 }
 
+export async function insertInstitution(
+  db: Queryable,
+  inst: { slug: string; name: string; websiteUrl: string | null },
+): Promise<InstitutionRow> {
+  const rows = await db<InstitutionRow[]>`
+    insert into public.institutions (slug, name, website_url)
+    values (${inst.slug}, ${inst.name}, ${inst.websiteUrl})
+    on conflict (slug) do update set name = public.institutions.name
+    returning *`;
+  const row = rows[0];
+  if (!row) throw new Error('insertInstitution: sin fila');
+  return row;
+}
+
 export async function listVenues(db: Queryable): Promise<VenueRow[]> {
   return db<VenueRow[]>`select * from public.venues`;
 }

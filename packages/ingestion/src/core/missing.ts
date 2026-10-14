@@ -33,7 +33,14 @@ export interface MissingPolicyResult {
  */
 export async function applyMissingPolicy(
   db: Queryable,
-  args: { sourceId: string; runId: string; discovered: number; previousDiscovered: number | null },
+  args: {
+    sourceId: string;
+    runId: string;
+    discovered: number;
+    previousDiscovered: number | null;
+    /** Ausencias consecutivas necesarias (por fuente; default RECORD_MISS_THRESHOLD). */
+    missThreshold?: number;
+  },
 ): Promise<MissingPolicyResult> {
   const result: MissingPolicyResult = {
     skipped: false,
@@ -54,7 +61,11 @@ export async function applyMissingPolicy(
   const unseen = await listUnseenRecords(db, args.sourceId, args.runId);
   for (const record of unseen) {
     result.recordsCounted += 1;
-    const outcome = await bumpRecordMiss(db, record.id, RECORD_MISS_THRESHOLD);
+    const outcome = await bumpRecordMiss(
+      db,
+      record.id,
+      args.missThreshold ?? RECORD_MISS_THRESHOLD,
+    );
     if (outcome !== 'missing') continue;
     result.recordsMissing += 1;
 

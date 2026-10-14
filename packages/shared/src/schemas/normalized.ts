@@ -116,6 +116,9 @@ export const NormalizedEventSchema = z.object({
 
   disciplines: z.array(DisciplineSlugSchema).default([]),
   institutionSlug: z.string().min(1),
+  /** Solo agregadores: nombre y sitio para crear la institución si no existe todavía. */
+  institutionName: z.string().trim().min(1).optional(),
+  institutionUrl: z.url().optional(),
   officialUrl: z.url(),
   ticketsUrl: z.url().optional(),
 

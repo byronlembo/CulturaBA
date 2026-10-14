@@ -1,4 +1,5 @@
 import type { SourceConnector } from '../core/connector';
+import { agendaBaConnector } from './agenda-ba/connector';
 import { complejoTeatralConnector } from './complejo-teatral/connector';
 import { mnbaConnector } from './mnba/connector';
 import { palacioLibertadConnector } from './palacio-libertad/connector';
@@ -12,6 +13,7 @@ export const CONNECTORS: readonly SourceConnector[] = [
   complejoTeatralConnector,
   mnbaConnector,
   palacioLibertadConnector,
+  agendaBaConnector,
 ];
 
 export function getConnector(slug: string): SourceConnector {

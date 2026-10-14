@@ -18,9 +18,11 @@ import {
   getSourceBySlug,
   getSourcePriorities,
   getSourceRecord,
+  type InstitutionRow,
   insertChanges,
   insertDuplicateCandidate,
   insertEvent,
+  insertInstitution,
   insertRun,
   lastSuccessfulRun,
   linkSourceRecordToEvent,
@@ -149,8 +151,11 @@ async function execute(
       `La fuente '${connector.slug}' está deshabilitada (usar --force para correr igual)`,
     );
   }
-  const institution = await getInstitutionBySlug(scope.db, connector.meta.institutionSlug);
-  if (!institution) throw new Error(`Institución '${connector.meta.institutionSlug}' no existe`);
+  // Institución por defecto del conector. Un agregador (sin institución propia) la
+  // resuelve evento por evento a partir de NormalizedEvent.institutionSlug.
+  const defaultInstitution = await getInstitutionBySlug(scope.db, connector.meta.institutionSlug);
+  const institutions = new Map<string, InstitutionRow>();
+  if (defaultInstitution) institutions.set(defaultInstitution.slug, defaultInstitution);
 
   const overlapping = await findOverlappingRun(scope.db, source.id);
   if (overlapping) {
@@ -231,8 +236,8 @@ async function execute(
       const outcome = await scope.begin((tx) =>
         processRecord(tx, connector, raw, {
           source,
-          institutionId: institution.id,
-          institutionSlug: institution.slug,
+          defaultInstitution,
+          institutions,
           runId,
           now,
           venues,
@@ -262,6 +267,7 @@ async function execute(
         runId,
         discovered: stats.discovered,
         previousDiscovered,
+        missThreshold: missThresholdOf(source),
       }),
     );
     if (missing.skipped && missing.reason) {
@@ -308,8 +314,10 @@ async function execute(
 
 interface RecordContext {
   source: SourceRow;
-  institutionId: string;
-  institutionSlug: string;
+  /** Institución del conector (null en agregadores). */
+  defaultInstitution: InstitutionRow | null;
+  /** Caché por corrida: slug → fila (incluye las creadas desde la fuente). */
+  institutions: Map<string, InstitutionRow>;
   runId: string;
   now: () => DateTime;
   venues: VenueResolver;
@@ -394,6 +402,14 @@ async function processRecord(
     };
   }
 
+  // ── Institución del evento: por ítem (agregadores) o la del conector ────
+  const institution = await resolveInstitution(tx, normalized, ctx);
+  if (!institution) {
+    throw new Error(
+      `Institución '${normalized.institutionSlug}' desconocida y sin institutionName para crearla`,
+    );
+  }
+
   // ── Evento: existente (por external id / match) o nuevo ─────────────────
   const changes: ChangeInput[] = [];
   const key = dedupKey(normalized.title, normalized.institutionSlug);
@@ -408,7 +424,7 @@ async function processRecord(
   }
   let reviewCandidate: { event: EventRow; score: number } | undefined;
   if (!event) {
-    const match = await findMatchingEvent(tx, normalized, ctx.institutionId);
+    const match = await findMatchingEvent(tx, normalized, institution.id);
     event = match.event;
     reviewCandidate = match.reviewCandidate;
   }
@@ -421,7 +437,7 @@ async function processRecord(
       slug: eventSlug(normalized.title, id),
       status: publishable ? 'published' : 'candidate',
       candidateReasons: missingFields,
-      institutionId: ctx.institutionId,
+      institutionId: institution.id,
       defaultVenueId: null,
       primarySourceId: ctx.source.id,
     });
@@ -478,8 +494,8 @@ async function processRecord(
     eventId: event.id,
     sourceId: ctx.source.id,
     sourceRecordId: record.id,
-    institutionId: ctx.institutionId,
-    institutionSlug: ctx.institutionSlug,
+    institutionId: institution.id,
+    institutionSlug: institution.slug,
     sourceUrl: raw.url,
     nowMs,
     venues: ctx.venues,
@@ -534,4 +550,44 @@ function countChanges(stats: RunStats, changes: ChangeInput[]): void {
     if (c.severity === 'major') stats.changes_major += 1;
     else stats.changes_minor += 1;
   }
+}
+
+/**
+ * Resuelve la institución de un evento normalizado: caché → base → creación (solo si
+ * la fuente aporta institutionName) → institución por defecto del conector.
+ */
+async function resolveInstitution(
+  tx: Queryable,
+  normalized: NormalizedEvent,
+  ctx: RecordContext,
+): Promise<InstitutionRow | null> {
+  const slug = normalized.institutionSlug;
+  const cached = ctx.institutions.get(slug);
+  if (cached) return cached;
+  const existing = await getInstitutionBySlug(tx, slug);
+  if (existing) {
+    ctx.institutions.set(slug, existing);
+    return existing;
+  }
+  if (normalized.institutionName) {
+    const created = await insertInstitution(tx, {
+      slug,
+      name: normalized.institutionName,
+      websiteUrl: normalized.institutionUrl ?? null,
+    });
+    ctx.institutions.set(slug, created);
+    ctx.logger.info(
+      { institution: slug, name: created.name },
+      'institución creada desde la fuente',
+    );
+    return created;
+  }
+  return ctx.defaultInstitution;
+}
+
+/** Fuentes con listados inestables pueden pedir más ausencias consecutivas vía sources.config. */
+function missThresholdOf(source: SourceRow): number | undefined {
+  const cfg = source.config as { missThreshold?: unknown } | null;
+  const v = cfg?.missThreshold;
+  return typeof v === 'number' && Number.isInteger(v) && v >= 1 ? v : undefined;
 }
