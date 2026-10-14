@@ -53,6 +53,15 @@ pnpm ingest mark-archived                                  # archiva eventos ya 
 Cómo agregar un conector: `docs/source-inventory.md` (plantilla:
 `packages/ingestion/src/connectors/sample`).
 
+Detrás de un proxy HTTP (por ejemplo, el sandbox de Claude Code en la nube), el `fetch`
+de Node ignora `HTTPS_PROXY` salvo que se active al arrancar. El CLI avisa si falta:
+
+```bash
+NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/ruta/al/ca.crt pnpm ingest run --source teatro-colon
+```
+
+En GitHub Actions no hace falta: los runners salen directo.
+
 ### App
 
 ```bash

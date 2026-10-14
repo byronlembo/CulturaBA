@@ -22,6 +22,14 @@ function liveClient(
   logger: ReturnType<typeof createLogger>,
 ): HttpClient {
   const config = loadConfig();
+  // El fetch de Node ignora HTTPS_PROXY salvo que se active explícitamente al arrancar el proceso.
+  const proxy = process.env.HTTPS_PROXY ?? process.env.https_proxy;
+  if (proxy && process.env.NODE_USE_ENV_PROXY !== '1') {
+    logger.warn(
+      'HTTPS_PROXY está definido pero NODE_USE_ENV_PROXY no: las peticiones irán directo y pueden fallar. ' +
+        'Corré con NODE_USE_ENV_PROXY=1 (y NODE_EXTRA_CA_CERTS=<ca> si el proxy intercepta TLS).',
+    );
+  }
   return new FetchHttpClient({
     userAgent: config.INGEST_USER_AGENT,
     timeoutMs: Math.max(config.HTTP_TIMEOUT_MS, connector.meta.politeness.timeoutMs),
