@@ -43,7 +43,11 @@ export const complejoTeatralConnector: SourceConnector = {
     baseUrl: BASE_URL,
     institutionSlug: INSTITUTION_SLUG,
     kind: 'html',
-    ready: true,
+    // Fuera de producción hasta cerrar los defectos de la verificación adversarial
+    // (horas y años que el texto no publica). Los dry-runs siguen funcionando.
+    ready: false,
+    blockedReason:
+      'En corrección: el parser de horarios puede emitir horas o años que el sitio no publica.',
     politeness: { concurrency: 1, minDelayMs: 1500, timeoutMs: 30_000 },
   },
 
