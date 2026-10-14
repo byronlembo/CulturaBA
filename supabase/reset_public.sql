@@ -19,6 +19,16 @@ alter default privileges for role postgres in schema public grant all on tables 
 alter default privileges for role postgres in schema public grant all on functions to anon, authenticated, service_role;
 alter default privileges for role postgres in schema public grant all on sequences to anon, authenticated, service_role;
 
-delete from supabase_migrations.schema_migrations;
+-- Vaciar el registro de migraciones del CLI (si alguna vez se usó).
+do $$
+begin
+  if exists (
+    select 1 from information_schema.tables
+    where table_schema = 'supabase_migrations' and table_name = 'schema_migrations'
+  ) then
+    delete from supabase_migrations.schema_migrations;
+  end if;
+end
+$$;
 
 commit;
