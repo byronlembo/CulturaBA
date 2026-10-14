@@ -1,0 +1,77 @@
+{
+  "source": "cultura-gob-ar",
+  "capturedAt": "2026-10-14T16:39:50.000Z",
+  "note": "Relevamiento del 14-oct-2026 (UA CulturaBA-Research/0.1, <=1 petición en vuelo por host, >=1.6 s entre peticiones). Respuestas crudas sin modificar. TODAS las rutas HTML y no-HTML de este host (salvo robots.txt donde se indica) devolvieron el managed challenge de Cloudflare: HTTP 403, cabecera 'cf-mitigated: challenge', server: cloudflare, HTML 'Just a moment...' que el JS convierte en 'Un momento… Verificación de seguridad en curso' con un checkbox Turnstile interactivo (sitekey 0x4AAAAAAADnPIDROrmt1Wwj). Con Chromium real (Playwright, una sola carga normal, 12 s de espera) el challenge NO se resolvió solo. Las entradas con status 403 son páginas de challenge, no contenido del sitio: sirven para probar la detección de bloqueo (texto 'Just a moment...' / '__cf_chl_rt_tk' / 'challenges.cloudflare.com/turnstile'), no para parsear la agenda. Egreso del proxy: datacenter en EE.UU. (cf-ray *-IAD). robots.txt (001) respondió 200 con el mismo robots.txt gestionado por Cloudflare que bellasartes.gob.ar (byte a byte idéntico). 010: el portal de datos abiertos datos.cultura.gob.ar (CKAN, /api/3/action/package_search) también devuelve el challenge.",
+  "entries": [
+    {
+      "url": "https://www.cultura.gob.ar/robots.txt",
+      "file": "001-robots.txt",
+      "status": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "capturedAt": "2026-10-14T16:39:50.000Z"
+    },
+    {
+      "url": "https://www.cultura.gob.ar/agenda/filtro/",
+      "file": "002-agenda-filtro-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:39:52.000Z"
+    },
+    {
+      "url": "https://www.cultura.gob.ar/sitemap.xml",
+      "file": "003-sitemap-xml-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:42:01.000Z"
+    },
+    {
+      "url": "https://www.cultura.gob.ar/feed/",
+      "file": "004-feed-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:42:03.000Z"
+    },
+    {
+      "url": "https://www.cultura.gob.ar/rss",
+      "file": "005-rss-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:42:05.000Z"
+    },
+    {
+      "url": "https://www.cultura.gob.ar/wp-json/",
+      "file": "006-wp-json-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:42:07.000Z"
+    },
+    {
+      "url": "https://www.cultura.gob.ar/wp-json/wp/v2/posts?per_page=2",
+      "file": "007-wp-json-wp-v2-posts-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:42:09.000Z"
+    },
+    {
+      "url": "https://www.cultura.gob.ar/wp-json/tribe/events/v1/events",
+      "file": "008-wp-json-tribe-events-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:42:11.000Z"
+    },
+    {
+      "url": "https://www.cultura.gob.ar/api",
+      "file": "009-api-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:42:13.000Z"
+    },
+    {
+      "url": "https://datos.cultura.gob.ar/api/3/action/package_search?q=agenda&rows=10",
+      "file": "010-datos-cultura-ckan-package-search-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:45:19.000Z"
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "source": "gob-ar-alternatives",
+  "capturedAt": "2026-10-14T16:45:21.000Z",
+  "note": "Fuentes alternativas probadas el 14-oct-2026 para MNBA / Palacio Libertad / Agenda Cultural Federal (ver docs/research/gob-ar-alternatives.md). Respuestas crudas sin modificar. datos.gob.ar (CKAN, sin challenge): 'agenda cultural' → 0 datasets (001); 'agenda' → 3 datasets, ninguno cultural (003); 002 es un 409 de validación (parámetro fl mal formado) que se deja como evidencia del formato de error. www.argentina.gob.ar (Drupal 7, sin challenge, robots con Crawl-delay: 10 y enlaces honeypot /cdn-cgi/content?id=… que NO deben seguirse): 004 portada de Cultura; 005 robots; 006 noticia 'Agenda de Cultura para el fin de semana largo' (serie editorial oficial de la Secretaría de Cultura con <h5>DÍA N</h5> + <p><strong>Tipo: \"Título\"</strong> | horario | <a>Venue</a> (dirección)<br>descripción</p>, incluye actividades del MNBA y del Palacio Libertad); 007 sitemap index (4 páginas, no descargadas); 008 listado /cultura/noticias (16 tarjetas por página, pager /node/91231/noticias?page=N hasta 341). archive.org (no oficial, solo para saber si existe copia de la estructura): 009 hay snapshot 2026-04-26 de www.bellasartes.gob.ar/agenda/; 010 ninguno de palaciolibertad.gob.ar/agenda/; 011 la API devolvió 503 'Temporarily Offline' y la descarga del snapshot falló (reset), no se reintentó.",
+  "entries": [
+    {
+      "url": "https://datos.gob.ar/api/3/action/package_search?q=agenda%20cultural&rows=10",
+      "file": "001-datos-gob-ar-ckan-package-search-agenda-cultural.json",
+      "status": 200,
+      "contentType": "application/json;charset=utf-8",
+      "capturedAt": "2026-10-14T16:45:21.000Z"
+    },
+    {
+      "url": "https://datos.gob.ar/api/3/action/package_search?q=cultura%20eventos%20OR%20agenda%20OR%20museos&rows=15&fl=name,title,organization",
+      "file": "002-datos-gob-ar-ckan-package-search-409.json",
+      "status": 409,
+      "contentType": "application/json;charset=utf-8",
+      "capturedAt": "2026-10-14T16:46:08.000Z"
+    },
+    {
+      "url": "https://datos.gob.ar/api/3/action/package_search?q=agenda&rows=20",
+      "file": "003-datos-gob-ar-ckan-package-search-agenda.json",
+      "status": 200,
+      "contentType": "application/json;charset=utf-8",
+      "capturedAt": "2026-10-14T16:47:23.000Z"
+    },
+    {
+      "url": "https://www.argentina.gob.ar/cultura",
+      "file": "004-argentina-gob-ar-cultura.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "capturedAt": "2026-10-14T16:45:21.000Z"
+    },
+    {
+      "url": "https://www.argentina.gob.ar/robots.txt",
+      "file": "005-argentina-gob-ar-robots.txt",
+      "status": 200,
+      "contentType": "text/plain",
+      "capturedAt": "2026-10-14T16:46:07.000Z"
+    },
+    {
+      "url": "https://www.argentina.gob.ar/noticias/agenda-de-cultura-para-el-fin-de-semana-largo-15",
+      "file": "006-argentina-gob-ar-noticia-agenda-fin-de-semana-largo-15.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "capturedAt": "2026-10-14T16:47:20.000Z"
+    },
+    {
+      "url": "https://www.argentina.gob.ar/sitemap.xml",
+      "file": "007-argentina-gob-ar-sitemap-index.xml",
+      "status": 200,
+      "contentType": "text/xml; charset=utf-8",
+      "capturedAt": "2026-10-14T16:49:08.000Z"
+    },
+    {
+      "url": "https://www.argentina.gob.ar/cultura/noticias",
+      "file": "008-argentina-gob-ar-cultura-noticias.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8",
+      "capturedAt": "2026-10-14T16:49:37.000Z"
+    },
+    {
+      "url": "https://archive.org/wayback/available?url=bellasartes.gob.ar/agenda/",
+      "file": "009-archive-org-available-bellasartes-agenda.json",
+      "status": 200,
+      "contentType": "application/json",
+      "capturedAt": "2026-10-14T16:46:11.000Z"
+    },
+    {
+      "url": "https://archive.org/wayback/available?url=palaciolibertad.gob.ar/agenda/",
+      "file": "010-archive-org-available-palaciolibertad-agenda.json",
+      "status": 200,
+      "contentType": "application/json",
+      "capturedAt": "2026-10-14T16:46:24.000Z"
+    },
+    {
+      "url": "https://archive.org/wayback/available?url=www.cultura.gob.ar/agenda/filtro/",
+      "file": "011-archive-org-available-cultura-agenda-503.html",
+      "status": 503,
+      "contentType": "text/html; charset=utf-8",
+      "capturedAt": "2026-10-14T16:46:31.000Z"
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "source": "palacio-libertad",
+  "capturedAt": "2026-10-14T16:39:50.000Z",
+  "note": "Relevamiento del 14-oct-2026 (UA CulturaBA-Research/0.1, <=1 petición en vuelo por host, >=1.6 s entre peticiones). Respuestas crudas sin modificar. TODAS las rutas HTML y no-HTML de este host (salvo robots.txt donde se indica) devolvieron el managed challenge de Cloudflare: HTTP 403, cabecera 'cf-mitigated: challenge', server: cloudflare, HTML 'Just a moment...' que el JS convierte en 'Un momento… Verificación de seguridad en curso' con un checkbox Turnstile interactivo (sitekey 0x4AAAAAAADnPIDROrmt1Wwj). Con Chromium real (Playwright, una sola carga normal, 12 s de espera) el challenge NO se resolvió solo. Las entradas con status 403 son páginas de challenge, no contenido del sitio: sirven para probar la detección de bloqueo (texto 'Just a moment...' / '__cf_chl_rt_tk' / 'challenges.cloudflare.com/turnstile'), no para parsear la agenda. Egreso del proxy: datacenter en EE.UU. (cf-ray *-IAD). En este host incluso robots.txt (001) devuelve el challenge (403), por lo que no se pudo leer ninguna directiva. www.palaciolibertad.gob.ar, cck.gob.ar y www.cck.gob.ar no respondieron (el túnel CONNECT del proxy devolvió 502: no resuelven o no son alcanzables desde este entorno); no hay fixture de ellos.",
+  "entries": [
+    {
+      "url": "https://palaciolibertad.gob.ar/robots.txt",
+      "file": "001-robots-txt-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:39:50.000Z"
+    },
+    {
+      "url": "https://palaciolibertad.gob.ar/agenda/",
+      "file": "002-agenda-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:39:52.000Z"
+    },
+    {
+      "url": "https://palaciolibertad.gob.ar/sitemap.xml",
+      "file": "003-sitemap-xml-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:42:01.000Z"
+    },
+    {
+      "url": "https://palaciolibertad.gob.ar/feed/",
+      "file": "004-feed-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:42:03.000Z"
+    },
+    {
+      "url": "https://palaciolibertad.gob.ar/rss",
+      "file": "005-rss-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:42:05.000Z"
+    },
+    {
+      "url": "https://palaciolibertad.gob.ar/wp-json/",
+      "file": "006-wp-json-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:42:07.000Z"
+    },
+    {
+      "url": "https://palaciolibertad.gob.ar/wp-json/wp/v2/posts?per_page=2",
+      "file": "007-wp-json-wp-v2-posts-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:42:09.000Z"
+    },
+    {
+      "url": "https://palaciolibertad.gob.ar/wp-json/tribe/events/v1/events",
+      "file": "008-wp-json-tribe-events-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:42:11.000Z"
+    },
+    {
+      "url": "https://palaciolibertad.gob.ar/api",
+      "file": "009-api-cf-challenge.html",
+      "status": 403,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:42:13.000Z"
+    }
+  ]
+}
