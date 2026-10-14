@@ -1,0 +1,83 @@
+{
+  "source": "teatro-colon",
+  "externalId": "les-contes-dhoffmann",
+  "url": "https://teatrocolon.org.ar/produccion/les-contes-dhoffmann/",
+  "capturedAt": "2026-10-14T12:00:00.000-03:00",
+  "title": "Les Contes d’Hoffmann",
+  "description": "La célebre ópera de Jacques Offenbach retorna al escenario del Teatro Colón en la gran puesta escénica de Eugenio Zanetti y con la dirección musical de Carlo Montanaro. Los roles protagónicos contarán con las voces de destacados solistas nacionales e internacionales: Jean-François Borras y Leonardo Caimi como Hoffmann; Nicklausse a cargo de Annalisa Stroppa y Daniela Prado; y el antagonista, en sus diversas facetas, interpretado por Dmitry Ulyanov y Nahuel Di Pierro.\n\nLes Contes d’Hoffmann\nJacques Offenbach (1819-1880)\nÓpera en tres actos con prólogo y epílogo.\nLibreto en francés de Jules Barbier (1825-1901) basado en la pieza teatral Les contes fantastiques d’Hoffmann (1851) realizada junto a Michel Carré (1821-1872), inspirada en los cuentos El hombre de arena (1816), El consejero Krespel (1818) y El reflejo perdido (1814) de Ernst Theodor Amadeus Hoffmann (1776-1822).\nEstreno: 10 de febrero de 1881, Théâtre national de l’Opéra-Comique, París.\nEstreno en el Teatro Colón: 25 de agosto de 1921 (versión en italiano), 9 de julio de 1936 (versión original, en francés).\nSinopsis\nComo el propio título anticipa, Les Contes d’Hoffmann se inspira en un puñado de cuentos de uno de los autores más emblemáticos del Romanticismo alemán: E. T. A. Hoffmann (1776-1822). El libreto, realizado por Jules Barbier (1825-1901), se basa en la pieza teatral homónima que había creado junto a Michel Carré (1821-1872), la cual se había estrenado en París en 1851. La acción acontece en una taberna de Núremberg donde el poeta Hoffmann narra a su público sus propias vivencias y desventuras en torno a sus tres amores —Olympia, Antonia y Giulietta—. Acechado y vencido una y otra vez por el siniestro Lindorf en sus diversas facetas cuenta, sin embargo, con la compañía y consejo del fiel Nicklausse, que no es otro que La Musa de la poesía.\nSynopsis\nAs the title suggests, Les Contes d’Hoffmann draws inspiration from a handful of stories by one of the most emblematic figures of German Romanticism: E. T. A. Hoffmann (1776–1822). The libretto, penned by Jules Barbier (1825–1901), is based on the play of the same name that he had created alongside Michel Carré (1821–1872)—a work that premiered in Paris in 1851. The action unfolds in a Nuremberg tavern, where the poet Hoffmann recounts his experiences and misfortunes regarding his three loves—Olympia, Antonia, and Giulietta—to his audience. Though repeatedly thwarted and defeated by the sinister Lindorf in his various guises, Hoffmann nonetheless enjoys the company and counsel of the faithful Nicklausse—who is none other than the Muse of Poetry.\nSobre Offenbach y una ópera con múltiples versiones\nJacques Offenbach\n(1819-1880)\nA diferencia de otros compositores que han tenido la posibilidad de escuchar finalizadas sus creaciones maestras, Jacques Offenbach falleció antes del estreno de Les Contes d’Hoffmann. Empeñado en trascender su fama de compositor de operetas y culminar su producción con una gran obra dramática, dedicó buena parte de los seis últimos años de su vida a esta creación. Tras su fallecimiento, el compositor Ernest Giraud, tuvo a cargo la orquestación de la obra que se estrenó en la Opéra-Comique de París el 10 de febrero de 1881. Desde entonces, y dadas las circunstancias anteriormente mencionadas, múltiples han sido las versiones en que la obra ha subido a escena.\nProducción Teatro Colón\nReposición de la versión 2019\nOrquesta Estable del Teatro Colón\nCoro Estable del Teatro Colón\nDirector – Miguel Martínez\nDirección musical\nCarlo Montanaro\nDirección escénica, diseño de escenografía, vestuario e imágenes\nEugenio Zanetti (1946-2026)\nDiseño de escenografía y vestuario\nSebastián Sabas\nColaborador de dirección de escena y ambientador\nMauro Puppo\nColaborador de dirección de escena\nCarlo Argento\nDiseño de iluminación\nEli Sirlin\nDiseño de coreografía\nIrene Martens\nDiseño de visuales\nBruno Arantes\nFelipe Giuliano\nCoordinación de régie\nMariana Ciolfi\nÁngela Boveri\nAsistencia de escenografía, vestuario y ambientación\nNatasha Roglic\nAsistencia de iluminación\nMartín Fernández Paponi\nAsistencia de video\nJuan Manuel Noguera\nReparto\nHoffmann\nJean-François Borras (9, 11, 13, 15)\nLeonardo Caimi (10, 14, 16)\nNicklausse / La Muse\nAnnalisa Stroppa (9, 11, 13, 15)\nDaniela Prado (10, 14, 16)\nLindorf / Coppélius / Docteur Miracle / Dapertutto\nDmitry Ulyanov (9, 11, 13, 15)\nNahuel Di Pierro (10, 14, 16)\nOlympia\nMar Morán (9, 11, 13, 15)\nConstanza Díaz Falú (10, 14, 16)\nAntonia / Stella\nJaquelina Livieri (9, 11, 13, 15)\nLaura Pisani (10, 14, 16)\nGiulietta\nMarina Costa-Jackson (9, 11, 13, 15)\nMariana Carnovali (10, 14, 16)\nAndrès / Cochenille / Frantz / Pitichinaccio\nSantiago Martínez (9, 11, 13, 15)\nPablo Urban (10, 14, 16)\nSpallanzani\nCarlos Ullán (9, 11, 13, 15)\nReinaldo Samaniego (10, 14, 16)\nCrespel\nAlejandro Spies (9, 11, 13, 15)\nSebastián Angulegui (10, 14, 16)\nSchlemihl\nEmiliano Bulacios (9, 11, 13, 15)\nMario De Salvo (10, 14, 16)\nNathanaël\nGabriel Renaud (9, 11, 13, 15)\nGabriel Centeno (10, 14, 16)\nHermann\nSebastián Sorarrain (9, 11, 13, 15)\nLean Sosa (10, 14, 16)\nLuther\nCristian De Marco (9, 11, 13, 15)\nLeonardo Fontana (10, 14, 16)\nVoz de la madre de Antonia\nMaría Luján Mirabelli (todas)\nUna voz\nEnrique Borlenghi (9, 11, 13, 15)\nAugusto Nureña (10, 14, 16)\nCronología de la obra en el Teatro Colón\nVer cronología",
+  "attribution": "Texto: Teatro Colón",
+  "disciplines": [
+    "opera_clasica"
+  ],
+  "institutionSlug": "teatro-colon",
+  "officialUrl": "https://teatrocolon.org.ar/produccion/les-contes-dhoffmann/",
+  "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/8df036b4-df44-49bf-aafb-2402f5ea675e",
+  "imageUrl": "https://teatrocolon.org.ar/wp-content/uploads/2025/12/Opera_Hoffmann_redes-web.png",
+  "priceVerified": false,
+  "tags": [
+    "Ópera"
+  ],
+  "occurrences": [
+    {
+      "externalId": "les-contes-dhoffmann|2026-10-14|20:00",
+      "kind": "timed",
+      "startsAt": "2026-10-14T20:00:00-03:00",
+      "endsAt": null,
+      "startDate": "2026-10-14",
+      "endDate": "2026-10-14",
+      "timezone": "America/Argentina/Buenos_Aires",
+      "scheduleText": null,
+      "recurrenceRule": null,
+      "sourceDateText": "miércoles 14/10, 20:00 hs (octubre)",
+      "venue": {
+        "slug": "teatro-colon",
+        "name": "Teatro Colón",
+        "room": "Sala principal"
+      },
+      "status": "scheduled",
+      "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/8df036b4-df44-49bf-aafb-2402f5ea675e",
+      "price": null
+    },
+    {
+      "externalId": "les-contes-dhoffmann|2026-10-15|20:00",
+      "kind": "timed",
+      "startsAt": "2026-10-15T20:00:00-03:00",
+      "endsAt": null,
+      "startDate": "2026-10-15",
+      "endDate": "2026-10-15",
+      "timezone": "America/Argentina/Buenos_Aires",
+      "scheduleText": null,
+      "recurrenceRule": null,
+      "sourceDateText": "jueves 15/10, 20:00 hs (octubre)",
+      "venue": {
+        "slug": "teatro-colon",
+        "name": "Teatro Colón",
+        "room": "Sala principal"
+      },
+      "status": "scheduled",
+      "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/8df036b4-df44-49bf-aafb-2402f5ea675e",
+      "price": null
+    },
+    {
+      "externalId": "les-contes-dhoffmann|2026-10-16|20:00",
+      "kind": "timed",
+      "startsAt": "2026-10-16T20:00:00-03:00",
+      "endsAt": null,
+      "startDate": "2026-10-16",
+      "endDate": "2026-10-16",
+      "timezone": "America/Argentina/Buenos_Aires",
+      "scheduleText": null,
+      "recurrenceRule": null,
+      "sourceDateText": "viernes 16/10, 20:00 hs (octubre)",
+      "venue": {
+        "slug": "teatro-colon",
+        "name": "Teatro Colón",
+        "room": "Sala principal"
+      },
+      "status": "scheduled",
+      "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/3e3e97d8-3443-4fb8-bdfe-d975d2963c0f",
+      "price": null
+    }
+  ],
+  "rawFragment": "<7809 chars>"
+}

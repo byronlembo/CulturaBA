@@ -273,6 +273,321 @@
       "contentType": "application/json; charset=UTF-8",
       "method": "POST",
       "requestBody": "action=filtrar_producciones&proximos_estrenos=1"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=14-10-2026",
+      "file": "044-agenda-fecha-14-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:16.244Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=15-10-2026",
+      "file": "045-agenda-fecha-15-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:18.311Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=16-10-2026",
+      "file": "046-agenda-fecha-16-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:19.281Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=18-10-2026",
+      "file": "047-agenda-fecha-18-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:20.233Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=19-10-2026",
+      "file": "048-agenda-fecha-19-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:21.118Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=20-10-2026",
+      "file": "049-agenda-fecha-20-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:22.518Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=21-10-2026",
+      "file": "050-agenda-fecha-21-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:24.091Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=22-10-2026",
+      "file": "051-agenda-fecha-22-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:25.579Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=23-10-2026",
+      "file": "052-agenda-fecha-23-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:27.073Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=24-10-2026",
+      "file": "053-agenda-fecha-24-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:28.619Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=25-10-2026",
+      "file": "054-agenda-fecha-25-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:30.882Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=26-10-2026",
+      "file": "055-agenda-fecha-26-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:31.776Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=27-10-2026",
+      "file": "056-agenda-fecha-27-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:33.689Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=28-10-2026",
+      "file": "057-agenda-fecha-28-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:34.638Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=29-10-2026",
+      "file": "058-agenda-fecha-29-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:36.057Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=30-10-2026",
+      "file": "059-agenda-fecha-30-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:37.848Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=31-10-2026",
+      "file": "060-agenda-fecha-31-10-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:39.743Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=01-11-2026",
+      "file": "061-agenda-fecha-01-11-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:40.719Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=02-11-2026",
+      "file": "062-agenda-fecha-02-11-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:42.024Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=03-11-2026",
+      "file": "063-agenda-fecha-03-11-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:43.514Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=04-11-2026",
+      "file": "064-agenda-fecha-04-11-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:45.031Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=05-11-2026",
+      "file": "065-agenda-fecha-05-11-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:46.593Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=06-11-2026",
+      "file": "066-agenda-fecha-06-11-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:48.060Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=07-11-2026",
+      "file": "067-agenda-fecha-07-11-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:49.572Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=08-11-2026",
+      "file": "068-agenda-fecha-08-11-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:51.071Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=09-11-2026",
+      "file": "069-agenda-fecha-09-11-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:52.535Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/agenda/?fecha=10-11-2026",
+      "file": "070-agenda-fecha-10-11-2026.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:54.081Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/la_lluvia_de_fuego/",
+      "file": "071-produccion-la_lluvia_de_fuego.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:55.178Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/todos-los-angeles-alzaron-el-vuelo/",
+      "file": "072-produccion-todos-los-angeles-alzaron-el-vuelo.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:57.365Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/cartas-a-mi-hijo-federico-garcia-lorca/",
+      "file": "073-produccion-cartas-a-mi-hijo-federico-garcia-lorca.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:58.540Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/animal-o-la-salida-humana/",
+      "file": "074-produccion-animal-o-la-salida-humana.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:50:59.640Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/la-verdadera-historia-de-ricardo-iii/",
+      "file": "075-produccion-la-verdadera-historia-de-ricardo-iii.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:51:01.161Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/la_gaviota_ensayo_abierto/",
+      "file": "076-produccion-la_gaviota_ensayo_abierto.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:51:03.380Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/invasiones-1/",
+      "file": "077-produccion-invasiones-1.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:51:04.189Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/las-alas-de-los-ausentes/",
+      "file": "078-produccion-las-alas-de-los-ausentes.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:51:06.305Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/milonga_en_el_plata/",
+      "file": "079-produccion-milonga_en_el_plata.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:51:07.844Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/los-espiritus-del-museo/",
+      "file": "080-produccion-los-espiritus-del-museo.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:51:08.656Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/jorge-lavelli-el-gesto-inconformista/",
+      "file": "081-produccion-jorge-lavelli-el-gesto-inconformista.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:51:10.214Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/frank-borzage-un-romantico-en-hollywood-parte-1/",
+      "file": "082-produccion-frank-borzage-un-romantico-en-hollywood-parte-1.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:51:12.115Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/andrzej-wajda-entre-el-mito-y-la-historia/",
+      "file": "083-produccion-andrzej-wajda-entre-el-mito-y-la-historia.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:51:13.618Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/el-tren-fluvial/",
+      "file": "084-produccion-el-tren-fluvial.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:51:14.689Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/en-las-rutas-de-wim-wenders/",
+      "file": "085-produccion-en-las-rutas-de-wim-wenders.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:51:16.609Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/cinema-kabuki/",
+      "file": "086-produccion-cinema-kabuki.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:51:17.675Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/frank-borzage-un-romantico-en-hollywood-parte-2/",
+      "file": "087-produccion-frank-borzage-un-romantico-en-hollywood-parte-2.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:51:19.198Z"
+    },
+    {
+      "url": "https://complejoteatral.gob.ar/produccion/shohei-imamura-bis/",
+      "file": "088-produccion-shohei-imamura-bis.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:51:20.687Z"
     }
   ]
 }

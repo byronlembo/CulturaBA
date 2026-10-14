@@ -1,7 +1,7 @@
 {
   "source": "teatro-colon",
   "capturedAt": "2026-10-14T16:40:00.000Z",
-  "note": "Relevamiento manual del 14-oct-2026 (CulturaBA-Research/0.1, <=1 petición en vuelo, >=1.5 s entre peticiones). Respuestas crudas sin modificar. El sitio es WordPress (Yoast, tema 'tc', CPT 'production'). El calendario es HTML server-side por mes (?a=YYYY&mes=M) y solo lista funciones desde hoy en el mes corriente. admin-ajax 'mobile-calendar' devuelve JSON (servido como text/html) con solo una grilla de días con has_event, sin datos de eventos; el nonce f507a89540 es el que traía la página ese día y caduca. wp-json/wp/v2/productions expone id/slug/modified/class_list (places-*, production-category-*, season-*) pero acf=[]: las funciones solo están en el HTML de detalle (section.dates .day). 010 fue capturado por Playwright (page.on('response')) y no por curl. No se observó ninguna función agotada ni cancelada ese día (ver style.css: .day.sold_out, .button.is_sold_out).",
+  "note": "Relevamiento manual del 14-oct-2026 (CulturaBA-Research/0.1, <=1 petición en vuelo, >=1.5 s entre peticiones). Respuestas crudas sin modificar. El sitio es WordPress (Yoast, tema 'tc', CPT 'production'). El calendario es HTML server-side por mes (?a=YYYY&mes=M) y solo lista funciones desde hoy en el mes corriente. admin-ajax 'mobile-calendar' devuelve JSON (servido como text/html) con solo una grilla de días con has_event, sin datos de eventos; el nonce f507a89540 es el que traía la página ese día y caduca. wp-json/wp/v2/productions expone id/slug/modified/class_list (places-*, production-category-*, season-*) pero acf=[]: las funciones solo están en el HTML de detalle (section.dates .day). 010 fue capturado por Playwright (page.on('response')) y no por curl. No se observó ninguna función agotada ni cancelada ese día (ver style.css: .day.sold_out, .button.is_sold_out). Entradas 038-054: páginas de detalle de las 17 producciones restantes del calendario oct-dic 2026, descargadas el 14-oct-2026 16:43 UTC (CulturaBA-Ingest/0.1, 1 petición en vuelo, >=1.6 s entre peticiones) para que el conector procese los 30 ítems sin red.",
   "entries": [
     {
       "url": "https://teatrocolon.org.ar/robots.txt",
@@ -224,6 +224,125 @@
       "file": "037-feed.xml",
       "status": 200,
       "contentType": "text/xml;charset=UTF-8"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/asmik-grigorian/",
+      "file": "038-produccion-asmik-grigorian.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:13Z"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/atardecer-en-el-teatro-colon/",
+      "file": "039-produccion-atardecer-en-el-teatro-colon.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:17Z"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/aura-freddie-de-tommaso-y-nadine-sierra/",
+      "file": "040-produccion-aura-freddie-de-tommaso-y-nadine-sierra.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:19Z"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/concierto-entre-almohadones-cartas-que-cantan-aventuras-liricas-en-el-altillo/",
+      "file": "041-produccion-concierto-entre-almohadones-cartas-que-cantan-aventuras-liricas-en-el-altillo.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:23Z"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/cuadros-de-una-exposicion/",
+      "file": "042-produccion-cuadros-de-una-exposicion.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:26Z"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/el-cascanueces-2/",
+      "file": "043-produccion-el-cascanueces-2.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:29Z"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/los-siete-pecados-capitales/",
+      "file": "044-produccion-los-siete-pecados-capitales.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:31Z"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/maria-elena-walsh/",
+      "file": "045-produccion-maria-elena-walsh.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:34Z"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/matthias-goerne/",
+      "file": "046-produccion-matthias-goerne.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:37Z"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/nahuel-di-pierro-bajo-y-fernando-perez-piano/",
+      "file": "047-produccion-nahuel-di-pierro-bajo-y-fernando-perez-piano.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:39Z"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/narrativa-de-la-epica-y-el-virtuosismo/",
+      "file": "048-produccion-narrativa-de-la-epica-y-el-virtuosismo.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:41Z"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/ofrenda-egberto-gismonti/",
+      "file": "049-produccion-ofrenda-egberto-gismonti.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:44Z"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/orquesta-estable-del-teatro-colon-concierto-n-3/",
+      "file": "050-produccion-orquesta-estable-del-teatro-colon-concierto-n-3.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:48Z"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/petite-suite/",
+      "file": "051-produccion-petite-suite.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:52Z"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/resurreccion/",
+      "file": "052-produccion-resurreccion.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:54Z"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/romanticismo-tardio/",
+      "file": "053-produccion-romanticismo-tardio.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:56Z"
+    },
+    {
+      "url": "https://teatrocolon.org.ar/produccion/sebastian-masci-violin-anna-miernik-piano/",
+      "file": "054-produccion-sebastian-masci-violin-anna-miernik-piano.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-14T16:43:59Z"
     }
   ]
 }

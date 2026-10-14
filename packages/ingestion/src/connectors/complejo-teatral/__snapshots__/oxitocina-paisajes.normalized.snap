@@ -1,0 +1,443 @@
+[
+  {
+    "source": "complejo-teatral",
+    "externalId": "oxitocina",
+    "url": "https://complejoteatral.gob.ar/produccion/oxitocina/",
+    "capturedAt": "2026-10-14T12:00:00.000-03:00",
+    "title": "OXITOCINA",
+    "subtitle": "(INÉS Y LOS PERROS)",
+    "description": "Autoría y dirección Dennis Smith\nCon Florencia Raggi\n\nsinopsis\nCuando su hija de tres años desaparece, Inés toma una decisión insólita: en vez de sumarse a la búsqueda, vuelve a su casa, se acuesta a dormir la siesta y se concentra en atender a sus perros. En su primer unipersonal, Florencia Raggi protagoniza una comedia incómoda y mordaz sobre la maternidad contemporánea, los mandatos del instinto y la impredecible química del amor. Una obra que indaga con agudeza cruda sobre lo que la sociedad espera de una madre, y el estallido que produce cuando esas expectativas se rompen.\nDesde el sábado 17 de octubre hasta el domingo 1° de noviembre\nEl viernes 23 de octubre al término de la función (aproximadamente a las 20.30 horas) , Dennis Smith (autor y director), Florencia Raggi (protagonista) y Pablo Ramírez (diseñador del vestuario), dialogarán con público.",
+    "attribution": "Texto: Complejo Teatral de Buenos Aires",
+    "disciplines": [
+      "teatro_escenicas"
+    ],
+    "institutionSlug": "complejo-teatral",
+    "officialUrl": "https://complejoteatral.gob.ar/produccion/oxitocina/",
+    "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/d76b3de0-492d-48d3-b051-c811d098be6f",
+    "imageUrl": "https://complejoteatral.gob.ar/wp-content/uploads/2026/09/OO0tN1AVg6mVIqFLsMoJ.png",
+    "priceText": "Platea $26.000 Jueves $15.000",
+    "priceVerified": true,
+    "tags": [
+      "teatro"
+    ],
+    "durationMinutes": 55,
+    "occurrences": [
+      {
+        "externalId": "oxitocina|2026-10-17|19:30",
+        "kind": "timed",
+        "startsAt": "2026-10-17T19:30:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-17",
+        "endDate": "2026-10-17",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "Desde el 17/10 hasta el 1°/11 · Jueves a domingos, 19.30 horas",
+        "venue": {
+          "name": "Teatro San Martín",
+          "room": "Sala Cunill Cabanellas",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/oxitocina/"
+        },
+        "status": "scheduled",
+        "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/d76b3de0-492d-48d3-b051-c811d098be6f",
+        "price": {
+          "text": "Platea $26.000 Jueves $15.000",
+          "verified": true
+        }
+      },
+      {
+        "externalId": "oxitocina|2026-10-18|19:30",
+        "kind": "timed",
+        "startsAt": "2026-10-18T19:30:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-18",
+        "endDate": "2026-10-18",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "Desde el 17/10 hasta el 1°/11 · Jueves a domingos, 19.30 horas",
+        "venue": {
+          "name": "Teatro San Martín",
+          "room": "Sala Cunill Cabanellas",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/oxitocina/"
+        },
+        "status": "scheduled",
+        "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/d76b3de0-492d-48d3-b051-c811d098be6f",
+        "price": {
+          "text": "Platea $26.000 Jueves $15.000",
+          "verified": true
+        }
+      },
+      {
+        "externalId": "oxitocina|2026-10-22|19:30",
+        "kind": "timed",
+        "startsAt": "2026-10-22T19:30:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-22",
+        "endDate": "2026-10-22",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "Desde el 17/10 hasta el 1°/11 · Jueves a domingos, 19.30 horas",
+        "venue": {
+          "name": "Teatro San Martín",
+          "room": "Sala Cunill Cabanellas",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/oxitocina/"
+        },
+        "status": "scheduled",
+        "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/d76b3de0-492d-48d3-b051-c811d098be6f",
+        "price": {
+          "text": "Platea $26.000 Jueves $15.000",
+          "verified": true
+        }
+      },
+      {
+        "externalId": "oxitocina|2026-10-23|19:30",
+        "kind": "timed",
+        "startsAt": "2026-10-23T19:30:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-23",
+        "endDate": "2026-10-23",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "Desde el 17/10 hasta el 1°/11 · Jueves a domingos, 19.30 horas",
+        "venue": {
+          "name": "Teatro San Martín",
+          "room": "Sala Cunill Cabanellas",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/oxitocina/"
+        },
+        "status": "scheduled",
+        "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/d76b3de0-492d-48d3-b051-c811d098be6f",
+        "price": {
+          "text": "Platea $26.000 Jueves $15.000",
+          "verified": true
+        }
+      },
+      {
+        "externalId": "oxitocina|2026-10-24|19:30",
+        "kind": "timed",
+        "startsAt": "2026-10-24T19:30:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-24",
+        "endDate": "2026-10-24",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "Desde el 17/10 hasta el 1°/11 · Jueves a domingos, 19.30 horas",
+        "venue": {
+          "name": "Teatro San Martín",
+          "room": "Sala Cunill Cabanellas",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/oxitocina/"
+        },
+        "status": "scheduled",
+        "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/d76b3de0-492d-48d3-b051-c811d098be6f",
+        "price": {
+          "text": "Platea $26.000 Jueves $15.000",
+          "verified": true
+        }
+      },
+      {
+        "externalId": "oxitocina|2026-10-25|19:30",
+        "kind": "timed",
+        "startsAt": "2026-10-25T19:30:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-25",
+        "endDate": "2026-10-25",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "Desde el 17/10 hasta el 1°/11 · Jueves a domingos, 19.30 horas",
+        "venue": {
+          "name": "Teatro San Martín",
+          "room": "Sala Cunill Cabanellas",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/oxitocina/"
+        },
+        "status": "scheduled",
+        "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/d76b3de0-492d-48d3-b051-c811d098be6f",
+        "price": {
+          "text": "Platea $26.000 Jueves $15.000",
+          "verified": true
+        }
+      },
+      {
+        "externalId": "oxitocina|2026-10-29|19:30",
+        "kind": "timed",
+        "startsAt": "2026-10-29T19:30:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-29",
+        "endDate": "2026-10-29",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "Desde el 17/10 hasta el 1°/11 · Jueves a domingos, 19.30 horas",
+        "venue": {
+          "name": "Teatro San Martín",
+          "room": "Sala Cunill Cabanellas",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/oxitocina/"
+        },
+        "status": "scheduled",
+        "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/d76b3de0-492d-48d3-b051-c811d098be6f",
+        "price": {
+          "text": "Platea $26.000 Jueves $15.000",
+          "verified": true
+        }
+      },
+      {
+        "externalId": "oxitocina|2026-10-30|19:30",
+        "kind": "timed",
+        "startsAt": "2026-10-30T19:30:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-30",
+        "endDate": "2026-10-30",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "Desde el 17/10 hasta el 1°/11 · Jueves a domingos, 19.30 horas",
+        "venue": {
+          "name": "Teatro San Martín",
+          "room": "Sala Cunill Cabanellas",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/oxitocina/"
+        },
+        "status": "scheduled",
+        "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/d76b3de0-492d-48d3-b051-c811d098be6f",
+        "price": {
+          "text": "Platea $26.000 Jueves $15.000",
+          "verified": true
+        }
+      },
+      {
+        "externalId": "oxitocina|2026-10-31|19:30",
+        "kind": "timed",
+        "startsAt": "2026-10-31T19:30:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-31",
+        "endDate": "2026-10-31",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "Desde el 17/10 hasta el 1°/11 · Jueves a domingos, 19.30 horas",
+        "venue": {
+          "name": "Teatro San Martín",
+          "room": "Sala Cunill Cabanellas",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/oxitocina/"
+        },
+        "status": "scheduled",
+        "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/d76b3de0-492d-48d3-b051-c811d098be6f",
+        "price": {
+          "text": "Platea $26.000 Jueves $15.000",
+          "verified": true
+        }
+      },
+      {
+        "externalId": "oxitocina|2026-11-01|19:30",
+        "kind": "timed",
+        "startsAt": "2026-11-01T19:30:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-11-01",
+        "endDate": "2026-11-01",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "Desde el 17/10 hasta el 1°/11 · Jueves a domingos, 19.30 horas",
+        "venue": {
+          "name": "Teatro San Martín",
+          "room": "Sala Cunill Cabanellas",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/oxitocina/"
+        },
+        "status": "scheduled",
+        "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/d76b3de0-492d-48d3-b051-c811d098be6f",
+        "price": {
+          "text": "Platea $26.000 Jueves $15.000",
+          "verified": true
+        }
+      }
+    ]
+  },
+  {
+    "source": "complejo-teatral",
+    "externalId": "paisajes-coreograficos",
+    "url": "https://complejoteatral.gob.ar/produccion/paisajes-coreograficos/",
+    "capturedAt": "2026-10-14T12:00:00.000-03:00",
+    "title": "PAISAJES COREOGRÁFICOS",
+    "subtitle": "Muestra de piezas breves",
+    "description": "Taller de Danza Contemporánea\ndel Teatro San Martín\n\nsinopsis\nEn Paisajes coreográficos, estudiantes y bailarines comparten con el público parte del proceso creativo y de aprendizaje desarrollado durante las clases, a través de piezas de corta duración que ponen en escena distintas formas de explorar, experimentar y componer. Una oportunidad para acercarse a la labor cotidiana de los alumnos y conocer, a partir del movimiento, cómo se desarrolla en el Taller la formación en danza contemporánea desde diferentes abordajes y materias.",
+    "attribution": "Texto: Complejo Teatral de Buenos Aires",
+    "disciplines": [
+      "danza"
+    ],
+    "institutionSlug": "complejo-teatral",
+    "officialUrl": "https://complejoteatral.gob.ar/produccion/paisajes-coreograficos/",
+    "imageUrl": "https://complejoteatral.gob.ar/wp-content/uploads/2026/10/portada-web-taller-de-danza.jpg",
+    "imageCredit": "Foto: Foto Carlos Furman",
+    "priceText": "Entrada gratuita",
+    "isFree": true,
+    "priceVerified": true,
+    "tags": [
+      "danza"
+    ],
+    "durationMinutes": 60,
+    "occurrences": [
+      {
+        "externalId": "paisajes-coreograficos|2026-10-16|18:00",
+        "kind": "timed",
+        "startsAt": "2026-10-16T18:00:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-16",
+        "endDate": "2026-10-16",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "Viernes 16 y 23, y sábado 17 y 24 de octubre, 18 horas.",
+        "venue": {
+          "name": "Teatro San Martín",
+          "room": "Hall Alfredo Alcón",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/paisajes-coreograficos/"
+        },
+        "status": "scheduled",
+        "ticketsUrl": null,
+        "price": {
+          "text": "Entrada gratuita",
+          "isFree": true,
+          "verified": true
+        }
+      },
+      {
+        "externalId": "paisajes-coreograficos|2026-10-17|18:00",
+        "kind": "timed",
+        "startsAt": "2026-10-17T18:00:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-17",
+        "endDate": "2026-10-17",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "Viernes 16 y 23, y sábado 17 y 24 de octubre, 18 horas.",
+        "venue": {
+          "name": "Teatro San Martín",
+          "room": "Hall Alfredo Alcón",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/paisajes-coreograficos/"
+        },
+        "status": "scheduled",
+        "ticketsUrl": null,
+        "price": {
+          "text": "Entrada gratuita",
+          "isFree": true,
+          "verified": true
+        }
+      },
+      {
+        "externalId": "paisajes-coreograficos|2026-10-18|16:30",
+        "kind": "timed",
+        "startsAt": "2026-10-18T16:30:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-18",
+        "endDate": "2026-10-18",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "Domingos 18 y 25 de octubre, 16.30 horas.",
+        "venue": {
+          "name": "Teatro San Martín",
+          "room": "Hall Alfredo Alcón",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/paisajes-coreograficos/"
+        },
+        "status": "scheduled",
+        "ticketsUrl": null,
+        "price": {
+          "text": "Entrada gratuita",
+          "isFree": true,
+          "verified": true
+        }
+      },
+      {
+        "externalId": "paisajes-coreograficos|2026-10-23|18:00",
+        "kind": "timed",
+        "startsAt": "2026-10-23T18:00:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-23",
+        "endDate": "2026-10-23",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "Viernes 16 y 23, y sábado 17 y 24 de octubre, 18 horas.",
+        "venue": {
+          "name": "Teatro San Martín",
+          "room": "Hall Alfredo Alcón",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/paisajes-coreograficos/"
+        },
+        "status": "scheduled",
+        "ticketsUrl": null,
+        "price": {
+          "text": "Entrada gratuita",
+          "isFree": true,
+          "verified": true
+        }
+      },
+      {
+        "externalId": "paisajes-coreograficos|2026-10-24|18:00",
+        "kind": "timed",
+        "startsAt": "2026-10-24T18:00:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-24",
+        "endDate": "2026-10-24",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "Viernes 16 y 23, y sábado 17 y 24 de octubre, 18 horas.",
+        "venue": {
+          "name": "Teatro San Martín",
+          "room": "Hall Alfredo Alcón",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/paisajes-coreograficos/"
+        },
+        "status": "scheduled",
+        "ticketsUrl": null,
+        "price": {
+          "text": "Entrada gratuita",
+          "isFree": true,
+          "verified": true
+        }
+      },
+      {
+        "externalId": "paisajes-coreograficos|2026-10-25|16:30",
+        "kind": "timed",
+        "startsAt": "2026-10-25T16:30:00-03:00",
+        "endsAt": null,
+        "startDate": "2026-10-25",
+        "endDate": "2026-10-25",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": null,
+        "recurrenceRule": null,
+        "sourceDateText": "Domingos 18 y 25 de octubre, 16.30 horas.",
+        "venue": {
+          "name": "Teatro San Martín",
+          "room": "Hall Alfredo Alcón",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/paisajes-coreograficos/"
+        },
+        "status": "scheduled",
+        "ticketsUrl": null,
+        "price": {
+          "text": "Entrada gratuita",
+          "isFree": true,
+          "verified": true
+        }
+      }
+    ]
+  }
+]

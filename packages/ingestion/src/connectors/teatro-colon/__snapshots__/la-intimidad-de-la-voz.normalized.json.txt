@@ -1,0 +1,49 @@
+{
+  "source": "teatro-colon",
+  "externalId": "la-intimidad-de-la-voz",
+  "url": "https://teatrocolon.org.ar/produccion/la-intimidad-de-la-voz/",
+  "capturedAt": "2026-10-14T12:00:00.000-03:00",
+  "title": "La intimidad de la voz",
+  "description": "El Instituto Superior de Arte del Teatro Colón ofrecerá un recital de alumnos de la Especialización Técnica de Nivel Superior en Música de Cámara Vocal. A cargo de las cátedras de los maestros Víctor Torres y José Luis Juri, estará dedicado a obras integrantes de cuatro célebres ciclos de canciones: La bella molinera de Franz Schubert, A la amada lejana de Ludwig van Beethoven, Historias naturales de Maurice Ravel y Melodías pasajeras de Samuel Barber.\n\nLa intimidad de la voz\nMúsica de cámara vocal\nRecital de Alumnos de la Especialización Técnica de Nivel Superior en Música de Cámara Vocal\nInstituto Superior de Arte del Teatro Colón\nCátedras de los Maestros Víctor Torres y José Luis Juri\nTenor\nSantiago Feu\nBarítono\nMauricio Meren\nPiano\nLola Colangelo\nMatías Zanniello\nPrograma\nFranz Schubert (1797-1828)\nCanciones de Die schöne Müllerin (La bella molinera), D. 795 (1823)\nCon poesía de Wilhelm Müller (1794-1827)\n. Tränenregen (Lluvia de lágrimas)\n. Mein! (iMía!)\n. Pause (Pausa)\n. Mit dem grünen Lautenbande (Con la verde cinta del laúd)\n. Eifersucht und Stolz (Celos y orgullo)\nTenor\nSantiago Feu\nPiano\nMatías Zanniello\nLudwig van Beethoven (1770-1827)\nAn die ferne Geliebte (A la amada lejana), op. 98, (1816)\nCon textos de Alois Jeitteles (1794-1858)\nI Auf dem Hügel sitz ich spähend (Sentado en la colina miro a lo lejos)\nII Wo die Berge so blau (Donde las montañas son tan azules)\nIII Leichte Segler in den Höhen (Ligeras velas en las alturas)\nIV Diese Wolken in den Höhen (Esas nubes en las alturas)\nV Es kehret der Maien, es blühet die Au (Regresa mayo, florece el prado)\nVI Nimm sie hin denn, diese Lieder (Toma, pues, estas canciones)\nBarítono\nMauricio Meren\nPiano\nLola Colangelo\nMaurice Ravel (1875-1937)\nTres canciones de Histoires naturelles (Historias naturales), M. 50 (1906)\nCon poesía de Jules Renard (1864-1910)\nI Le Paon (El pavo)\nII Le grillon (El grillo)\nIII Le cygne (El cisne)\nTenor\nSantiago Feu\nPiano\nMatías Zanniello\nSamuel Barber (1910-1981)\nMélodies passagères (Melodías pasajeras), op. 27 (1950)\nCon poemas de Rainer Maria Rilke (1875-1926)\nI Puisque tout passe (Ya que todo pasa)\nII Un cygne (Un cisne)\nIII Tombeau dans un parc (Una tumba en el parque)\nIV Le clocher chante (El campanario canta)\nV Départ (Partida)\nBarítono\nMauricio Meren\nPiano\nLola Colangelo",
+  "attribution": "Texto: Teatro Colón",
+  "disciplines": [
+    "opera_clasica"
+  ],
+  "institutionSlug": "teatro-colon",
+  "officialUrl": "https://teatrocolon.org.ar/produccion/la-intimidad-de-la-voz/",
+  "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/d0f693c8-0873-4b14-86f0-9a121c334424",
+  "imageUrl": "https://teatrocolon.org.ar/wp-content/uploads/2026/05/10_Clasica-Joven.png",
+  "priceText": "Gratuita",
+  "isFree": true,
+  "priceVerified": true,
+  "tags": [
+    "Clásica Joven"
+  ],
+  "occurrences": [
+    {
+      "externalId": "la-intimidad-de-la-voz|2026-10-15|13:00",
+      "kind": "timed",
+      "startsAt": "2026-10-15T13:00:00-03:00",
+      "endsAt": null,
+      "startDate": "2026-10-15",
+      "endDate": "2026-10-15",
+      "timezone": "America/Argentina/Buenos_Aires",
+      "scheduleText": null,
+      "recurrenceRule": null,
+      "sourceDateText": "jueves 15/10, 13:00 hs (octubre)",
+      "venue": {
+        "slug": "teatro-colon",
+        "name": "Teatro Colón",
+        "room": "Salón Dorado"
+      },
+      "status": "scheduled",
+      "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/d0f693c8-0873-4b14-86f0-9a121c334424",
+      "price": {
+        "text": "Gratuita",
+        "isFree": true,
+        "verified": true
+      }
+    }
+  ],
+  "rawFragment": "<2598 chars>"
+}
