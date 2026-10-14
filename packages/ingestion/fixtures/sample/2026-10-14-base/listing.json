@@ -1,0 +1,56 @@
+{
+  "items": [
+    {
+      "id": "traviata",
+      "title": "La Traviata",
+      "url": "https://sample.culturaba.test/eventos/traviata",
+      "discipline": "opera_clasica",
+      "description": "Ópera en tres actos de Giuseppe Verdi. Nueva producción.",
+      "image": "https://sample.culturaba.test/img/traviata.jpg",
+      "venue": { "slug": "sample-sala", "room": "Sala Principal" },
+      "dates": [
+        { "start": "2026-10-18T20:00:00-03:00" },
+        { "start": "2026-10-21T20:00:00-03:00" }
+      ],
+      "price": "Desde $10.000",
+      "tickets": "https://sample.culturaba.test/entradas/traviata"
+    },
+    {
+      "id": "goya",
+      "title": "Goya: grabados",
+      "url": "https://sample.culturaba.test/eventos/goya",
+      "discipline": "museos_exposiciones",
+      "description": "Serie completa de los Caprichos.",
+      "venue": { "slug": "sample-sala" },
+      "range": { "start": "2026-10-16", "end": "2026-12-13", "schedule": "Martes a domingos de 11 a 20 h" },
+      "price": "Entrada libre y gratuita",
+      "free": true
+    },
+    {
+      "id": "taller",
+      "title": "Taller de grabado",
+      "url": "https://sample.culturaba.test/eventos/taller",
+      "discipline": "fotografia_artes_visuales",
+      "venue": { "name": "Anexo Sample", "address": "Calle Falsa 123" },
+      "dates": [
+        { "start": "2026-10-20T15:00:00-03:00", "end": "2026-10-20T17:00:00-03:00" },
+        { "start": "2026-10-27T15:00:00-03:00", "end": "2026-10-27T17:00:00-03:00" }
+      ]
+    },
+    {
+      "id": "misterio",
+      "title": "Actividad sin disciplina",
+      "url": "https://sample.culturaba.test/eventos/misterio",
+      "venue": { "slug": "sample-sala" },
+      "dates": [{ "start": "2026-11-02T18:00:00-03:00" }]
+    },
+    {
+      "id": "pasado",
+      "title": "Concierto ya realizado",
+      "url": "https://sample.culturaba.test/eventos/pasado",
+      "discipline": "musica_vivo_jazz",
+      "venue": { "slug": "sample-sala" },
+      "dates": [{ "start": "2026-09-01T20:00:00-03:00" }]
+    }
+  ]
+}

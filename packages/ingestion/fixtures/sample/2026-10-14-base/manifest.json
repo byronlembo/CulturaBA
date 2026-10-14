@@ -1,0 +1,13 @@
+{
+  "source": "sample",
+  "capturedAt": "2026-10-14T15:00:00.000Z",
+  "note": "Fuente sintética para probar el pipeline; no es una institución real.",
+  "entries": [
+    {
+      "url": "https://sample.culturaba.test/listing.json",
+      "file": "listing.json",
+      "status": 200,
+      "contentType": "application/json"
+    }
+  ]
+}

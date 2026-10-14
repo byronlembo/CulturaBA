@@ -139,7 +139,7 @@ left join lateral (
   select
     min(greatest(oc.starts_at, now())) filter (where coalesce(oc.ends_at, oc.starts_at) >= now()) as next_starts_at,
     max(coalesce(oc.ends_at, oc.starts_at)) as last_ends_at,
-    count(*) filter (where coalesce(oc.ends_at, oc.starts_at) >= now()) as upcoming_count,
+    (count(*) filter (where coalesce(oc.ends_at, oc.starts_at) >= now()))::int as upcoming_count,
     bool_or(oc.starts_at <= now() and coalesce(oc.ends_at, oc.starts_at) >= now()) as is_ongoing
   from public.occurrences oc
   where oc.event_id = e.id
