@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<!--[if IE 9]> <html lang="es" class="ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="es"  > <!--<![endif]-->
+  <head>
+    <meta charset="utf-8" />
+      <meta name="csrf_field_name" content="_csrf_token" />
+      <meta name="_csrf_token" content="IjY4ZDk0NTY1Y2VhMGJiOTdmM2NmMWNiNTU4MGY5YTkyYjg4OTY4ZWEi.as-wTw.cdTpN0OjcLD8OBkOdxGxZfrhJQE" />
+
+      <meta name="generator" content="ckan 2.11.0" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta property="og:url" content="https://data.buenosaires.gob.ar/">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Buenos Aires Data">
+    <meta property="og:site_name" content="Buenos Aires Data">
+    <meta property="og:description"
+          content="Abrimos los datos que produce la Ciudad para que puedas desarrollar aplicaciones, contar historias y poner en valor los datos de Buenos Aires.">
+    <meta property="og:image" content="https://data.buenosaires.gob.ar">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="2400">
+    <meta property="og:image:height" content="1260">
+    <meta property="og:locale" content="es_AR">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:site" content="@BAGobAbierto"/>
+
+    <meta name="twitter:title" content="Buenos Aires Data | Datos">
+    <meta name="twitter:description"
+    content="Mirá los datos públicos generados, guardados y publicados por organismos de gobierno de la República Argentina.">
+    <meta name="twitter:image:src" content="http://datos.gob.ar/img/twitter_card_data.png">
+    <title>Buenos Aires Data - Datasets</title>
+
+    
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+  
+      
+      
+      
+    
+    
+    
+  
+
+
+    
+    <link href="/webassets/base/1162850e_main.css" rel="stylesheet"/>
+<link href="/webassets/ckanext-gobar-theme/gobar_style.css?fde8594f" rel="stylesheet"/>
+<link href="/webassets/ckanext-gobar-theme/gcba_theme.css?0f830a2c" rel="stylesheet"/>
+<link href="/webassets/ckanext-activity/8dd77216_activity.css" rel="stylesheet"/>
+    
+    
+
+  </head>
+
+  
+  <body data-site-root="https://data.buenosaires.gob.ar/" data-locale-root="https://data.buenosaires.gob.ar/" >
+
+    
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.0/css/all.min.css">
+
+
+<nav id="header" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-3 col-xs-4 no_padding">
+                <div id="logo-sitio">
+                    <a href="/" style="text-decoration: none;">
+                        <div id="ba-logo" class="navbar-brand img-responsive text-center" data-original-title="" title=""></div>
+                    </a>
+                </div>
+                <div class="h4-nunito-semibold-—-21-px" style="margin-top: 30px;">
+                    <a href="/" style="color: var(--grisulado-90-texto-primario);">BA Data</a>
+                </div>
+            </div><div class="col-sm-9 col-xs-8">
+                <nav class="navbar navbar-expand-lg">
+                    <div class="container-fluid">
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#main-nav"
+                                style="border: 1px solid black!important; border-radius: 4px!important; margin-right: 0; margin-top: 8px; padding: 9px 10px !important; ">
+                                <span class="sr-only">Cambiar navegación</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                        </div>
+                        <div class="collapse navbar-collapse" id="main-nav">
+                            <ul class="nav navbar-nav navbar-right">
+                                <li><a href="/dataset/">Datasets</a></li>
+                                <li><a href="/organization/">Organizaciones</a></li>
+                                <li><a href="/group/">Grupos</a></li>
+                                <li><a href="https://www.buenosaires.gob.ar/datosabiertos/historias">Historias</a></li>
+                                <li><a href="https://www.buenosaires.gob.ar/datosabiertos/apis">APIs</a></li>
+                                <li>
+                                    <a href="/user/login">
+                                        <i class="fas fa-user"></i>
+                                        Ingresar
+                                    </a>
+                                </li>
+                                
+                            </ul>
+                        </div>
+                       
+                    </div>
+                </nav>
+                </div></div>
+    </div>
+</nav>
+        
+
+
+
+<div id="title" class="container-fluid">
+    <div style="background: var(--blanco-fondo-primario) 0% 0% no-repeat padding-box;">
+        <div class="restricted-max-width">
+            <div class="col-xs-12 col-md-10 col-md-offset-1">
+                <div id="title-container" class="col-xs-12 col-md-6">
+                    <h1>Buenos Aires Data</h1>
+                    <p class="description">Estos son datos públicos generados, guardados y publicados por el Gobierno de
+                        la Ciudad de Buenos Aires.</p>
+
+                    <div id="searcher" class="col-xs-8 col-xs-offset-2 col-md-12 col-md-offset-0 col-lg-12 no-padding">
+                        <form class="module-content search-form" method="get"
+                            action="/dataset/">
+                            <div class="form-group has-feedback">
+                                <input type="text" class="search form-control" name="q" value="" autocomplete="off"
+                                    placeholder="¿Qué dataset buscás?" maxlength="200" />
+                                <button type="submit">
+                                    <i class="glyphicon glyphicon-search form-control-feedback"></i>
+                                </button>
+                            </div>
+                            
+                        </form>
+                    </div>
+
+                    
+                </div>
+                
+                <div class="restricted-max-width">
+                    <div class="col-xs-12 col-sm-11 col-sm-offset-1">
+                        
+                    <div class="swiffy-slider" data-slider-nav-autoplay>
+                        <ul class="slider-container"><li><a href="https://buenosaires.gob.ar/gcaba_historico/noticias/buenos-aires-lidera-el-ranking-de-datos-abiertos-en-argentina" target="_blank"><img src="https://static.buenosaires.gob.ar/sites/default/files/inline-images/100%25%20banner%20%283%29.jpg" style="max-width: 100%;height: auto;"></a></li><li><a href="https://buenosaires.gob.ar/noticias/por-tercer-ano-consecutivo-buenos-aires-lidera-el-ranking-de-datos-abiertos-en-argentina" target="_blank"><img src="https://clientes.grupomost.com/gcba/desa/Instalaciones.agcontrol.gob.ar/imagen2.png" style="max-width: 100%;height: auto;"></a></li></ul>
+                    
+                        <button type="button" class="slider-nav slider-nav-autoplay"></button>
+                        <button type="button" class="slider-nav slider-nav-next"></button>
+                    </div>
+                </div>        
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="flash-messages"></div>
+<div class="footer-down">
+    <div class="package-container container-fluid display-block">
+        <div class="restricted-max-width">
+            <div class="package-search col-xs-12 col-md-10 col-md-offset-1">
+                <div class="filters-container col-md-4">
+    <div class="hidden-md hidden-lg hide-filters-button">
+        <i class="icon-chevron-left"></i>
+    </div>
+    
+
+
+
+
+
+
+
+
+<form  data-module="select-switch" data-module-target="" method="get">
+    <div class="order search-filter">
+        <h2 class="filter-title">Ordenar por</h2>
+        <select id="field-order-by" name="sort"
+            style="background: transparent; border: 0 !important; margin-left: 11px;color:#007BC7;">
+            
+            
+            <option value="metadata_modified desc" >Última modificación
+            </option>
+            
+            
+            
+            <option value="title_string asc" >Ascendente (A - Z)
+            </option>
+            
+            
+            
+            <option value="title_string desc" >Descendente (Z - A)
+            </option>
+            
+            
+        </select>
+        
+        <button class="btn btn-default js-hide" type="submit" id="submitSearch">Ir</button>
+        
+
+        <hr>
+    </div>
+</form>
+
+
+
+
+
+
+    
+
+
+
+<div class="search-filter invisible">
+    <h2 class="filter-title">Temas</h2>
+    
+        <p class="filter-empty">No hay temas que coincidan con esta búsqueda</p>
+    
+    <hr>
+</div>
+
+    
+
+
+    <div class="search-filter invisible">
+        <h2 class="filter-title">Organizaciones</h2>
+        
+            <p class="filter-empty">No hay organizaciones que coincidan con esta búsqueda</p>
+        
+        <hr>
+    </div>
+
+
+
+    
+
+
+    <div class="search-filter invisible">
+        <h2 class="filter-title">Etiquetas</h2>
+        
+            <p class="filter-empty">No hay etiquetas que coincidan con esta búsqueda</p>
+        
+        <hr>
+    </div>
+
+
+
+    <a class="btn-close no-text hide-filters"><i class="icon-remove-sign"></i><span class="text">close</span></a>
+</div>
+                <div id="search-results" class="col-xs-12 col-md-8 invisible">   
+    
+
+    
+
+
+    
+
+
+
+
+
+
+
+<form id="dataset-search-form"  class="search-form container-fluid search-and-order" method="get"
+    data-module="select-switch">
+    <div class="restricted-max-width">
+
+        
+
+        
+    </div>
+</form>
+
+
+
+<p class="extra">
+    <strong>¡Ups! Nada por acá.</strong>
+    Por favor, revisá que la palabra esté bien escrita o probá con otro término.
+</p>
+
+
+
+
+
+    <div class="dataset-list"></div>
+
+    
+
+    <div class="filters-veil"></div>
+</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+            <footer id="ba-footer" class="footer">
+  <div class="container">
+    <div class="row footer-row">
+
+      <div class="col-md-6 col-sm-12 col-xs-12">
+        <div class="col-xs-6">
+          <div class="container-ba">
+            <a href="https://www.buenosaires.gob.ar/"><img src="/img/ba_vamosba_blanco.png"
+                class="img-responsive logo_footer"></a>
+          </div>
+        </div>
+
+        <div class="col-xs-6">
+          <div class="container-ba-border"></div>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-sm-12 col-xs-12">
+        <section class="container-redes">
+          <ul class="mini-social">
+            <li><a class="social-fb" href="https://www.facebook.com/gcba" target="_blank">Facebook</a></li>
+            <li><a class="social-tw" href="https://www.twitter.com/gcba" target="_blank">Twitter</a></li>
+            <li><a class="social-yt" href="https://www.youtube.com/user/GCBA" target="_blank">Youtube</a></li>
+            <li><a class="social-in" href="https://www.instagram.com/buenosaires/" target="_blank">Instagram</a></li>
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    <div class="col-md-12 col-sm-12 text-start" style="margin-top: -55px;">
+      <div class="container-ciudad">
+        <br>
+        <a href="https://www.buenosaires.gob.ar/"><img src="/img/logo_footer.png" class="logo_footer_ciudad"></a>
+      </div>
+    </div>
+
+    <div class="col-xs-12 col-sm-6 col-md-3" >
+      <p><a href="mailto:datosabiertos@buenosaires.gob.ar">Contactanos</a></p>
+      <p class="ckan-link">
+        Desarrollado por<br><a href="https://github.com/datosgcba/ckanext-gobar-theme" target="_blank">Buenos Aires Data</a> Versión: 1.2.2-FIX con <a href="http://ckan.org/" target="_blank"><span class="ckan-name">CKAN Versión: 2.11.0</span></a>
+      </p>
+      
+    </div>
+
+  </div>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R0748J8HQ5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-R0748J8HQ5');
+  </script>
+</footer>
+<!--BEGIN QUALTRICS WEBSITE FEEDBACK SNIPPET-->
+
+<script type='text/javascript'>
+
+  (function(){var g=function(e,h,f,g){
+  
+  this.get=function(a){for(var a=a+"=",c=document.cookie.split(";"),b=0,e=c.length;b<e;b++){for(var d=c[b];" "==d.charAt(0);)d=d.substring(1,d.length);if(0==d.indexOf(a))return d.substring(a.length,d.length)}return null};
+  
+  this.set=function(a,c){var b="",b=new Date;b.setTime(b.getTime()+6048E5);b="; expires="+b.toGMTString();document.cookie=a+"="+c+b+"; path=/; "};
+  
+  this.check=function(){var a=this.get(f);if(a)a=a.split(":");else if(100!=e)"v"==h&&(e=Math.random()>=e/100?0:100),a=[h,e,0],this.set(f,a.join(":"));else return!0;var c=a[1];if(100==c)return!0;switch(a[0]){case "v":return!1;case "r":return c=a[2]%Math.floor(100/c),a[2]++,this.set(f,a.join(":")),!c}return!0};
+  
+  this.go=function(){if(this.check()){var a=document.createElement("script");a.type="text/javascript";a.src=g;document.body&&document.body.appendChild(a)}};
+  
+  this.start=function(){var t=this;"complete"!==document.readyState?window.addEventListener?window.addEventListener("load",function(){t.go()},!1):window.attachEvent&&window.attachEvent("onload",function(){t.go()}):t.go()};};
+  
+  try{(new g(100,"r","QSI_S_ZN_1NDCI2TRq1Azp5q","https://zn1ndci2trq1azp5q-ciudaddebuenosaires.siteintercept.qualtrics.com/SIE/?Q_ZID=ZN_1NDCI2TRq1Azp5q")).start()}catch(i){}})();
+  
+  </script><div id='ZN_1NDCI2TRq1Azp5q'><!--DO NOT REMOVE-CONTENTS PLACED HERE--></div>
+  
+  <!--END WEBSITE FEEDBACK SNIPPET-->
+  
+        
+    <script>
+        window.onunload = function() {};
+    </script>
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    
+    <link href="/webassets/vendor/f3b8236b_select2.css" rel="stylesheet"/>
+<link href="/webassets/vendor/53df638c_fontawesome.css" rel="stylesheet"/>
+    <script src="/webassets/vendor/240e5086_jquery.js" type="text/javascript"></script>
+<script src="/webassets/ckanext-gobar-theme/bf82c53e_background_ie.js" type="text/javascript"></script>
+<script src="/webassets/ckanext-gobar-theme/d92d641e_replace_svg.js" type="text/javascript"></script>
+<script src="/webassets/ckanext-gobar-theme/db9a9a35_search.js" type="text/javascript"></script>
+<script src="/webassets/vendor/90dbb6bf_vendor.js" type="text/javascript"></script>
+<script src="/webassets/vendor/a3003351_bootstrap.js" type="text/javascript"></script>
+<script src="/webassets/vendor/529a0eb7_htmx.js" type="text/javascript"></script>
+<script src="/webassets/base/a65ea3a0_main.js" type="text/javascript"></script>
+<script src="/webassets/base/9b74b0a6_ckan.js" type="text/javascript"></script>
+<script src="/webassets/ckanext-gobar-theme/ee73a095_libs.js" type="text/javascript"></script>
+<script src="/webassets/ckanext-gobar-theme/bd9646e4_console_message.js" type="text/javascript"></script>
+<script src="/webassets/ckanext-gobar-theme/f46ad618_forms.js" type="text/javascript"></script>
+<script src="/webassets/ckanext-gobar-theme/f42010e1_header.js" type="text/javascript"></script>
+  </body>
+</html>

@@ -1,0 +1,187 @@
+{
+  "source": "agenda-ba",
+  "capturedAt": "2026-10-14T16:55:00.000Z",
+  "note": "Relevamiento manual del 14-oct-2026 (CulturaBA-Research/0.1; 1 petición en vuelo por host; >= 1.5 s entre peticiones, >= 10 s en turismo.buenosaires.gob.ar y data.buenosaires.gob.ar por Crawl-delay). Respuestas crudas sin modificar. Hallazgo principal: buenosaires.gob.ar/agenda redirige (302) a linda.buenosaires.gob.ar/agenda (Next.js), cuya lista se alimenta de GET /api/frontend/events/filter?limit=200 (JSON {filters, events[], pagination}; 268 eventos el 14-oct). La entrada 021 fue capturada con Playwright (page.on(response)) al cargar /agenda; 022 con curl y Accept: application/json: limit/page se devuelven en pagination pero NO paginan (268 y 252 eventos, 251 en común; la diferencia es temporal). turismo.buenosaires.gob.ar es Drupal 7: /es/article/que-hacer-esta-semana (004) y /es/que-hacer-en-la-ciudad (006) incluyen un array JSON inline en <script>const json = `[...]`</script> (110 y 127 ítems) sin id estable ni fecha de fin; /es/eventos (005) es un agrupador editorial de 201 tarjetas. data.buenosaires.gob.ar prohíbe /api/ en robots.txt: solo se consultó el HTML; no hay dataset de agenda vigente (actividades-culturales se actualiza anualmente). Los detalles de Linda (025-030) son HTML SSR sin JSON-LD ni og:*; 011 es una redirección con cuerpo vacío; 018 es la página 404 de Next.js (no hay robots.txt).",
+  "entries": [
+    {
+      "url": "https://turismo.buenosaires.gob.ar/robots.txt",
+      "file": "001-turismo-robots.txt",
+      "status": 200,
+      "contentType": "text/plain; charset=UTF-8"
+    },
+    {
+      "url": "https://turismo.buenosaires.gob.ar/sitemap.xml",
+      "file": "002-turismo-sitemap-redirect.html",
+      "status": 301,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://turismo.buenosaires.gob.ar/es/sitemap.xml",
+      "file": "003-turismo-es-sitemap.xml",
+      "status": 200,
+      "contentType": "text/xml; charset=utf-8"
+    },
+    {
+      "url": "https://turismo.buenosaires.gob.ar/es/article/que-hacer-esta-semana",
+      "file": "004-turismo-article-que-hacer-esta-semana.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://turismo.buenosaires.gob.ar/es/eventos",
+      "file": "005-turismo-es-eventos.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://turismo.buenosaires.gob.ar/es/que-hacer-en-la-ciudad",
+      "file": "006-turismo-que-hacer-en-la-ciudad.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://turismo.buenosaires.gob.ar/es/article/mafalda-inmersiva",
+      "file": "007-turismo-article-mafalda-inmersiva.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://turismo.buenosaires.gob.ar/es/otros-establecimientos/feria-de-mataderos",
+      "file": "008-turismo-otros-establecimientos-feria-de-mataderos.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://buenosaires.gob.ar/robots.txt",
+      "file": "009-gcba-robots.txt",
+      "status": 200,
+      "contentType": "text/plain; charset=UTF-8"
+    },
+    {
+      "url": "https://buenosaires.gob.ar/cultura",
+      "file": "010-gcba-cultura-redirect.html",
+      "status": 301,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://buenosaires.gob.ar/agenda",
+      "file": "011-gcba-agenda-redirect.html",
+      "status": 302,
+      "contentType": "text/html"
+    },
+    {
+      "url": "https://buenosaires.gob.ar/gcaba_historico/cultura",
+      "file": "012-gcba-historico-cultura.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8"
+    },
+    {
+      "url": "https://data.buenosaires.gob.ar/robots.txt",
+      "file": "013-data-robots.txt",
+      "status": 200,
+      "contentType": "text/plain; charset=utf-8"
+    },
+    {
+      "url": "https://data.buenosaires.gob.ar/dataset/?q=agenda+cultural",
+      "file": "014-data-dataset-search-agenda-cultural.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://data.buenosaires.gob.ar/dataset/?q=eventos",
+      "file": "015-data-dataset-search-eventos.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://data.buenosaires.gob.ar/dataset/actividades-culturales",
+      "file": "016-data-dataset-actividades-culturales.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://data.buenosaires.gob.ar/dataset/eventos-direccion-general-musica",
+      "file": "017-data-dataset-eventos-direccion-general-musica.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://linda.buenosaires.gob.ar/robots.txt",
+      "file": "018-linda-robots-404.html",
+      "status": 404,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://linda.buenosaires.gob.ar/agenda",
+      "file": "019-linda-agenda.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://linda.buenosaires.gob.ar/api/auth/session",
+      "file": "020-linda-api-auth-session.json",
+      "status": 200,
+      "contentType": "application/json"
+    },
+    {
+      "url": "https://linda.buenosaires.gob.ar/api/frontend/events/filter?limit=200",
+      "file": "021-linda-api-frontend-events-filter-limit200.json",
+      "status": 200,
+      "contentType": "application/json"
+    },
+    {
+      "url": "https://linda.buenosaires.gob.ar/api/frontend/events/filter?limit=200&page=2",
+      "file": "022-linda-api-frontend-events-filter-limit200-page2.json",
+      "status": 200,
+      "contentType": "application/json"
+    },
+    {
+      "url": "https://linda.buenosaires.gob.ar/api/cpe/contenidos-favoritos",
+      "file": "023-linda-api-cpe-contenidos-favoritos-401.json",
+      "status": 401,
+      "contentType": "application/json"
+    },
+    {
+      "url": "https://linda.buenosaires.gob.ar/api/cpe/listas",
+      "file": "024-linda-api-cpe-listas-401.json",
+      "status": 401,
+      "contentType": "application/json"
+    },
+    {
+      "url": "https://linda.buenosaires.gob.ar/eventos/jorge-lavelli-el-gesto-incoformista",
+      "file": "025-linda-eventos-jorge-lavelli-el-gesto-incoformista.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://linda.buenosaires.gob.ar/eventos/la-lluvia-de-fuego",
+      "file": "026-linda-eventos-la-lluvia-de-fuego.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://linda.buenosaires.gob.ar/eventos/babasonicos",
+      "file": "027-linda-eventos-babasonicos.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://linda.buenosaires.gob.ar/eventos/noche-de-cupulas-presenta-get-back",
+      "file": "028-linda-eventos-noche-de-cupulas-presenta-get-back.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://linda.buenosaires.gob.ar/eventos/el-barbero-de-sevilla-1",
+      "file": "029-linda-eventos-el-barbero-de-sevilla-1.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "url": "https://linda.buenosaires.gob.ar/eventos/frank-borzage-un-romantico-en-hollywood-parte-1",
+      "file": "030-linda-eventos-frank-borzage-un-romantico-en-hollywood-parte-1.html",
+      "status": 200,
+      "contentType": "text/html; charset=utf-8"
+    }
+  ]
+}
