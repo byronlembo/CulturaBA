@@ -19,11 +19,13 @@
     "db:reset": "bash scripts/pg-local.sh reset",
     "db:reset-test": "bash scripts/pg-local.sh reset-test",
     "db:types": "bash scripts/pg-local.sh types",
+    "db:check-rls": "bash scripts/pg-local.sh check-rls",
     "db:url": "bash scripts/pg-local.sh url",
     "ingest": "pnpm --filter @culturaba/ingestion ingest --"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
+    "supabase": "2.120.0",
     "typescript": "~5.9.3"
   }
 }

@@ -102,12 +102,27 @@ apply_schema() {
 cmd_reset() { cmd_start; apply_schema "$DB"; echo "pg-local: $URL ready"; }
 cmd_reset_test() { cmd_start; apply_schema "$TEST_DB"; echo "pg-local: $TEST_URL ready"; }
 
+cmd_check_rls() {
+  cmd_start
+  psql_admin -d "$DB" -q -f "$ROOT/supabase/tests/rls.sql"
+}
+
 cmd_types() {
   cmd_start
   local out="$ROOT/packages/shared/src/db/database.types.ts"
+  local tmp
+  tmp="$(mktemp)"
   mkdir -p "$(dirname "$out")"
-  (cd "$ROOT" && pnpm exec supabase gen types typescript --db-url "$URL" --schema public > "$out")
-  echo "pg-local: wrote $out"
+  # The local cluster has no TLS; the Supabase CLI tries it unless told otherwise.
+  if (cd "$ROOT" && pnpm exec supabase gen types typescript --db-url "$URL?sslmode=disable" --schema public > "$tmp") \
+     && grep -q '^export type Json' "$tmp"; then
+    mv "$tmp" "$out"
+    echo "pg-local: wrote $out"
+  else
+    cat "$tmp" >&2; rm -f "$tmp"
+    echo "pg-local: type generation failed" >&2
+    exit 1
+  fi
 }
 
 case "${1:-}" in
@@ -118,7 +133,8 @@ case "${1:-}" in
   reset) cmd_reset ;;
   reset-test) cmd_reset_test ;;
   types) cmd_types ;;
+  check-rls) cmd_check_rls ;;
   url) echo "$URL" ;;
   test-url) echo "$TEST_URL" ;;
-  *) echo "usage: $0 {init|start|stop|status|reset|reset-test|types|url|test-url}" >&2; exit 2 ;;
+  *) echo "usage: $0 {init|start|stop|status|reset|reset-test|types|check-rls|url|test-url}" >&2; exit 2 ;;
 esac

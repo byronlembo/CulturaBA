@@ -1,0 +1,25 @@
+# Supabase CLI configuration. Only the settings we rely on are pinned here; the
+# CLI fills in defaults for the rest. Local development uses scripts/pg-local.sh
+# (plain Postgres) instead of `supabase start`, so most sections are irrelevant.
+project_id = "culturaba"
+
+[db]
+major_version = 17
+
+[db.migrations]
+enabled = true
+schema_paths = []
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[auth]
+# Guest mode: the app signs in anonymously on first launch.
+enable_anonymous_sign_ins = true
+enable_signup = true
+site_url = "https://culturaba.lembodiseno.com"
+additional_redirect_urls = ["culturaba://"]
+
+[auth.rate_limit]
+anonymous_users = 30
