@@ -80,16 +80,23 @@ métricas y cierre
 
 - **Transacciones:** una por registro (un ítem roto no afecta al resto). `--dry-run`
   ejecuta el mismo código dentro de una transacción con savepoints que se revierte.
-- **Matching:** (1) `external_id` de la fuente; (2) `dedup_key` = título normalizado |
-  institución, con compatibilidad de fechas (±1 día o solapamiento) para no fusionar
-  temporadas distintas; (3) Dice de bigramas entre eventos de la institución con
-  fechas en común: ≥ 0,85 fusiona, 0,70–0,85 crea nuevo y deja fila en
-  `event_duplicates`; agregadores cross-institución exigen ≥ 0,90 y mismo venue.
+- **Matching:** (1) `external_id` de la fuente; (2) **misma página**: la URL oficial,
+  la del registro o una `sameAsUrls` declarada coincide (canonicalizada) con la de un
+  registro de **otra** fuente de la misma institución, o ambos comparten la página de
+  la ticketera oficial de la Ciudad con id de evento (`entradasba …/evento|visitas/<id>`),
+  con fechas compatibles; funciona en los dos sentidos y nunca une dos registros de la
+  misma fuente; (3) `dedup_key` = título normalizado | institución, con compatibilidad
+  de fechas (±1 día o solapamiento) para no fusionar temporadas distintas; (4) Dice de
+  bigramas entre eventos de la institución con fechas en común: ≥ 0,85 fusiona,
+  0,70–0,85 crea nuevo y deja fila en `event_duplicates`. No hay fusión entre
+  instituciones distintas: los agregadores resuelven la institución por evento (enlace
+  institucional o sala conocida) y desde ahí aplican los mismos pasos.
 - **Merge editorial:** la fuente primaria (o de mayor `priority`) sobrescribe; una
   secundaria solo rellena nulos. Cambio de título ⇒ `major` y nuevo `dedup_key`; el
   `slug` nunca rota.
-- **Ocurrencias:** match por `external_id` o `(venue, starts_at)`; heurística de
-  reprogramación (una desaparece, una aparece, mismo venue, ≤ 90 días) ⇒
+- **Ocurrencias:** match por `external_id` o `(venue, starts_at)`; las funciones que
+  ya pasaron y salen del listado no cuentan como ausentes ni reprogramadas; heurística de
+  reprogramación (una futura desaparece, una aparece, mismo venue, ≤ 90 días) ⇒
   `rescheduled` + `previous_starts_at`; texto de cancelación/postergación/agotado ⇒
   estado + cambio `major`/`minor`; una función que desaparece de un registro aún
   visible acumula `consecutive_misses` y a la 2.ª pasa a `missing`.
