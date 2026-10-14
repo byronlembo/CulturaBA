@@ -1,0 +1,29 @@
+{
+  "name": "culturaba",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CulturaBA — descubrimiento cultural personalizado para Buenos Aires",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
+    "db:init": "bash scripts/pg-local.sh init",
+    "db:start": "bash scripts/pg-local.sh start",
+    "db:stop": "bash scripts/pg-local.sh stop",
+    "db:status": "bash scripts/pg-local.sh status",
+    "db:reset": "bash scripts/pg-local.sh reset",
+    "db:reset-test": "bash scripts/pg-local.sh reset-test",
+    "db:types": "bash scripts/pg-local.sh types",
+    "db:url": "bash scripts/pg-local.sh url",
+    "ingest": "pnpm --filter @culturaba/ingestion ingest --"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "typescript": "~5.9.3"
+  }
+}

@@ -1,0 +1,39 @@
+# dependencies
+node_modules/
+
+# secrets — never commit
+.env
+.env.*
+!.env.example
+
+# local state
+.local/
+*.log
+logs/
+coverage/
+dist/
+build/
+tmp/
+
+# Expo / React Native
+.expo/
+.expo-shared/
+web-build/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+ios/
+android/
+
+# Supabase CLI
+supabase/.branches
+supabase/.temp
+
+# editors / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json

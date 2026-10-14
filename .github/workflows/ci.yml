@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: ['54329:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:54329/culturaba_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Lint (biome)
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Prepare test database
+        run: |
+          psql "postgresql://postgres:postgres@localhost:54329/postgres" -v ON_ERROR_STOP=1 \
+            -c 'DROP DATABASE IF EXISTS culturaba_test' -c 'CREATE DATABASE culturaba_test'
+          psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/tests/local_auth_stub.sql
+          for f in supabase/migrations/*.sql; do psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -q -f "$f"; done
+          psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -q -f supabase/seed.sql
+      - name: Tests
+        run: pnpm test
