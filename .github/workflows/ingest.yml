@@ -26,7 +26,7 @@ jobs:
     env:
       # URI del SESSION POOLER de Supabase (IPv4). Nunca el host db.<ref>.supabase.co.
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      INGEST_USER_AGENT: ${{ vars.INGEST_USER_AGENT || 'CulturaBA-Ingest/0.1 (+https://culturaba.lembodiseno.com/bot)' }}
+      INGEST_USER_AGENT: ${{ vars.INGEST_USER_AGENT || 'CulturaBA-Ingest/0.1 (+https://culturaba.xn--lembodiseo-19a.com/bot)' }}
       LOG_LEVEL: info
       CI: 'true'
     steps:

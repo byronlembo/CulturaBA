@@ -46,6 +46,10 @@ export interface ConnectorMeta {
   institutionSlug: string;
   kind: SourceKind;
   needsBrowser?: boolean;
+  /** false = stub registrado pero sin implementación: `run --all` lo omite. */
+  ready: boolean;
+  /** Motivo por el que no está listo (p. ej. bloqueo por Cloudflare). */
+  blockedReason?: string;
   politeness: ConnectorPoliteness;
 }
 

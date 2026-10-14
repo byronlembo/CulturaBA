@@ -41,6 +41,7 @@ program
       slug: c.slug,
       name: c.meta.name,
       kind: c.meta.kind,
+      ready: c.meta.ready ? 'sí' : c.meta.blockedReason ? 'bloqueado' : 'pendiente',
       fixtures: listFixtureSets(c.slug).join(', ') || '—',
     }));
     console.table(rows);

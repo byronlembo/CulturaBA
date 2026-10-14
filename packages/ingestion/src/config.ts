@@ -6,7 +6,7 @@ const EnvSchema = z.object({
   INGEST_USER_AGENT: z
     .string()
     .min(1)
-    .default('CulturaBA-Ingest/0.1 (+https://culturaba.lembodiseno.com/bot)'),
+    .default('CulturaBA-Ingest/0.1 (+https://culturaba.xn--lembodiseo-19a.com/bot)'),
   LOG_LEVEL: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'silent']).default('info'),
   AI_SUMMARY_ENABLED: z
     .string()

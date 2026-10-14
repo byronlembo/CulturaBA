@@ -60,7 +60,7 @@ Cómo agregar un conector: `docs/source-inventory.md` (plantilla:
 cat > apps/mobile/.env <<EOF
 EXPO_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co
 EXPO_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_…
-EXPO_PUBLIC_WEB_BASE_URL=https://culturaba.lembodiseno.com
+EXPO_PUBLIC_WEB_BASE_URL=https://culturaba.xn--lembodiseo-19a.com
 EOF
 
 # Opción B: contra el Postgres local (sin Supabase)

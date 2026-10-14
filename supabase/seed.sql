@@ -26,7 +26,8 @@ on conflict (slug) do update set
 insert into public.institutions (slug, name, website_url) values
   ('teatro-colon',     'Teatro Colón',                    'https://teatrocolon.org.ar'),
   ('mnba',             'Museo Nacional de Bellas Artes',  'https://bellasartes.gob.ar'),
-  ('palacio-libertad', 'Palacio Libertad',                'https://palaciolibertad.gob.ar')
+  ('palacio-libertad', 'Palacio Libertad',                'https://palaciolibertad.gob.ar'),
+  ('complejo-teatral', 'Complejo Teatral de Buenos Aires', 'https://complejoteatral.gob.ar')
 on conflict (slug) do update set name = excluded.name, website_url = excluded.website_url;
 
 insert into public.venues (slug, institution_id, name, address, neighborhood, city, address_source_url) values
@@ -57,7 +58,10 @@ insert into public.sources (slug, name, institution_id, base_url, kind, priority
     'https://bellasartes.gob.ar/agenda/', 'html', 100),
   ('palacio-libertad', 'Agenda Palacio Libertad',
     (select id from public.institutions where slug = 'palacio-libertad'),
-    'https://palaciolibertad.gob.ar/agenda/', 'html', 100)
+    'https://palaciolibertad.gob.ar/agenda/', 'html', 100),
+  ('complejo-teatral', 'Programación Complejo Teatral de Buenos Aires',
+    (select id from public.institutions where slug = 'complejo-teatral'),
+    'https://complejoteatral.gob.ar/', 'html', 100)
 on conflict (slug) do update set
   name = excluded.name,
   institution_id = excluded.institution_id,

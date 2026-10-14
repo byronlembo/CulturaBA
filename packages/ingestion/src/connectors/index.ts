@@ -1,8 +1,18 @@
 import type { SourceConnector } from '../core/connector';
+import { complejoTeatralConnector } from './complejo-teatral/connector';
+import { mnbaConnector } from './mnba/connector';
+import { palacioLibertadConnector } from './palacio-libertad/connector';
 import { sampleConnector } from './sample/connector';
+import { teatroColonConnector } from './teatro-colon/connector';
 
-/** Registro de conectores disponibles. Agregar uno nuevo = una línea acá. */
-export const CONNECTORS: readonly SourceConnector[] = [sampleConnector];
+/** Registro de conectores. Agregar uno nuevo = una línea acá. */
+export const CONNECTORS: readonly SourceConnector[] = [
+  sampleConnector,
+  teatroColonConnector,
+  complejoTeatralConnector,
+  mnbaConnector,
+  palacioLibertadConnector,
+];
 
 export function getConnector(slug: string): SourceConnector {
   const c = CONNECTORS.find((x) => x.slug === slug);
@@ -14,7 +24,7 @@ export function getConnector(slug: string): SourceConnector {
   return c;
 }
 
-/** Conectores que representan fuentes reales (excluye los sintéticos de prueba). */
+/** Conectores de fuentes reales listos para correr (excluye stubs y el sintético). */
 export function productionConnectors(): SourceConnector[] {
-  return CONNECTORS.filter((c) => c.slug !== 'sample');
+  return CONNECTORS.filter((c) => c.slug !== 'sample' && c.meta.ready);
 }

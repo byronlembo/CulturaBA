@@ -1,0 +1,55 @@
+name: DB push (Supabase)
+
+# Aplica supabase/migrations al proyecto de Supabase desde un runner de GitHub
+# (que sí tiene salida TCP hacia Postgres). Secreto necesario: DATABASE_URL con la
+# URI del SESSION POOLER (Settings → Database → Connection string → Session pooler).
+
+on:
+  workflow_dispatch:
+    inputs:
+      reset_public:
+        description: 'PELIGRO: borrar el esquema public del proyecto antes de migrar (arrancar de cero)'
+        type: boolean
+        default: false
+      seed:
+        description: 'Aplicar supabase/seed.sql después de migrar'
+        type: boolean
+        default: true
+
+concurrency:
+  group: db-push
+  cancel-in-progress: false
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Comprobar secreto
+        run: |
+          if [ -z "$DATABASE_URL" ]; then echo "::error::Falta el secreto DATABASE_URL"; exit 1; fi
+          psql "$DATABASE_URL" -Atc "select version()"
+      - name: Inventario previo (qué hay en public)
+        run: |
+          psql "$DATABASE_URL" -Atc "select table_type, table_name from information_schema.tables where table_schema = 'public' order by 1, 2"
+      - name: Reset del esquema public (solo si se pidió)
+        if: ${{ inputs.reset_public }}
+        run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/reset_public.sql
+      - name: Aplicar migraciones
+        run: pnpm exec supabase db push --db-url "$DATABASE_URL" --yes
+      - name: Seed
+        if: ${{ inputs.seed }}
+        run: psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f supabase/seed.sql
+      - name: Inventario posterior
+        run: |
+          psql "$DATABASE_URL" -Atc "select table_type, table_name from information_schema.tables where table_schema = 'public' order by 1, 2"
+          psql "$DATABASE_URL" -Atc "select version from supabase_migrations.schema_migrations order by version"

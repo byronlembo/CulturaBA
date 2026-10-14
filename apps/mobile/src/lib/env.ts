@@ -9,7 +9,9 @@ export const env = {
   devApiUrl: process.env.EXPO_PUBLIC_DEV_API_URL ?? '',
   apiModeOverride: process.env.EXPO_PUBLIC_API_MODE ?? '',
   webBaseUrl:
-    process.env.EXPO_PUBLIC_WEB_BASE_URL ?? extra.webBaseUrl ?? 'https://culturaba.lembodiseno.com',
+    process.env.EXPO_PUBLIC_WEB_BASE_URL ??
+    extra.webBaseUrl ??
+    'https://culturaba.xn--lembodiseo-19a.com',
 };
 
 export type ApiMode = 'supabase' | 'dev' | 'unconfigured';

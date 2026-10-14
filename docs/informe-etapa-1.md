@@ -101,7 +101,7 @@ GitHub Actions: secreto `DATABASE_URL` (session pooler) y variable opcional
    migraciones); **rotar la clave `sb_secret_`** que se compartió por chat.
 3. **GitHub:** secreto `DATABASE_URL`; primera corrida por *workflow_dispatch* cuando
    exista un conector real.
-4. **Dominio:** confirmar `culturaba.lembodiseno.com` (o la variante elegida; evitar
+4. **Dominio:** confirmar `culturaba.xn--lembodiseo-19a.com` (o la variante elegida; evitar
    la ñ en el host) para universal links; publicar la web export ahí para que los
    enlaces compartidos abran algo útil.
 5. **Expo:** bundle id/package (`ar.com.culturaba.app` placeholder); imágenes de

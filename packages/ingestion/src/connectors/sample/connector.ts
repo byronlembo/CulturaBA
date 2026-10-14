@@ -73,6 +73,7 @@ export const sampleConnector: SourceConnector = {
     baseUrl: BASE_URL,
     institutionSlug: 'sample',
     kind: 'json_api',
+    ready: true,
     politeness: { concurrency: 2, minDelayMs: 0, timeoutMs: 5_000 },
   },
 

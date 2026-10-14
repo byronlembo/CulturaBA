@@ -1,7 +1,8 @@
 import type { ExpoConfig } from 'expo/config';
 
 // Base pública de los enlaces compartidos (universal links / app links).
-const webBaseUrl = process.env.EXPO_PUBLIC_WEB_BASE_URL ?? 'https://culturaba.lembodiseno.com';
+const webBaseUrl =
+  process.env.EXPO_PUBLIC_WEB_BASE_URL ?? 'https://culturaba.xn--lembodiseo-19a.com';
 const webHost = new URL(webBaseUrl).host;
 
 const config: ExpoConfig = {

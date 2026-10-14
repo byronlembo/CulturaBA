@@ -2,8 +2,8 @@ import { buildEventDeepLink, buildEventUrl, buildMapUrl, buildShareMessage } fro
 
 describe('event links', () => {
   it('builds stable web and deep links', () => {
-    expect(buildEventUrl('https://culturaba.lembodiseno.com/', 'la-traviata-3f2504')).toBe(
-      'https://culturaba.lembodiseno.com/event/la-traviata-3f2504',
+    expect(buildEventUrl('https://culturaba.xn--lembodiseo-19a.com/', 'la-traviata-3f2504')).toBe(
+      'https://culturaba.xn--lembodiseo-19a.com/event/la-traviata-3f2504',
     );
     expect(buildEventDeepLink('la-traviata-3f2504')).toBe('culturaba://event/la-traviata-3f2504');
   });
@@ -43,14 +43,14 @@ describe('buildShareMessage', () => {
         title: 'La Traviata',
         whenText: 'dom 18 oct · 20:00',
         venueName: 'Teatro Colón',
-        eventUrl: 'https://culturaba.lembodiseno.com/event/la-traviata-3f2504',
+        eventUrl: 'https://culturaba.xn--lembodiseo-19a.com/event/la-traviata-3f2504',
         officialUrl: 'https://teatrocolon.org.ar/x',
       }),
     ).toBe(
       [
         'La Traviata',
         'dom 18 oct · 20:00 · Teatro Colón',
-        'https://culturaba.lembodiseno.com/event/la-traviata-3f2504',
+        'https://culturaba.xn--lembodiseo-19a.com/event/la-traviata-3f2504',
         'Fuente oficial: https://teatrocolon.org.ar/x',
       ].join('\n'),
     );

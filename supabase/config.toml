@@ -18,7 +18,7 @@ sql_paths = ["./seed.sql"]
 # Guest mode: the app signs in anonymously on first launch.
 enable_anonymous_sign_ins = true
 enable_signup = true
-site_url = "https://culturaba.lembodiseno.com"
+site_url = "https://culturaba.xn--lembodiseo-19a.com"
 additional_redirect_urls = ["culturaba://"]
 
 [auth.rate_limit]
