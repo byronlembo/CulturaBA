@@ -119,6 +119,18 @@ async function run(items: Item[], opts: { dryRun?: boolean } = {}): Promise<RunS
   );
 }
 
+/** Un agregador sintético: mismo formato que `sample`, otra fuente y prioridad baja. */
+const aggregatorConnector = { ...sampleConnector, slug: 'sample-agg' };
+
+async function runAggregator(items: Item[]): Promise<RunSummary> {
+  const dir = writeSet(items);
+  return runSource(
+    aggregatorConnector,
+    { sql, http: new FixtureHttpClient(dir), logger: silentLogger },
+    { trigger: 'fixture', fixtureSet: dir, now: () => DateTime.now().setZone(BA_TZ) },
+  );
+}
+
 async function resetCatalog(): Promise<void> {
   await sql`truncate public.events, public.occurrences, public.source_records, public.ingestion_runs,
     public.event_changes, public.event_duplicates, public.event_stats restart identity cascade`;
@@ -187,6 +199,9 @@ beforeAll(async () => {
     on conflict (slug) do nothing`;
   await sql`insert into public.sources (slug, name, institution_id, base_url, kind, priority)
     values ('sample', 'Fuente sintética', (select id from public.institutions where slug = 'sample'), 'https://sample.culturaba.test/', 'json_api', 100)
+    on conflict (slug) do nothing`;
+  await sql`insert into public.sources (slug, name, institution_id, base_url, kind, priority)
+    values ('sample-agg', 'Agregador sintético', null, 'https://sample.culturaba.test/', 'json_api', 10)
     on conflict (slug) do nothing`;
 });
 
@@ -295,6 +310,26 @@ describe('idempotency and change detection', () => {
     expect(occ[1]).toMatchObject({ status: 'rescheduled' });
     expect(occ[1]?.previous_starts_at?.toISOString()).toBe(new Date(at(7, 20)).toISOString());
     expect((await q.changes('occurrence_rescheduled')).length).toBe(1);
+  });
+
+  it('lets a past performance drop off the listing without a reschedule or a miss', async () => {
+    const items = baseItems();
+    (items[0] as { dates: { start: string }[] }).dates = [
+      { start: at(-1, 20) },
+      { start: at(4, 20) },
+    ];
+    await run(items);
+    (items[0] as { dates: { start: string }[] }).dates = [
+      { start: at(4, 20) },
+      { start: at(8, 20) },
+    ];
+    const s = await run(items);
+    expect(s.stats.occurrences_created).toBe(1);
+    expect((await q.changes('occurrence_rescheduled')).length).toBe(0);
+    expect((await q.changes('occurrence_missing')).length).toBe(0);
+    const occ = await q.occurrences((await q.event('traviata')).id);
+    expect(occ.map((o) => o.status)).toEqual(['scheduled', 'scheduled', 'scheduled']);
+    expect(occ[0]?.consecutive_misses).toBe(0);
   });
 
   it('detects a cancelled function and hides it from upcoming counts', async () => {
@@ -432,6 +467,95 @@ describe('deduplication', () => {
       { n: number }[]
     >`select count(*)::int as n from public.source_records where event_id = ${a.id}`;
     expect(records[0]?.n).toBe(2);
+  });
+
+  describe('across sources by declared page (sameAsUrls)', () => {
+    const institutionItem = (): Item => ({
+      id: 'hoffmann',
+      title: "Les Contes d'Hoffmann",
+      url: 'https://sample.culturaba.test/produccion/hoffmann/',
+      discipline: 'opera_clasica',
+      venue: SALA,
+      dates: [{ start: at(5, 20) }, { start: at(9, 20) }],
+    });
+    const aggregatorItem = (over: Partial<Item> = {}): Item => ({
+      id: 'agg-hoffmann',
+      title: 'Los Cuentos de Hoffmann',
+      url: 'https://agenda.sample.test/eventos/los-cuentos-de-hoffmann',
+      sameAs: ['http://www.sample.culturaba.test/produccion/hoffmann?utm_source=agenda'],
+      discipline: 'opera_clasica',
+      venue: SALA,
+      dates: [{ start: at(5, 20) }],
+      ...over,
+    });
+    const recordsOf = async (eventId: string) =>
+      (
+        await sql<{ n: number }[]>`
+          select count(*)::int as n from public.source_records where event_id = ${eventId}`
+      )[0]?.n;
+
+    it('attaches an aggregator record that links to the institution page', async () => {
+      await run([institutionItem()]);
+      const s = await runAggregator([aggregatorItem()]);
+      expect(s.stats.events_created).toBe(0);
+      const inst = await q.event('hoffmann');
+      expect((await q.event('agg-hoffmann')).id).toBe(inst.id);
+      expect(inst.title).toBe("Les Contes d'Hoffmann");
+      expect(await recordsOf(inst.id)).toBe(2);
+    });
+
+    it('attaches the institution record when the aggregator arrived first, and its title wins', async () => {
+      await runAggregator([aggregatorItem()]);
+      const s = await run([institutionItem()]);
+      expect(s.stats.events_created).toBe(0);
+      const ev = await q.event('agg-hoffmann');
+      expect((await q.event('hoffmann')).id).toBe(ev.id);
+      expect(ev.title).toBe("Les Contes d'Hoffmann");
+    });
+
+    it('does not merge without the declared page (titles alone are too different)', async () => {
+      await run([institutionItem()]);
+      await runAggregator([aggregatorItem({ sameAs: undefined })]);
+      expect((await q.event('agg-hoffmann')).id).not.toBe((await q.event('hoffmann')).id);
+    });
+
+    it('does not merge when the dates are incompatible', async () => {
+      await run([institutionItem()]);
+      await runAggregator([aggregatorItem({ dates: [{ start: at(60, 20) }] })]);
+      expect((await q.event('agg-hoffmann')).id).not.toBe((await q.event('hoffmann')).id);
+    });
+
+    it('attaches by the City ticket page with an event id shared with an institution performance', async () => {
+      const ticket = 'https://entradasba.buenosaires.gob.ar/evento/8df036b4-df44-49bf';
+      await run([{ ...institutionItem(), tickets: ticket }]);
+      await runAggregator([
+        aggregatorItem({ sameAs: undefined, tickets: `${ticket}?utm_source=agenda` }),
+      ]);
+      expect((await q.event('agg-hoffmann')).id).toBe((await q.event('hoffmann')).id);
+    });
+
+    it('does not merge on a generic ticketing page shared by different shows', async () => {
+      const venuePage = 'https://www.passline.com/sitio/sala-sample';
+      await run([{ ...institutionItem(), tickets: venuePage }]);
+      await runAggregator([aggregatorItem({ sameAs: undefined, tickets: venuePage })]);
+      expect((await q.event('agg-hoffmann')).id).not.toBe((await q.event('hoffmann')).id);
+    });
+
+    it('does not merge two records of the same source that link to the same page', async () => {
+      await runAggregator([
+        aggregatorItem({
+          id: 'film-a',
+          title: 'Ciclo: primera película',
+          url: 'https://agenda.sample.test/eventos/a',
+        }),
+        aggregatorItem({
+          id: 'film-b',
+          title: 'Ciclo: segunda película',
+          url: 'https://agenda.sample.test/eventos/b',
+        }),
+      ]);
+      expect((await q.event('film-a')).id).not.toBe((await q.event('film-b')).id);
+    });
   });
 
   it('does not merge a same-titled event on different dates (new season)', async () => {

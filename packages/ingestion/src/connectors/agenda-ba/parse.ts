@@ -1,6 +1,8 @@
 import {
+  canonicalUrl,
   detectStatusEs,
   htmlToText,
+  isPageKey,
   type NormalizedEventInput,
   NormalizedEventSchema,
   type ParsedOccurrenceStatus,
@@ -15,8 +17,10 @@ import {
   type ParseResult,
   type RawRecord,
 } from '../../core/connector';
+import { isSharedTicketKey } from '../../core/matcher';
 import { buildOccurrences, isExhibition, parseInstants } from './dates';
 import { cleanEtiqueta, etiquetaKey, mapDisciplines, PERFORMING_ETIQUETAS } from './disciplines';
+import { hostOf, SEED_INSTITUTION_HOSTS } from './institutions';
 import { clean, resolvePlace } from './venues';
 
 export const SOURCE_SLUG = 'agenda-ba';
@@ -113,6 +117,24 @@ export function pickTicketsUrl(buttons: LindaEvent['botonesSidebar']): string | 
     if (url) return url;
   }
   return null;
+}
+
+/**
+ * Enlaces del evento que identifican la misma producción en otra fuente: la ficha en el
+ * sitio de una institución con conector propio (Linda los rotula "Entradas") y la página
+ * de la ticketera oficial de la Ciudad con id de evento o visita. Sirven para deduplicar.
+ */
+export function sameAsLinks(buttons: LindaEvent['botonesSidebar']): string[] {
+  const out = new Set<string>();
+  for (const b of buttons ?? []) {
+    const url = cleanTrackingUrl(b.uri);
+    if (!url) continue;
+    const host = hostOf(url);
+    const key = canonicalUrl(url);
+    const institutional = host !== null && host in SEED_INSTITUTION_HOSTS && isPageKey(key);
+    if (institutional || isSharedTicketKey(key)) out.add(url);
+  }
+  return [...out].slice(0, 20);
 }
 
 function absoluteHttpUrl(value: string | null | undefined): string | null {
@@ -273,6 +295,7 @@ export function buildEvent(raw: RawRecord, _ctx: ParseContext): ParseResult {
     ...(institution.name ? { institutionName: institution.name } : {}),
     ...(institution.url ? { institutionUrl: institution.url } : {}),
     officialUrl,
+    sameAsUrls: sameAsLinks(item.botonesSidebar),
     ...(ticketsUrl ? { ticketsUrl } : {}),
     ...(imageUrl ? { imageUrl } : {}),
     ...(free ? { priceText: FREE_ACCESS_TEXT, isFree: true, priceVerified: true } : {}),

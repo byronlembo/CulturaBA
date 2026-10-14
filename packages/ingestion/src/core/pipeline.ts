@@ -424,7 +424,7 @@ async function processRecord(
   }
   let reviewCandidate: { event: EventRow; score: number } | undefined;
   if (!event) {
-    const match = await findMatchingEvent(tx, normalized, institution.id);
+    const match = await findMatchingEvent(tx, normalized, institution.id, ctx.source.id);
     event = match.event;
     reviewCandidate = match.reviewCandidate;
   }

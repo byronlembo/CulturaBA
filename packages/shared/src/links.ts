@@ -2,6 +2,25 @@
 
 export const APP_SCHEME = 'culturaba';
 
+/**
+ * Clave para comparar URLs de distintas fuentes: sin esquema, sin `www.`, sin query
+ * ni fragmento, sin `/` final y en minúsculas. Replica literalmente la expresión SQL
+ * de `canonicalUrlSql` en el worker, así que ambos lados producen la misma clave.
+ */
+export function canonicalUrl(url: string): string {
+  const noFragment = url.split('#')[0] ?? '';
+  const noQuery = noFragment.split('?')[0] ?? '';
+  return noQuery
+    .replace(/^https?:\/\/(www\.)?/i, '')
+    .replace(/\/+$/, '')
+    .toLowerCase();
+}
+
+/** Una clave canónica sirve para deduplicar solo si apunta a una página, no a un sitio. */
+export function isPageKey(key: string): boolean {
+  return /^[^/]+\/[^/]+/.test(key);
+}
+
 export function normalizeBaseUrl(baseUrl: string): string {
   return baseUrl.replace(/\/+$/, '');
 }

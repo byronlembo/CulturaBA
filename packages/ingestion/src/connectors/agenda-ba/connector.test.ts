@@ -26,6 +26,7 @@ import {
   eventPageUrl,
   extractPriceText,
   pickTicketsUrl,
+  sameAsLinks,
   statusFromTitle,
 } from './parse';
 import { classifyPlace, resolvePlace } from './venues';
@@ -901,5 +902,35 @@ describe('agenda-ba · lugares, enlaces, precio y estado (puro)', () => {
     expect(statusFromTitle('Karol G – Agotado')).toBe('sold_out');
     expect(statusFromTitle('Obra reprogramada')).toBe('scheduled');
     expect(statusFromTitle('Ty Segall')).toBe('scheduled');
+  });
+});
+
+describe('agenda-ba · sameAsUrls para deduplicar con la fuente institucional', () => {
+  it('EL BARBERO DE SEVILLA declara la ficha del Colón (Linda la rotula "Entradas")', () => {
+    expect(eventOf('el-barbero-de-sevilla-1').sameAsUrls).toEqual([
+      'https://teatrocolon.org.ar/produccion/el-barbero-de-sevilla/',
+    ]);
+  });
+
+  it('LOS CUENTOS DE HOFFMANN declara la página de entradasba con id de evento', () => {
+    expect(eventOf('los-cuentos-de-hoffmann').sameAsUrls).toEqual([
+      'https://entradasba.buenosaires.gob.ar/evento/8df036b4-df44-49bf-aafb-2402f5ea675e',
+    ]);
+  });
+
+  it('BABASÓNICOS no declara nada: Movistar Arena no tiene conector y es una ticketera', () => {
+    expect(eventOf('babasonicos').sameAsUrls).toEqual([]);
+  });
+
+  it('descarta portadas, ticketeras genéricas y páginas de entradasba sin id; limpia el tracking', () => {
+    expect(
+      sameAsLinks([
+        { uri: 'https://teatrocolon.org.ar/', title: 'Sitio' },
+        { uri: 'https://www.passline.com/eventos/algo', title: 'Entradas' },
+        { uri: 'https://entradasba.buenosaires.gob.ar/', title: 'Entradas' },
+        { uri: 'https://complejoteatral.gob.ar/ver/El-tren-fluvial?gclid=abc', title: 'Entradas' },
+        { uri: 'https://complejoteatral.gob.ar/ver/El-tren-fluvial', title: 'Más info' },
+      ]),
+    ).toEqual(['https://complejoteatral.gob.ar/ver/El-tren-fluvial']);
   });
 });

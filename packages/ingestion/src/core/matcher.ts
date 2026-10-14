@@ -1,8 +1,15 @@
-import { dedupKey, diceCoefficient, type NormalizedEvent } from '@culturaba/shared';
+import {
+  canonicalUrl,
+  dedupKey,
+  diceCoefficient,
+  isPageKey,
+  type NormalizedEvent,
+} from '@culturaba/shared';
 import {
   type EventRow,
   eventOccurrenceDates,
   findEventsByDedupKey,
+  findEventsBySameAsUrls,
   findEventsOnDates,
 } from '../db/repo';
 import type { Queryable } from '../db/sql';
@@ -13,12 +20,16 @@ const DATE_TOLERANCE_DAYS = 1;
 
 export interface MatchResult {
   event: EventRow | null;
+  /** Por qué se fusionó (para métricas y depuración). */
+  matchedBy?: 'same_as_url' | 'dedup_key' | 'fuzzy';
   /** Parecido pero no suficiente para fusionar: se crea nuevo y se deja para revisión. */
   reviewCandidate?: { event: EventRow; score: number };
 }
 
 /**
  * Encuentra el evento existente al que pertenece un registro normalizado.
+ *  0. misma página: la URL oficial, la del registro o una `sameAsUrls` coincide con la
+ *     de un evento de la misma institución (en cualquier sentido) + fechas compatibles;
  *  1. dedup_key (título normalizado | institución) + compatibilidad de fechas;
  *  2. fuzzy (Dice) entre eventos de la misma institución con fechas en común:
  *     ≥ 0.85 fusiona, 0.70–0.85 crea nuevo y marca para revisión.
@@ -28,16 +39,27 @@ export async function findMatchingEvent(
   db: Queryable,
   normalized: NormalizedEvent,
   institutionId: string,
+  sourceId: string,
 ): Promise<MatchResult> {
   const incomingRanges = normalized.occurrences.map((o) => ({
     start: o.startDate,
     end: o.endDate,
   }));
 
+  const urlKeys = sameAsKeys(normalized);
+  const byUrl = await findEventsBySameAsUrls(db, institutionId, sourceId, urlKeys);
+  for (const candidate of byUrl) {
+    if (await datesCompatible(db, candidate.id, incomingRanges)) {
+      return { event: candidate, matchedBy: 'same_as_url' };
+    }
+  }
+
   const key = dedupKey(normalized.title, normalized.institutionSlug);
   const byKey = await findEventsByDedupKey(db, key, institutionId);
   for (const candidate of byKey) {
-    if (await datesCompatible(db, candidate.id, incomingRanges)) return { event: candidate };
+    if (await datesCompatible(db, candidate.id, incomingRanges)) {
+      return { event: candidate, matchedBy: 'dedup_key' };
+    }
   }
 
   if (incomingRanges.length === 0) return { event: null };
@@ -48,11 +70,34 @@ export async function findMatchingEvent(
     const score = diceCoefficient(normalized.title, candidate.title);
     if (!best || score > best.score) best = { event: candidate, score };
   }
-  if (best && best.score >= FUZZY_MATCH_THRESHOLD) return { event: best.event };
+  if (best && best.score >= FUZZY_MATCH_THRESHOLD) return { event: best.event, matchedBy: 'fuzzy' };
   if (best && best.score >= FUZZY_REVIEW_THRESHOLD) {
     return { event: null, reviewCandidate: best };
   }
   return { event: null };
+}
+
+/**
+ * Páginas de venta que identifican UNA producción: la ticketera oficial de la Ciudad
+ * usa un id por evento o por visita. Otras ticketeras (portadas, páginas de sala,
+ * pases de festival) no sirven para afirmar que dos registros son el mismo evento.
+ */
+const SHARED_TICKET_KEY_RE = /^entradasba\.buenosaires\.gob\.ar\/(?:evento|visitas)\/[^/]+$/;
+
+export function isSharedTicketKey(key: string): boolean {
+  return SHARED_TICKET_KEY_RE.test(key);
+}
+
+/** Claves canónicas que identifican a este registro: sus páginas y sus entradas oficiales. */
+export function sameAsKeys(normalized: NormalizedEvent): string[] {
+  const pages = [normalized.officialUrl, normalized.url, ...(normalized.sameAsUrls ?? [])]
+    .map(canonicalUrl)
+    .filter(isPageKey);
+  const tickets = [normalized.ticketsUrl, ...normalized.occurrences.map((o) => o.ticketsUrl)]
+    .filter((u): u is string => typeof u === 'string' && u.length > 0)
+    .map(canonicalUrl)
+    .filter(isSharedTicketKey);
+  return [...new Set([...pages, ...tickets])];
 }
 
 async function datesCompatible(

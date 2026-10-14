@@ -120,6 +120,12 @@ export const NormalizedEventSchema = z.object({
   institutionName: z.string().trim().min(1).optional(),
   institutionUrl: z.url().optional(),
   officialUrl: z.url(),
+  /**
+   * Otras páginas que la fuente declara como esta misma producción (p. ej. el enlace
+   * de un agregador a la ficha institucional). Sirven para deduplicar entre fuentes;
+   * nunca ticketeras ni portadas genéricas.
+   */
+  sameAsUrls: z.array(z.url()).max(20).default([]),
   ticketsUrl: z.url().optional(),
 
   imageUrl: z.url().optional(),

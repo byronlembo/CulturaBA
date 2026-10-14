@@ -1,4 +1,11 @@
-import { buildEventDeepLink, buildEventUrl, buildMapUrl, buildShareMessage } from './links';
+import {
+  buildEventDeepLink,
+  buildEventUrl,
+  buildMapUrl,
+  buildShareMessage,
+  canonicalUrl,
+  isPageKey,
+} from './links';
 
 describe('event links', () => {
   it('builds stable web and deep links', () => {
@@ -58,5 +65,30 @@ describe('buildShareMessage', () => {
 
   it('omits empty parts', () => {
     expect(buildShareMessage({ title: 'X', eventUrl: 'https://a/b' })).toBe('X\nhttps://a/b');
+  });
+});
+
+describe('canonicalUrl', () => {
+  it('ignores scheme, www, query, fragment, trailing slash and case', () => {
+    const key = 'teatrocolon.org.ar/produccion/les-contes-dhoffmann';
+    expect(canonicalUrl('https://teatrocolon.org.ar/produccion/les-contes-dhoffmann/')).toBe(key);
+    expect(canonicalUrl('http://www.TeatroColon.org.ar/produccion/les-contes-dhoffmann')).toBe(key);
+    expect(
+      canonicalUrl(
+        'https://teatrocolon.org.ar/produccion/les-contes-dhoffmann/?utm_source=x#fechas',
+      ),
+    ).toBe(key);
+  });
+
+  it('keeps distinct pages distinct', () => {
+    expect(canonicalUrl('https://teatrocolon.org.ar/produccion/el-cascanueces/')).not.toBe(
+      canonicalUrl('https://teatrocolon.org.ar/produccion/el-cascanueces-2/'),
+    );
+  });
+
+  it('only treats keys with a path as pages', () => {
+    expect(isPageKey(canonicalUrl('https://teatrocolon.org.ar/'))).toBe(false);
+    expect(isPageKey(canonicalUrl('https://www.teatrocolon.org.ar'))).toBe(false);
+    expect(isPageKey(canonicalUrl('https://teatrocolon.org.ar/produccion/x/'))).toBe(true);
   });
 });

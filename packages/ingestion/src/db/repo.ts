@@ -1,4 +1,5 @@
 import type { Database } from '@culturaba/shared';
+import type { PendingQuery, Row } from 'postgres';
 import type { RunStats } from '../core/metrics';
 import type { Queryable } from './sql';
 
@@ -249,6 +250,64 @@ export async function findEventsByDedupKey(
     where dedup_key = ${dedupKey} and institution_id = ${institutionId}
       and status <> 'rejected' and merged_into_event_id is null
     order by last_verified_at desc nulls last`;
+}
+
+/**
+ * Misma expresión que `canonicalUrl()` de @culturaba/shared, en SQL: sin fragmento ni
+ * query, sin esquema ni `www.`, sin `/` final, en minúsculas.
+ */
+function canonicalUrlSql(db: Queryable, expr: PendingQuery<Row[]>) {
+  return db`lower(regexp_replace(regexp_replace(
+    split_part(split_part(${expr}, '#', 1), '?', 1),
+    '^https?://(www\\.)?', '', 'i'), '/+$', ''))`;
+}
+
+/**
+ * Eventos de la institución que OTRA fuente ya describe con la misma página: la URL de
+ * uno de sus registros, la oficial que normalizó, alguna `sameAsUrls` que declaró o una
+ * URL de entradas (del evento o de una función) coincide con alguna de las claves
+ * canónicas dadas (el matcher solo manda claves de páginas y de entradas oficiales). Funciona en los dos sentidos (un
+ * agregador que enlaza a la ficha institucional, o la institución que llega después).
+ * Los registros de la misma fuente no cuentan: dos ítems de un agregador que enlazan
+ * a la misma página de un ciclo no son por eso el mismo evento.
+ */
+export async function findEventsBySameAsUrls(
+  db: Queryable,
+  institutionId: string,
+  sourceId: string,
+  keys: string[],
+): Promise<EventRow[]> {
+  if (keys.length === 0) return [];
+  return db<EventRow[]>`
+    select e.* from public.events e
+    where e.institution_id = ${institutionId} and e.status <> 'rejected'
+      and e.merged_into_event_id is null
+      and exists (
+        select 1 from public.source_records r
+        where r.event_id = e.id and r.source_id <> ${sourceId}
+          and (
+            ${canonicalUrlSql(db, db`r.url`)} = any(${keys})
+            or ${canonicalUrlSql(db, db`r.normalized ->> 'officialUrl'`)} = any(${keys})
+            or ${canonicalUrlSql(db, db`r.normalized ->> 'ticketsUrl'`)} = any(${keys})
+            or exists (
+              select 1
+              from jsonb_array_elements_text(
+                case when jsonb_typeof(r.normalized -> 'sameAsUrls') = 'array'
+                     then r.normalized -> 'sameAsUrls' else '[]'::jsonb end
+              ) as s(u)
+              where ${canonicalUrlSql(db, db`s.u`)} = any(${keys})
+            )
+            or exists (
+              select 1
+              from jsonb_array_elements(
+                case when jsonb_typeof(r.normalized -> 'occurrences') = 'array'
+                     then r.normalized -> 'occurrences' else '[]'::jsonb end
+              ) as o(v)
+              where ${canonicalUrlSql(db, db`o.v ->> 'ticketsUrl'`)} = any(${keys})
+            )
+          )
+      )
+    order by e.last_verified_at desc nulls last`;
 }
 
 /** Eventos de la institución con alguna ocurrencia (visible) que toque las fechas dadas. */

@@ -88,7 +88,11 @@ export async function reconcileOccurrences(
       unmatchedIncoming.push(inc);
     }
   }
-  let unmatchedExisting = [...existingByKey.values()];
+  // Las funciones que ya terminaron y salen del listado simplemente pasaron: no son
+  // ausencias ni reprogramaciones (las fuentes que listan "desde hoy" las sueltan a diario).
+  let unmatchedExisting = [...existingByKey.values()].filter(
+    (old) => Date.parse(old.ends_at ?? old.starts_at) >= ctx.nowMs,
+  );
 
   // Heurística de reprogramación: exactamente una desapareció y una apareció,
   // mismo venue, a menos de 90 días.
@@ -160,10 +164,9 @@ export async function reconcileOccurrences(
     }
   }
 
-  // Desaparecidas de este registro (solo futuras, nunca se borran).
+  // Desaparecidas de este registro (ya filtradas a futuras; nunca se borran).
   for (const old of unmatchedExisting) {
     if (old.status === 'missing') continue;
-    if (Date.parse(old.ends_at ?? old.starts_at) < ctx.nowMs) continue;
     const outcome = await bumpOccurrenceMiss(db, old.id, OCCURRENCE_MISS_THRESHOLD);
     if (outcome === 'missing') {
       result.missing += 1;
