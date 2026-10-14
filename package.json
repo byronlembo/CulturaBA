@@ -21,7 +21,9 @@
     "db:types": "bash scripts/pg-local.sh types",
     "db:check-rls": "bash scripts/pg-local.sh check-rls",
     "db:url": "bash scripts/pg-local.sh url",
-    "ingest": "pnpm --filter @culturaba/ingestion ingest"
+    "ingest": "pnpm --filter @culturaba/ingestion ingest",
+    "dev:api": "pnpm --filter @culturaba/devapi start",
+    "mobile": "pnpm --filter @culturaba/mobile start"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

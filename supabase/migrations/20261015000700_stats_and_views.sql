@@ -118,6 +118,8 @@ select
   v.lng as venue_lng,
   coalesce(d.disciplines, '{}'::text[]) as disciplines,
   o.next_starts_at,
+  o.next_kind,
+  o.next_ends_at,
   o.last_ends_at,
   coalesce(o.upcoming_count, 0) as upcoming_count,
   coalesce(o.is_ongoing, false) as is_ongoing,
@@ -138,6 +140,11 @@ left join lateral (
   -- exhibition counts as now, a future show as its start.
   select
     min(greatest(oc.starts_at, now())) filter (where coalesce(oc.ends_at, oc.starts_at) >= now()) as next_starts_at,
+    -- kind / end of that same "next" occurrence (a range needs "Del … al …" in the UI)
+    (array_agg(oc.kind order by greatest(oc.starts_at, now()), oc.starts_at)
+      filter (where coalesce(oc.ends_at, oc.starts_at) >= now()))[1] as next_kind,
+    (array_agg(oc.ends_at order by greatest(oc.starts_at, now()), oc.starts_at)
+      filter (where coalesce(oc.ends_at, oc.starts_at) >= now()))[1] as next_ends_at,
     max(coalesce(oc.ends_at, oc.starts_at)) as last_ends_at,
     (count(*) filter (where coalesce(oc.ends_at, oc.starts_at) >= now()))::int as upcoming_count,
     bool_or(oc.starts_at <= now() and coalesce(oc.ends_at, oc.starts_at) >= now()) as is_ongoing
