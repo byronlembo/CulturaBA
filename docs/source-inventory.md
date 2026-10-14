@@ -1,117 +1,126 @@
 # Inventario de fuentes
 
-> **Estado de verificación (14-oct-2026):** la política de red del entorno de desarrollo
-> bloqueó el acceso a todos los dominios culturales (`403` en el túnel del proxy) y a
-> `*.supabase.co`. Nada de lo que sigue sobre el *contenido* de cada sitio pudo
-> comprobarse desde aquí: lo marcado como **hipótesis** son suposiciones razonables
-> basadas en cómo suelen publicarse estas agendas, y debe confirmarse con el
-> protocolo de relevamiento de abajo antes de escribir un conector. Las URLs
-> oficiales son las que entregó el encargo.
-
-## Protocolo de relevamiento (por fuente)
-
-Ejecutar en orden, registrar el resultado en la ficha de la fuente y guardar
-fixtures con `pnpm ingest record --source <slug>` apenas haya un conector mínimo:
-
-1. `GET /robots.txt` — rutas prohibidas, `Crawl-delay`. El cliente HTTP lo respeta solo.
-2. `GET /sitemap.xml` (y sitemaps anidados) — ¿lista páginas de eventos con `lastmod`?
-3. Detectar CMS: cabeceras, `/wp-json/` (WordPress), `/wp-json/tribe/events/v1/events`
-   (plugin *The Events Calendar*), `/jsonapi` (Drupal), `/feed/` o `/rss` (RSS).
-4. En una página de detalle: `<script type="application/ld+json">` con `@type: Event`
-   (startDate, endDate, location, offers, image) — la vía más fiable si existe.
-5. Si el listado se arma por JavaScript (calendario interactivo): abrir con
-   Playwright (`PLAYWRIGHT_BROWSERS_PATH=/opt/pw-browsers`) y capturar las peticiones
-   XHR/fetch (`page.on('request')`) para encontrar el JSON que alimenta el calendario.
-6. Anotar: patrón de URL de detalle, identificador estable (slug/id), campos
-   disponibles, formato crudo de las fechas (ejemplos literales), salas/espacios,
-   términos de uso e indicaciones sobre imágenes.
-7. Elegir el método en este orden: API/JSON oficial → JSON-LD → RSS → HTML con
-   `cheerio` → navegador automatizado (último recurso).
+> **Estado de verificación (14-oct-2026, relevamiento en vivo).** Cuatro agentes
+> relevaron las fuentes con el protocolo de abajo, respetando robots.txt, con un
+> User-Agent identificable, ≥ 1,5 s entre peticiones y sin eludir ninguna protección.
+> Los informes completos, con selectores y ejemplos literales, están en
+> `docs/research/*.md`; las capturas crudas, en `packages/ingestion/fixtures/<slug>/2026-10-14/`.
+> Lo que sigue son **hechos comprobados** salvo donde se marca *hipótesis*.
 
 ## Tabla resumen
 
-| Fuente | Institución | URL oficial | Disciplinas (hipótesis) | Método probable | Frecuencia sugerida | Prioridad | Conector |
+| Fuente (`slug`) | Institución | URL oficial | Acceso | Método | Peticiones/corrida | Prioridad | Conector |
 |---|---|---|---|---|---|---|---|
-| `teatro-colon` | Teatro Colón | https://teatrocolon.org.ar/calendario/ | ópera, clásica, ballet/danza, conciertos | calendario JS → JSON (XHR) o HTML | cada 6 h | máxima | **pendiente** (bloqueado por red) |
-| `mnba` | Museo Nacional de Bellas Artes | https://bellasartes.gob.ar/agenda/ | exposiciones, visitas guiadas, talleres, charlas, cine | HTML (posible WordPress) | cada 6 h | máxima | **pendiente** |
-| `palacio-libertad` | Palacio Libertad | https://palaciolibertad.gob.ar/agenda/ | música, teatro, artes visuales, cine, literatura, infantil | HTML/JSON (posible WordPress) | cada 6 h | máxima | **pendiente** |
-| `complejo-teatral` | Complejo Teatral de Buenos Aires (San Martín, Alvear, Regio, Sarmiento, De la Ribera) | https://complejoteatral.gob.ar/ | teatro, danza, música | HTML | cada 12 h | alta | no iniciado |
-| `agenda-ba` | Turismo Buenos Aires | https://turismo.buenosaires.gob.ar/es/article/que-hacer-esta-semana | agregador multi-institución | HTML editorial | diaria | alta (dedup cross-institución) | no iniciado |
-| `cultura-gob-ar` | Agenda Cultural Federal | https://www.cultura.gob.ar/agenda/filtro/ | agregador nacional | HTML con filtros | diaria | complementaria | no iniciado |
-| `sample` | (sintética) | — | todas | JSON | — | — | **operativo** (solo tests/desarrollo) |
+| `teatro-colon` | Teatro Colón | https://teatrocolon.org.ar/calendario/ | 200 (Cloudflare CDN, sin challenge) | HTML server-side (`cheerio`) | ~3 listados mensuales + ~30 detalles | 100 | en implementación |
+| `complejo-teatral` | Complejo Teatral de Buenos Aires | https://complejoteatral.gob.ar/ | 200 (Cloudflare CDN, sin challenge) | HTML server-side + agenda diaria `/agenda/?fecha=` | 1 home + 28 días + ~33 detalles ≈ 62 | 100 | en implementación |
+| `agenda-ba` | Agregador oficial de la Ciudad (**Linda**) | https://linda.buenosaires.gob.ar/ | 200 (sin Cloudflare) | **API JSON** `/api/frontend/events/filter?limit=200` | 1–2 | 10 | en implementación |
+| `mnba` | Museo Nacional de Bellas Artes | https://bellasartes.gob.ar/agenda/ | **403 Cloudflare managed challenge (Turnstile interactivo) en toda la zona** | — | — | 100 | **bloqueado** |
+| `palacio-libertad` | Palacio Libertad | https://palaciolibertad.gob.ar/agenda/ | **403 challenge en toda la zona (incluso robots.txt)** | — | — | 100 | **bloqueado** |
+| `cultura-gob-ar` | Agenda Cultural Federal | https://www.cultura.gob.ar/agenda/filtro/ | **403 challenge**; `datos.cultura.gob.ar` también | — | — | complementaria | bloqueado |
+| (futuro) `argentina-gob-ar-agenda` | Secretaría de Cultura de la Nación (serie semanal "Agenda de Cultura para el fin de semana") | https://www.argentina.gob.ar/cultura/noticias | 200 (Drupal 7, `Crawl-delay: 10`, honeypots `/cdn-cgi/content` que no hay que seguir) | HTML editorial | 1–2 listados + ~1 noticia/semana | 10 | no iniciado |
 
-Prioridad = valor para el usuario × facilidad estimada. `priority` en la tabla
-`sources` decide quién gana cuando dos fuentes describen el mismo evento:
-institución (100) > agregador de la Ciudad (10).
+`priority` decide el merge editorial cuando dos fuentes describen el mismo evento:
+institución (100) sobrescribe; agregador (10) solo rellena vacíos y aporta funciones.
 
-## Fichas
+## Hechos clave por fuente
 
-### Teatro Colón — `teatro-colon`
-- **Institución / venue seed:** Teatro Colón, Cerrito 628, CABA (dirección ampliamente
-  publicada; `address_verified_at` queda nulo hasta confirmarla en el sitio).
-- **Espacios conocidos (hipótesis a mapear):** Sala Principal, Salón Dorado, Centro de
-  Experimentación (CETC), Colón Fábrica (Av. Pedro de Mendoza, Barracas — *otra
-  dirección*: nunca heredar la del teatro). Regla: sala desconocida → venue de la
-  institución + `room` textual, sin inventar dirección.
-- **Disciplinas:** `opera_clasica` (ópera, sinfónicos, cámara, Chopiniana), `danza`
-  (ballet), `musica_vivo_jazz` solo si la programación lo indica.
-- **Hipótesis de extracción:** el calendario es una vista por mes alimentada por
-  JavaScript; buscar el endpoint JSON con Playwright. Cada función es una fila
-  propia (fecha + hora + sala) → ocurrencias `timed`, varias por título.
-- **Riesgos:** títulos con temporada ("Temporada 2026"), funciones agotadas, cambios
-  de elenco (no relevantes para dedup), WAF que bloquee IPs de datacenter.
-- **Imágenes:** usar la URL original solo si los términos lo permiten; crédito
-  fotográfico si aparece.
+### Teatro Colón — `teatro-colon` (`docs/research/teatro-colon.md`)
+- WordPress (CPT `production`), Yoast sitemaps (`production-sitemap.xml` con `lastmod`,
+  595 producciones históricas). `robots.txt`: todo permitido, sin `Crawl-delay`.
+- REST `/wp-json/wp/v2/productions` existe (598 ítems, `class_list` con `places-*` y
+  `production-category-*`) pero **sin funciones** (`acf: []`). El único XHR del
+  calendario (`admin-ajax.php?action=mobile-calendar`) devuelve solo la grilla de días.
+- **Listado**: `/calendario/?a=YYYY&mes=M`, una fila por función (`div.calendar-item`:
+  `.day-number` "14.", `.day-hour` "mié_17.30 hs", título, categoría —que *no* es la
+  sala—, botón `+ info` con la URL de detalle). El mes corriente solo lista desde hoy.
+- **Detalle** `/produccion/<slug>/`: todas las funciones en `section.dates .day`
+  (`"viernes 09/10, 20:00 hs"`, sin año → tomarlo del listado/secuencia de meses),
+  estado por clases (`inactive` pasada, `coming_soon` aún no a la venta, `sold_out`
+  agotada definida en CSS), botón "Gratuita" ⇒ gratis, sala en `h4#the_place`
+  (`Sala principal`, `Salón Dorado`, `CETC`, `Plaza Vaticano y Teatro Colón`, o vacío),
+  imagen `img[itemprop=image]` sin crédito. Microdatos `startDate/endDate` **no fiables**.
+- **Sin precios** en ninguna página. Cancelación/reprogramación: sin marcador (solo
+  desaparición). Direcciones publicadas: Cerrito 628 (footer), CETC Viamonte 1168,
+  Colón Fábrica Av. Pedro de Mendoza 2163 (La Boca).
+- Categorías del sitio (51) → `opera_clasica` (ópera, conciertos, cámara, OFBA/OETC,
+  Mozarteum, Aura, GI, Clásica Joven…), `danza` (ballet), `musica_vivo_jazz` (jazz,
+  tango), `cine` (cine-documental, música y cine), `otros` (talleres, escuelas…),
+  "Colón para niños" como etiqueta infantil.
 
-### Museo Nacional de Bellas Artes — `mnba`
-- **Institución / venue seed:** Av. del Libertador 1473, Recoleta (a verificar).
-- **Disciplinas:** `museos_exposiciones` (muestras → ocurrencia `range` con
-  `schedule_text` = horario de apertura), `literatura_charlas` (charlas), `cine`
-  (ciclos), `historia_patrimonio`/`fotografia_artes_visuales` según la actividad.
-- **Hipótesis de extracción:** agenda HTML con tarjetas por actividad y página de
-  detalle; probable WordPress (`/wp-json/wp/v2/`). Visitas guiadas recurrentes:
-  si enumera fechas → una `timed` por fecha; si publica un patrón ("sábados 16 h")
-  → `range` + `recurrence_rule`.
-- **Gratuidad:** solo `is_free = true` cuando el texto lo dice ("entrada libre y gratuita").
+### Complejo Teatral de Buenos Aires — `complejo-teatral` (`docs/research/complejo-teatral.md`)
+- WordPress 7.1 tema propio (migrado de Laravel); CPT `produccion` **no expuesto** en
+  REST; RSS `/feed/?post_type=produccion` sin fechas; `robots.txt` permite todo lo usado.
+- **Listado**: home `div.list-item[id=<postId>]` (33 producciones vigentes) con texto
+  de funciones, `sala / teatro`, entradas y URL de detalle. **`/agenda/?fecha=DD-MM-YYYY`**
+  (equivalente GET del `admin-ajax` `filtrar_producciones`) devuelve qué producciones
+  tienen función ese día: es la única forma estructurada de obtener los *días*.
+- **Detalle** `/produccion/<slug>/`: `.info` con `Funciones:`, `Duración:`, `Valor de las
+  localidades:` ("Entrada gratuita" o importes), `Dónde:` (teatro + sala) y
+  **`li.address` con la dirección publicada** (p. ej. Av. Corrientes 1530); crédito de
+  foto a veces (`.cover_credits`); avisos en rojo ("no habrá funciones" ciertos días).
+- **Horarios solo en texto libre**, en tres formas: patrón semanal ("Jueves a domingos,
+  20 horas", "Miércoles a sábados, 20.30 horas. Domingos, 19.30 horas"), fechas
+  enumeradas ("Viernes 16, sábado 17 y domingo 18 de octubre, 20 horas", "Jueves 29 de
+  octubre, 16.30 y 20.30 horas") y rangos de muestras/ciclos ("Del 15 de septiembre al
+  28 de noviembre, de lunes a sábados de 11 a 20 horas", "Marzo a noviembre").
+- Regla del conector: **los días salen de la agenda diaria del sitio; la hora, del
+  texto para ese día de semana; sin hora para ese día ⇒ no se emite la función.**
+  Muestras ⇒ `range`. Sin dirección publicada ⇒ queda candidato (correcto).
 
-### Palacio Libertad — `palacio-libertad`
-- **Institución / venue seed:** Sarmiento 151, CABA (a verificar). Muchos espacios
-  internos (Auditorio Nacional, salas por piso) → `room`.
-- **Disciplinas:** amplio abanico; se necesita una tabla de mapeo
-  categoría-del-sitio → disciplina CulturaBA, con `otros` como escape y meta ≥ 90 %
-  de cobertura (el resto queda `candidate`).
-- **Hipótesis de extracción:** agenda HTML con filtros; probable WordPress con
-  JSON. Actividades de varios días (ferias, muestras) → `range`; conciertos → `timed`.
+### Agenda oficial de la Ciudad (Linda) — `agenda-ba` (`docs/research/agenda-ba.md`)
+- `buenosaires.gob.ar/agenda` redirige a **Linda** (Next.js sobre Drupal), sin Cloudflare,
+  sin `robots.txt`. `GET /api/frontend/events/filter?limit=200` → ~268 eventos de decenas
+  de instituciones: `id` UUID estable, `slug`, título, descripción (HTML), imagen,
+  `acceso` (`sin_costo`), `botonesSidebar` (enlaces a ticketeras e **URLs institucionales**,
+  p. ej. `teatrocolon.org.ar/produccion/<slug>/`, útiles para dedup), `ubicacion`
+  (título, dirección, lat/lng), `fechasDelEvento` (instantes; incluye pasadas; muestras
+  con decenas de instantes y horas mezcladas), `etiquetas`, `tipoEvento` (nulo en 45 %).
+- Limitaciones: `limit/page` no paginan de verdad y el conjunto varía entre llamadas
+  (⇒ `missThreshold = 3`), sin estado estructurado, textos a veces desactualizados,
+  disciplinas requieren heurísticas (`otros` de escape), direcciones inconsistentes.
+- `turismo.buenosaires.gob.ar` ("Qué hacer esta semana", `/es/eventos`): JSON inline
+  editorial, sin ids; `Crawl-delay: 10`. `data.buenosaires.gob.ar`: su `robots.txt`
+  prohíbe `/api/` (no se usa). Complementario, no prioritario.
 
-### Complejo Teatral de Buenos Aires — `complejo-teatral`
-- Cinco salas con direcciones distintas → un venue por sala en `venues`.
-- Obras en temporada con funciones semanales: enumerar fechas si el sitio las lista;
-  si solo publica "jueves a domingos" → `range` + `recurrence_rule` + `schedule_text`.
+### MNBA, Palacio Libertad y cultura.gob.ar (`docs/research/gob-ar-alternatives.md`)
+- Los tres hosts devuelven **`cf-mitigated: challenge`** en HTML y no-HTML (`/feed/`,
+  `/wp-json/`, `/sitemap.xml`, `/api`); con Chromium real y 12 s de espera el challenge
+  **no se resuelve solo** (Turnstile interactivo). `www.bellasartes.gob.ar`: igual;
+  `mnba.gob.ar`: redirige; `datos.cultura.gob.ar`: challenge; `datos.gob.ar`: sin
+  datasets de agenda. **No hay espejo oficial sin challenge.** No se intentó eludirlo.
+- El challenge es de zona completa y probablemente dependa de la IP de egreso
+  (datacenter); un VPS puede recibir lo mismo; una IP residencial podría pasar, sin garantía.
+- Caminos operativos: (a) fixtures capturados por una persona desde su navegador
+  (manifest + HTML en `fixtures/<slug>/<fecha>/`) y parser sobre ellos; (b) correr el
+  conector desde un equipo propio; (c) cobertura parcial vía la serie semanal oficial
+  de `www.argentina.gob.ar/cultura/noticias` ("Agenda de Cultura para el fin de
+  semana": ítems con día, horario, venue y dirección; selección editorial nacional,
+  formato frágil) y vía **Linda**, que incluye eventos de estas instituciones.
 
-### Agendas de la Ciudad — `agenda-ba` (turismo) y Cultura BA
-- Agregadores: el mismo evento puede aparecer también en su institución. Entra con
-  `priority` 10: solo rellena campos vacíos y aporta ocurrencias; dedup
-  cross-institución con umbral alto (ver `docs/architecture.md`).
+## Protocolo de relevamiento (para fuentes nuevas)
 
-### Agenda Cultural Federal — `cultura-gob-ar`
-- Cobertura nacional; filtrar a CABA. Verificar frecuencia de actualización antes de
-  depender de ella. Complementaria.
-
-### Fuentes futuras (no relevadas)
-MALBA, Fundación Proa, Museo Moderno, Centro Cultural Recoleta, Usina del Arte,
-Teatro Nacional Cervantes, Konex, salas de jazz (Thelonious, Bebop). Para geocodificar
-venues sin inventar: datasets abiertos de BA Data (direcciones/geocoder oficial).
+1. `robots.txt` y sitemaps; respetar `Crawl-delay` y rutas prohibidas.
+2. Detectar CMS/API: cabeceras, `/wp-json/`, `/wp-json/tribe/events/v1/events`,
+   `/jsonapi`, `/feed/`, `/api/...`.
+3. ¿Listado server-side o por JS? Si es JS, Playwright capturando XHR/fetch para hallar
+   el JSON real.
+4. Detalle: JSON-LD `Event`, microdatos, `og:*`, selectores de título/fechas/sala/
+   precio/entradas/descripción/imagen/estado.
+5. Ejemplos literales de fechas, ids estables, paginación, salas, categorías, términos
+   de uso e imágenes.
+6. Preferencia: API/JSON oficial → JSON-LD → RSS → HTML con `cheerio` → navegador
+   (último recurso). Nunca eludir challenges, CAPTCHAs ni logins.
+7. `pnpm ingest record --source <slug>` graba fixtures; tests con `FixtureHttpClient`.
 
 ## Cómo agregar un conector
 
-1. Crear `packages/ingestion/src/connectors/<slug>/connector.ts` implementando
-   `SourceConnector` (ver `connectors/sample/connector.ts` como plantilla):
-   `discover` (IO, listado) → `enrich` (IO, detalle, opcional) → `parse` (puro).
-2. Mapear salas y categorías en archivos propios del conector (`venues.ts`,
-   `disciplines.ts`); usar `parseDateEs`/`parseDateRangeEs`/`parseTimeEs` de
-   `@culturaba/shared` y `detectStatusEs`/`detectFreeEs` para estados y gratuidad.
-3. Registrarlo en `connectors/index.ts` y asegurar que exista la fila en `sources`
-   (`supabase/seed.sql`).
-4. `pnpm ingest record --source <slug>` guarda fixtures; escribir tests de parser
-   con `FixtureHttpClient` y snapshots.
-5. `pnpm ingest run --source <slug> --from-fixture latest --dry-run` y luego en vivo.
+1. `packages/ingestion/src/connectors/<slug>/connector.ts` implementando
+   `SourceConnector` (`discover`/`enrich` con IO; `parse` puro). Plantilla: `sample/`.
+2. Mapeos propios de salas → `VenueRef` y categorías → disciplinas; fechas con los
+   helpers de `@culturaba/shared` (`parseDateEs`, `parseDateRangeEs`, `parseTimeEs`,
+   `detectStatusEs`, `detectFreeEs`, `baDateTime`, `rangeBounds`).
+3. Para agregadores: `institutionSlug` por evento (+ `institutionName`/`institutionUrl`
+   para que el pipeline cree la institución) y `priority` baja en `sources`.
+4. Registrar en `connectors/index.ts` (`meta.ready: true`) y la fila en `supabase/seed.sql`.
+5. Tests sobre fixtures con aserciones exactas; `run --from-fixture --dry-run`; una
+   corrida en vivo `--dry-run --limit`.
