@@ -1,3 +1,4 @@
+import { env } from '@/lib/env';
 import { getSupabase } from '@/lib/supabase';
 
 /** create: suma el email a la sesión de invitado (conserva lo guardado). signin: entra a una cuenta existente. */
@@ -33,13 +34,27 @@ function auth() {
   return sb.auth;
 }
 
-/** Envía por email un código de un solo uso. */
-export async function sendCode(flow: AccountFlow, email: string): Promise<void> {
+/**
+ * Envía el email de confirmación. Con las plantillas de Supabase por defecto trae un
+ * enlace que vuelve a la web; con SMTP propio y supabase/templates trae un código.
+ */
+export async function sendEmail(flow: AccountFlow, email: string): Promise<void> {
+  const emailRedirectTo = `${env.webBaseUrl}/perfil`;
   const { error } =
     flow === 'create'
-      ? await auth().updateUser({ email })
-      : await auth().signInWithOtp({ email, options: { shouldCreateUser: false } });
+      ? await auth().updateUser({ email }, { emailRedirectTo })
+      : await auth().signInWithOtp({
+          email,
+          options: { shouldCreateUser: false, emailRedirectTo },
+        });
   if (error) throw new Error(accountErrorMessage(error));
+}
+
+/** Tras tocar el enlace en otro lado: el token nuevo trae el email confirmado. */
+export async function refreshAccount(): Promise<void> {
+  const { data, error } = await auth().refreshSession();
+  if (error) throw new Error(accountErrorMessage(error));
+  if (data.user?.is_anonymous) throw new Error('Todavía no se confirmó: tocá el enlace del email.');
 }
 
 export async function verifyCode(flow: AccountFlow, email: string, code: string): Promise<void> {

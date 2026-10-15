@@ -3,7 +3,14 @@ import { Pressable } from 'react-native';
 import { useApi } from '@/api/context';
 import { Button, Card, Field, Txt } from '@/components/ui/Primitives';
 import { spacing } from '@/theme/tokens';
-import { type AccountFlow, EMAIL_RE, sendCode, signOut, verifyCode } from './account';
+import {
+  type AccountFlow,
+  EMAIL_RE,
+  refreshAccount,
+  sendEmail,
+  signOut,
+  verifyCode,
+} from './account';
 
 type Step = { flow: AccountFlow; sent: boolean } | null;
 
@@ -89,8 +96,8 @@ export function AccountCard() {
         <>
           <Txt tone="muted">
             {step.flow === 'create'
-              ? 'Te mandamos un código por email. Lo que guardaste queda en tu cuenta.'
-              : 'Te mandamos un código por email. Lo que guardaste como invitado en este dispositivo no se suma a esa cuenta.'}
+              ? 'Te mandamos un email para confirmarlo. Lo que guardaste queda en tu cuenta.'
+              : 'Te mandamos un email para entrar. Lo que guardaste como invitado en este dispositivo no se suma a esa cuenta.'}
           </Txt>
           <Field
             accessibilityLabel="Email"
@@ -104,12 +111,12 @@ export function AccountCard() {
             autoCorrect={false}
           />
           <Button
-            label="Enviar código"
+            label="Enviar email"
             disabled={!EMAIL_RE.test(email.trim())}
             loading={busy}
             onPress={() =>
               void run(async () => {
-                await sendCode(step.flow, email.trim());
+                await sendEmail(step.flow, email.trim());
                 setStep({ ...step, sent: true });
               })
             }
@@ -118,8 +125,8 @@ export function AccountCard() {
       ) : (
         <>
           <Txt tone="muted">
-            Escribí el código que te mandamos a {email.trim()} (revisá también el correo no
-            deseado).
+            Te escribimos a {email.trim()} (revisá también el correo no deseado). Tocá el enlace del
+            email; si trae un código, escribilo acá.
           </Txt>
           <Field
             accessibilityLabel="Código"
@@ -131,7 +138,7 @@ export function AccountCard() {
             textContentType="oneTimeCode"
           />
           <Button
-            label="Confirmar"
+            label="Confirmar código"
             disabled={code.replace(/\D/g, '').length < 6}
             loading={busy}
             onPress={() =>
@@ -141,6 +148,19 @@ export function AccountCard() {
               })
             }
           />
+          {step.flow === 'create' ? (
+            <Button
+              label="Ya toqué el enlace"
+              variant="ghost"
+              loading={busy}
+              onPress={() =>
+                void run(async () => {
+                  await refreshAccount();
+                  setStep(null);
+                })
+              }
+            />
+          ) : null}
         </>
       )}
       {error ? (

@@ -1,6 +1,7 @@
 import type { Database } from '@culturaba/shared';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { Platform } from 'react-native';
 import { env } from './env';
 
 let client: SupabaseClient<Database> | null = null;
@@ -14,7 +15,8 @@ export function getSupabase(): SupabaseClient<Database> | null {
         storage: AsyncStorage,
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: false,
+        // Web: el enlace del email de cuenta vuelve con la sesión en la URL.
+        detectSessionInUrl: Platform.OS === 'web',
       },
     });
   }

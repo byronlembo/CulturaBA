@@ -26,7 +26,7 @@ anonymous_users = 30
 
 # The app signs in with an emailed one-time code (no links): guests confirm an email
 # with updateUser + verifyOtp('email_change'); returning users use signInWithOtp.
-# Remote project: `bash scripts/push-auth-emails.sh` (only these templates).
+# Remote project (needs custom SMTP on the free tier): `bash scripts/push-auth-emails.sh`.
 [auth.email.template.magic_link]
 subject = "Tu código de CulturaBA: {{ .Token }}"
 content_path = "./supabase/templates/magic_link.html"

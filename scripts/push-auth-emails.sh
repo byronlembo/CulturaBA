@@ -18,4 +18,4 @@ process.stdout.write(JSON.stringify({
 }));' supabase/templates/magic_link.html supabase/templates/email_change.html "$(subject magic_link)" "$(subject email_change)")
 curl -sS --fail-with-body -X PATCH "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/config/auth" \
   -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" -H 'Content-Type: application/json' \
-  --data "$body" -o /dev/null -w 'HTTP %{http_code}\n'
+  --data "$body" -o /dev/stderr -w 'HTTP %{http_code}\n'
