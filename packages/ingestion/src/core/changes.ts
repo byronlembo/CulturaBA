@@ -57,11 +57,19 @@ function equal(a: unknown, b: unknown): boolean {
 /**
  * Calcula el patch a aplicar sobre un evento existente y los cambios a registrar.
  * Fuente primaria (o de mayor prioridad): sobrescribe. Secundaria: solo rellena nulos.
+ * En eventos con varias fuentes, la primaria no borra con vacíos lo que aportó otra.
  */
 export function diffEventFields(
   existing: EventRow,
   incoming: EventFields,
   isPrimary: boolean,
+  opts: {
+    /**
+     * El evento también lo describen otras fuentes: un campo vacío en la primaria significa
+     * "esta fuente no lo dice" y no borra lo que aportó otra (si no, se pisan en cada corrida).
+     */
+    keepOthersWhenEmpty?: boolean;
+  } = {},
 ): { patch: Partial<EventFields>; changes: ChangeInput[] } {
   const patch: Partial<EventFields> = {};
   const changes: ChangeInput[] = [];
@@ -73,7 +81,10 @@ export function diffEventFields(
     const isEmpty =
       before === null || before === undefined || (Array.isArray(before) && before.length === 0);
     if (!isPrimary && !isEmpty) continue;
-    if (!isPrimary && (after === null || after === undefined)) continue;
+    const afterEmpty =
+      after === null || after === undefined || (Array.isArray(after) && after.length === 0);
+    if (!isPrimary && afterEmpty) continue;
+    if (isPrimary && afterEmpty && opts.keepOthersWhenEmpty) continue;
     if (isPrimary && after === null && key === 'image_url') {
       // La fuente dejó de publicar imagen: pasamos a fallback.
       (patch as Record<string, unknown>)[key] = null;

@@ -18,6 +18,7 @@ import {
   getSourceBySlug,
   getSourcePriorities,
   getSourceRecord,
+  hasOtherSourceRecords,
   type InstitutionRow,
   insertChanges,
   insertDuplicateCandidate,
@@ -25,6 +26,7 @@ import {
   insertInstitution,
   insertRun,
   lastSuccessfulRun,
+  leadingRecordOfSource,
   linkSourceRecordToEvent,
   type ParseStatus,
   type RunStatus,
@@ -457,11 +459,18 @@ async function processRecord(
     const primaryPriority = event.primary_source_id
       ? (ctx.priorities.get(event.primary_source_id) ?? 0)
       : -1;
+    // Dentro de la misma fuente manda el registro que alimenta el evento desde antes: dos
+    // ítems fusionados de un agregador no se pisan entre sí en cada corrida.
+    const leader =
+      event.primary_source_id === ctx.source.id
+        ? await leadingRecordOfSource(tx, event.id, ctx.source.id)
+        : null;
     const isPrimary =
       !event.primary_source_id ||
-      event.primary_source_id === ctx.source.id ||
+      (event.primary_source_id === ctx.source.id && (leader === null || leader === record.id)) ||
       ctx.source.priority > primaryPriority;
-    const diff = diffEventFields(event, fields, isPrimary);
+    const multiSource = await hasOtherSourceRecords(tx, event.id, ctx.source.id);
+    const diff = diffEventFields(event, fields, isPrimary, { keepOthersWhenEmpty: multiSource });
     const patch: Parameters<typeof updateEventFields>[2] = { ...diff.patch };
     if (isPrimary && event.primary_source_id !== ctx.source.id)
       patch.primary_source_id = ctx.source.id;

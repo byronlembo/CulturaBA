@@ -541,6 +541,42 @@ describe('deduplication', () => {
       expect((await q.event('agg-hoffmann')).id).not.toBe((await q.event('hoffmann')).id);
     });
 
+    it('is stable on a second run: the institution does not erase what the aggregator filled in', async () => {
+      // La institución no publica gratuidad; el agregador sí (pago). Antes se pisaban en cada corrida.
+      await run([institutionItem()]);
+      await runAggregator([aggregatorItem({ free: false })]);
+      const before = await q.event('hoffmann');
+      const again = await run([institutionItem()]);
+      const agg = await runAggregator([aggregatorItem({ free: false })]);
+      expect(again.stats.changes_minor + again.stats.changes_major).toBe(0);
+      expect(agg.stats.changes_minor + agg.stats.changes_major).toBe(0);
+      const isFree = await sql<{ is_free: boolean | null }[]>`
+        select is_free from public.events where id = ${before.id}`;
+      expect(isFree[0]?.is_free).toBe(false);
+    });
+
+    it('two records of one source merged into one event do not overwrite each other every run', async () => {
+      const a = aggregatorItem({
+        id: 'dup-a',
+        url: 'https://agenda.sample.test/eventos/a',
+        sameAs: undefined,
+        description: 'Texto A',
+      });
+      const b = aggregatorItem({
+        id: 'dup-b',
+        url: 'https://agenda.sample.test/eventos/b',
+        sameAs: undefined,
+        description: 'Texto B',
+      });
+      await runAggregator([a, b]);
+      expect((await q.event('dup-a')).id).toBe((await q.event('dup-b')).id);
+      const second = await runAggregator([a, b]);
+      expect(second.stats.changes_minor + second.stats.changes_major).toBe(0);
+      const desc = await sql<{ description: string }[]>`
+        select description from public.events where id = ${(await q.event('dup-a')).id}`;
+      expect(desc[0]?.description).toBe('Texto A');
+    });
+
     it('does not merge two records of the same source that link to the same page', async () => {
       await runAggregator([
         aggregatorItem({

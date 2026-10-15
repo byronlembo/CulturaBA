@@ -329,7 +329,7 @@ describe('agenda-ba · parse de TODOS los ítems', () => {
           // Cada día dentro del rango es un día que Linda publica: no se afirman días cerrados.
           for (
             let d = DateTime.fromISO(o.startDate);
-            d.toISODate() <= o.endDate;
+            (d.toISODate() ?? '') <= o.endDate;
             d = d.plus({ days: 1 })
           ) {
             expect(published.has(d.toISODate())).toBe(true);
@@ -604,7 +604,7 @@ describe('agenda-ba · eventos verificados a mano contra el JSON (fixture 021)',
     for (const o of e.occurrences) {
       for (
         let d = DateTime.fromISO(o.startDate);
-        d.toISODate() <= o.endDate;
+        (d.toISODate() ?? '') <= o.endDate;
         d = d.plus({ days: 1 })
       ) {
         expect(d.weekday).not.toBe(2); // martes: cerrado (Linda no los publica)

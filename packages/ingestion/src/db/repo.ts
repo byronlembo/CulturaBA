@@ -310,6 +310,34 @@ export async function findEventsBySameAsUrls(
     order by e.last_verified_at desc nulls last`;
 }
 
+/**
+ * Registro de la fuente que alimenta el evento desde antes (el primero en verlo). Cuando dos
+ * ítems de la misma fuente terminan en el mismo evento, solo ese manda en los campos.
+ */
+export async function leadingRecordOfSource(
+  db: Queryable,
+  eventId: string,
+  sourceId: string,
+): Promise<string | null> {
+  const rows = await db<{ id: string }[]>`
+    select id from public.source_records
+    where event_id = ${eventId} and source_id = ${sourceId}
+    order by first_seen_at, id limit 1`;
+  return rows[0]?.id ?? null;
+}
+
+/** ¿Hay registros de OTRAS fuentes enlazados al evento? */
+export async function hasOtherSourceRecords(
+  db: Queryable,
+  eventId: string,
+  sourceId: string,
+): Promise<boolean> {
+  const rows = await db<{ n: number }[]>`
+    select count(*)::int as n from public.source_records
+    where event_id = ${eventId} and source_id <> ${sourceId}`;
+  return (rows[0]?.n ?? 0) > 0;
+}
+
 /** Eventos de la institución con alguna ocurrencia (visible) que toque las fechas dadas. */
 export async function findEventsOnDates(
   db: Queryable,
