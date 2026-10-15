@@ -1,5 +1,5 @@
 import { slugify, type VenueRef } from '@culturaba/shared';
-import { insertVenue, listVenues, type VenueRow } from '../db/repo';
+import { fillVenueCoords, insertVenue, listVenues, type VenueRow } from '../db/repo';
 import type { Queryable } from '../db/sql';
 
 /** Caché de venues por corrida: resuelve slugs conocidos y crea venues nuevos solo con dirección de la fuente. */
@@ -31,13 +31,19 @@ export class VenueResolver {
     if (!ref) return { venueId: null, room: null };
     const room = ref.room ?? null;
 
-    if (ref.slug) {
-      const known = this.bySlug.get(ref.slug);
-      return { venueId: known ? known.id : null, room };
+    const existing = ref.slug
+      ? this.bySlug.get(ref.slug)
+      : this.byInstitutionName.get(nameKey(ctx.institutionId, ref.name));
+    if (existing) {
+      // shortcut: gana la primera coordenada publicada; si una fuente da puntos distintos para el mismo lugar, revisar a mano.
+      if (ref.coords && existing.lat === null) {
+        await fillVenueCoords(db, existing.id, ref.coords);
+        existing.lat = ref.coords.lat;
+        existing.lng = ref.coords.lng;
+      }
+      return { venueId: existing.id, room };
     }
-
-    const existing = this.byInstitutionName.get(nameKey(ctx.institutionId, ref.name));
-    if (existing) return { venueId: existing.id, room };
+    if (ref.slug) return { venueId: null, room };
 
     if (!ref.address) return { venueId: null, room };
 
@@ -54,6 +60,8 @@ export class VenueResolver {
       name: ref.name,
       address: ref.address,
       addressSourceUrl: ref.addressSourceUrl ?? ctx.sourceUrl,
+      lat: ref.coords?.lat ?? null,
+      lng: ref.coords?.lng ?? null,
     });
     this.add(created);
     return { venueId: created.id, room };

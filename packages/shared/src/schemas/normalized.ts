@@ -59,6 +59,10 @@ export const VenueRefSchema = z.object({
   /** Solo si la fuente publica la dirección; nunca inferida. */
   address: z.string().trim().min(1).optional(),
   addressSourceUrl: z.url().optional(),
+  /** Solo si la fuente publica coordenadas del lugar (para validar check-ins). */
+  coords: z
+    .object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) })
+    .optional(),
 });
 export type VenueRef = z.infer<typeof VenueRefSchema>;
 

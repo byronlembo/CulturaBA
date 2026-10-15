@@ -37,7 +37,11 @@
         "sourceDateText": "2026-10-11T14:00:00.000Z",
         "venue": {
           "slug": "teatro-colon",
-          "name": "Teatro Colón"
+          "name": "Teatro Colón",
+          "coords": {
+            "lat": -34.60136047,
+            "lng": -58.38316734
+          }
         },
         "status": "scheduled",
         "ticketsUrl": "https://teatrocolon.org.ar/produccion/el-barbero-de-sevilla/",
@@ -56,7 +60,11 @@
         "sourceDateText": "2026-10-16T18:00:00.000Z",
         "venue": {
           "slug": "teatro-colon",
-          "name": "Teatro Colón"
+          "name": "Teatro Colón",
+          "coords": {
+            "lat": -34.60136047,
+            "lng": -58.38316734
+          }
         },
         "status": "scheduled",
         "ticketsUrl": "https://teatrocolon.org.ar/produccion/el-barbero-de-sevilla/",
@@ -100,7 +108,11 @@
         "venue": {
           "name": "Teatro San Martín",
           "address": "Av. Corrientes 1530",
-          "addressSourceUrl": "https://linda.buenosaires.gob.ar/eventos/jorge-lavelli-el-gesto-incoformista"
+          "addressSourceUrl": "https://linda.buenosaires.gob.ar/eventos/jorge-lavelli-el-gesto-incoformista",
+          "coords": {
+            "lat": -34.6042656,
+            "lng": -58.38851565
+          }
         },
         "status": "scheduled",
         "ticketsUrl": null,
@@ -124,7 +136,11 @@
         "venue": {
           "name": "Teatro San Martín",
           "address": "Av. Corrientes 1530",
-          "addressSourceUrl": "https://linda.buenosaires.gob.ar/eventos/jorge-lavelli-el-gesto-incoformista"
+          "addressSourceUrl": "https://linda.buenosaires.gob.ar/eventos/jorge-lavelli-el-gesto-incoformista",
+          "coords": {
+            "lat": -34.6042656,
+            "lng": -58.38851565
+          }
         },
         "status": "scheduled",
         "ticketsUrl": null,
@@ -148,7 +164,11 @@
         "venue": {
           "name": "Teatro San Martín",
           "address": "Av. Corrientes 1530",
-          "addressSourceUrl": "https://linda.buenosaires.gob.ar/eventos/jorge-lavelli-el-gesto-incoformista"
+          "addressSourceUrl": "https://linda.buenosaires.gob.ar/eventos/jorge-lavelli-el-gesto-incoformista",
+          "coords": {
+            "lat": -34.6042656,
+            "lng": -58.38851565
+          }
         },
         "status": "scheduled",
         "ticketsUrl": null,
@@ -172,7 +192,11 @@
         "venue": {
           "name": "Teatro San Martín",
           "address": "Av. Corrientes 1530",
-          "addressSourceUrl": "https://linda.buenosaires.gob.ar/eventos/jorge-lavelli-el-gesto-incoformista"
+          "addressSourceUrl": "https://linda.buenosaires.gob.ar/eventos/jorge-lavelli-el-gesto-incoformista",
+          "coords": {
+            "lat": -34.6042656,
+            "lng": -58.38851565
+          }
         },
         "status": "scheduled",
         "ticketsUrl": null,

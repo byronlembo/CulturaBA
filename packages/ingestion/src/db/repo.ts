@@ -72,15 +72,28 @@ export async function insertVenue(
     name: string;
     address: string | null;
     addressSourceUrl: string | null;
+    lat: number | null;
+    lng: number | null;
   },
 ): Promise<VenueRow> {
   const rows = await db<VenueRow[]>`
-    insert into public.venues (slug, institution_id, name, address, address_source_url)
-    values (${venue.slug}, ${venue.institutionId}, ${venue.name}, ${venue.address}, ${venue.addressSourceUrl})
+    insert into public.venues (slug, institution_id, name, address, address_source_url, lat, lng)
+    values (${venue.slug}, ${venue.institutionId}, ${venue.name}, ${venue.address},
+      ${venue.addressSourceUrl}, ${venue.lat}, ${venue.lng})
     returning *`;
   const row = rows[0];
   if (!row) throw new Error('insertVenue: sin fila');
   return row;
+}
+
+/** Completa coordenadas que faltan; nunca pisa las existentes. */
+export async function fillVenueCoords(
+  db: Queryable,
+  id: string,
+  coords: { lat: number; lng: number },
+): Promise<void> {
+  await db`update public.venues set lat = ${coords.lat}, lng = ${coords.lng}
+    where id = ${id} and lat is null`;
 }
 
 // ── Runs ────────────────────────────────────────────────────────────────────

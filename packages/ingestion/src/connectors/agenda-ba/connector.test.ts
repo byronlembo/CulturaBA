@@ -428,8 +428,13 @@ describe('agenda-ba · eventos verificados a mano contra el JSON (fixture 021)',
       '2026-10-11T11:00:00-03:00',
       '2026-10-16T15:00:00-03:00',
     ]);
-    // Venue del seed: no se copia "Tucumán 1171" (boletería) de Linda.
-    expect(e.occurrences[0]?.venue).toEqual({ slug: 'teatro-colon', name: 'Teatro Colón' });
+    // Venue del seed: no se copia "Tucumán 1171" (boletería) de Linda; su punto sí, que cae
+    // en la misma manzana y alcanza para validar check-ins.
+    expect(e.occurrences[0]?.venue).toEqual({
+      slug: 'teatro-colon',
+      name: 'Teatro Colón',
+      coords: { lat: -34.60136047, lng: -58.38316734 },
+    });
   });
 
   it('FRANK BORZAGE: Complejo Teatral por enlace complejoteatral.gob.ar; sala con dirección publicada', () => {
@@ -447,6 +452,7 @@ describe('agenda-ba · eventos verificados a mano contra el JSON (fixture 021)',
       name: 'Teatro San Martín',
       address: 'Avenida Corrientes 1530, C1042AAO Buenos Aires AR, Argentina',
       addressSourceUrl: LINDA('frank-borzage-un-romantico-en-hollywood-parte-1'),
+      coords: { lat: -34.6042656, lng: -58.38851565 },
     });
   });
 
@@ -475,6 +481,7 @@ describe('agenda-ba · eventos verificados a mano contra el JSON (fixture 021)',
           name: 'Movistar Arena',
           address: 'Humboldt 450',
           addressSourceUrl: LINDA('babasonicos'),
+          coords: { lat: -34.59500952, lng: -58.44820854 },
         },
         price: null,
       }),
@@ -509,6 +516,7 @@ describe('agenda-ba · eventos verificados a mano contra el JSON (fixture 021)',
         name: 'Museo de Arte Popular José Hernández',
         address: 'Av. del Libertador 2373',
         addressSourceUrl: LINDA('la-riqueza-del-monte-museo-de-arte-popular'),
+        coords: { lat: -34.57969565, lng: -58.40503706 },
       },
       status: 'scheduled',
       ticketsUrl: null,
@@ -563,6 +571,7 @@ describe('agenda-ba · eventos verificados a mano contra el JSON (fixture 021)',
       name: 'Pasaje Santos Discépolo y Corrientes',
       address: 'Pasaje Santos Discépolo y Corrientes',
       addressSourceUrl: LINDA('sabe-la-tierra-en-balvanera'),
+      coords: { lat: -34.60445602, lng: -58.39357953 },
     });
     expect(e.occurrences[0]?.price).toEqual({
       text: 'Libre y gratuita',
@@ -593,6 +602,7 @@ describe('agenda-ba · eventos verificados a mano contra el JSON (fixture 021)',
       name: 'Edificio Bencich',
       address: 'SAENZ PEÑA, ROQUE, PRES. DIAGONAL NORTE AV. 615',
       addressSourceUrl: LINDA('noche-de-cupulas-presenta-get-back'),
+      coords: { lat: -34.60677403, lng: -58.37551536 },
     });
   });
 
@@ -646,6 +656,7 @@ describe('agenda-ba · eventos verificados a mano contra el JSON (fixture 021)',
       name: 'Centro de Experimentación del Teatro Colón (CETC)',
       address: 'Viamonte 1168',
       addressSourceUrl: LINDA('las-ruinas-delirios-sobre-la-argentina'),
+      coords: { lat: -34.60046778, lng: -58.38343092 },
     });
     expect(eventOf('los-cuentos-de-hoffmann').ticketsUrl).toBe(
       'https://entradasba.buenosaires.gob.ar/evento/8df036b4-df44-49bf-aafb-2402f5ea675e',
@@ -942,6 +953,26 @@ describe('agenda-ba · lugares, enlaces, precio y estado (puro)', () => {
     const none = resolvePlace({ title: null, address: null, barrio: null, links: [], officialUrl });
     expect(none.venue).toBeNull();
     expect(none.institution.slug).toBe('agenda-ba');
+  });
+
+  it('coordenadas solo para un lugar identificado y dentro de CABA', () => {
+    const at = (title: string, address: string | null, lat: number, lng: number) =>
+      resolvePlace({ title, address, barrio: null, links: [], officialUrl, lat, lng });
+    expect(
+      at('Usina del Arte', 'Agustín R. Caffarena 1', -34.6289, -58.3563).venue?.coords,
+    ).toEqual({ lat: -34.6289, lng: -58.3563 });
+    expect(at('Teatro Colón', 'Tucumán 1171', -34.6014, -58.3832).venue).toEqual({
+      slug: 'teatro-colon',
+      name: 'Teatro Colón',
+      coords: { lat: -34.6014, lng: -58.3832 },
+    });
+    // Linda ubica La Trastienda en Santiago del Estero.
+    const far = at('La Trastienda', 'Balcarce 460', -27.798349, -64.246901);
+    expect(far.venue?.coords).toBeUndefined();
+    expect(far.warnings.join()).toContain('fuera de CABA');
+    expect(at('Varias Sedes', 'Av. del Libertador 1473', -34.5841, -58.3932).venue).toEqual({
+      name: 'Varias Sedes',
+    });
   });
 
   it('URLs de entradas sin parámetros de campaña ni fragmento; query original intacta', () => {

@@ -38,6 +38,7 @@ const ItemSchema = z.object({
       name: z.string().optional(),
       address: z.string().optional(),
       room: z.string().optional(),
+      coords: z.object({ lat: z.number(), lng: z.number() }).optional(),
     })
     .optional(),
   dates: z
@@ -111,6 +112,7 @@ function parseItem(raw: RawRecord): ParseResult {
         name: item.venue.name ?? item.venue.slug ?? 'Sala',
         ...(item.venue.address ? { address: item.venue.address } : {}),
         ...(item.venue.room ? { room: item.venue.room } : {}),
+        ...(item.venue.coords ? { coords: item.venue.coords } : {}),
       }
     : null;
 

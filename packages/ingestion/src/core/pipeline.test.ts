@@ -660,6 +660,34 @@ describe('deduplication', () => {
   });
 });
 
+describe('venue coordinates', () => {
+  it('stores published coordinates on new venues and fills, never overwrites, existing ones', async () => {
+    await sql`update public.venues set lat = null, lng = null where slug = 'sample-sala'`;
+    const item = (id: string, venue: Item) => ({
+      id,
+      title: `Concierto ${id}`,
+      url: `https://sample.culturaba.test/eventos/${id}`,
+      discipline: 'musica_vivo_jazz',
+      venue,
+      dates: [{ start: at(5, 20) }],
+    });
+    await run([
+      item('a', { slug: 'sample-sala', coords: { lat: -34.6, lng: -58.38 } }),
+      item('b', { name: 'Club Nuevo', address: 'Calle 2', coords: { lat: -34.59, lng: -58.44 } }),
+    ]);
+    await run([
+      item('a', { slug: 'sample-sala', coords: { lat: -34.7, lng: -58.5 } }),
+      item('b', { name: 'Club Nuevo', address: 'Calle 2', coords: { lat: -34.7, lng: -58.5 } }),
+    ]);
+    const rows = await sql<{ name: string; lat: number; lng: number }[]>`
+      select name, lat, lng from public.venues where name in ('Sala Sample', 'Club Nuevo') order by name`;
+    expect(rows).toEqual([
+      { name: 'Club Nuevo', lat: -34.59, lng: -58.44 },
+      { name: 'Sala Sample', lat: -34.6, lng: -58.38 },
+    ]);
+  });
+});
+
 describe('robustness', () => {
   it('refuses to run when the source is disabled unless forced', async () => {
     await sql`update public.sources set enabled = false where slug = 'sample'`;

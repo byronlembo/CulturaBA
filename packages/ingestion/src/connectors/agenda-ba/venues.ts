@@ -22,7 +22,8 @@ import {
  *  · Barrio/zona ("Palermo", "Microcentro") o sin título → la dirección publicada hace de
  *    nombre ({ name: dirección, address: dirección }), así dos eventos del mismo barrio
  *    con distinta dirección no comparten venue por nombre.
- *  · Coordenadas: VenueRef no admite lat/lng; quedan en rawFragment.
+ *  · Coordenadas: van con el venue cuando es un lugar identificado (seed o con dirección),
+ *    solo dentro de CABA: Linda ubica algunos espacios en otras provincias.
  */
 
 export interface KnownPlace {
@@ -183,6 +184,14 @@ export interface PlaceInput {
   links: readonly string[];
   /** Página del evento en Linda: de ahí sale la dirección. */
   officialUrl: string;
+  /** ubicacion.latitud / ubicacion.longitud */
+  lat?: number | null;
+  lng?: number | null;
+}
+
+/** Caja de la Ciudad de Buenos Aires (con margen chico). */
+export function inCaba(lat: number, lng: number): boolean {
+  return lat > -34.71 && lat < -34.52 && lng > -58.54 && lng < -58.33;
 }
 
 export interface PlaceResolution {
@@ -228,6 +237,11 @@ export function resolvePlace(input: PlaceInput): PlaceResolution {
       break;
   }
   if (venue && !venue.slug && !venue.address) warnings.push(`venue "${venue.name}" sin dirección`);
+  if (venue && (venue.slug || venue.address) && input.lat != null && input.lng != null) {
+    if (inCaba(input.lat, input.lng))
+      venue = { ...venue, coords: { lat: input.lat, lng: input.lng } };
+    else warnings.push(`coordenadas fuera de CABA para "${venue.name}": se descartan`);
+  }
 
   // ── Institución ──────────────────────────────────────────────────────────
   const linked = seedInstitutionFromLinks(input.links);

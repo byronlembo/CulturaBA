@@ -350,6 +350,8 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
     barrio: item.barrio,
     links,
     officialUrl,
+    lat: item.ubicacion?.latitud,
+    lng: item.ubicacion?.longitud,
   });
   warnings.push(...place.warnings);
 
