@@ -18,7 +18,8 @@ Documentación: [`docs/product-spec.md`](docs/product-spec.md) ·
 
 ## Probar la app
 
-- **En el navegador (o el navegador del teléfono):** https://culturaba.vercel.app —
+- **En el navegador (o el navegador del teléfono):** https://culturaba.lembodiseño.com
+  (`culturaba.xn--lembodiseo-19a.com`; `culturaba.vercel.app` redirige ahí) —
   proyecto `culturaba` en Vercel, conectado al repo: cada push a la rama publica de nuevo.
   `vercel.json` (raíz) y `apps/mobile/vercel.json` llaman a `scripts/vercel-build.sh`, que
   construye la web export contra el Supabase real solo con la clave publicable.

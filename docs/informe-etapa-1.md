@@ -110,8 +110,8 @@ Detrás de un proxy, el `fetch` de Node necesita `NODE_USE_ENV_PROXY=1`; el CLI 
    el cron empieza a actualizar Supabase cada 6 horas.
 2. **Seguridad:** revocar el token personal de Supabase (`sbp_…`) y rotar la clave
    `sb_secret_…`, que pasaron por el chat.
-3. **Dominio:** la web está en https://culturaba.vercel.app (Vercel). Para usar
-   `culturaba.xn--lembodiseo-19a.com`, agregarlo como dominio del proyecto en Vercel.
+3. **Dominio:** la web está en https://culturaba.xn--lembodiseo-19a.com (Vercel), que
+   también es la base de los enlaces compartidos y de los universal links.
 4. **Expo:** bundle id definitivo, imágenes de respaldo propias y EAS en la Etapa 2.
 
 ## 8. Limitaciones conocidas
