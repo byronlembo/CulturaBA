@@ -126,6 +126,18 @@ const shot = async (page, name) => {
   await page.getByRole('button', { name: /^Asistiré/ }).click();
   await page.waitForTimeout(600);
   await shot(page, '05-event-actions');
+  // "Agregar al calendario": descarga un .ics de la primera función próxima.
+  const [download] = await Promise.all([
+    page.waitForEvent('download', { timeout: 15000 }),
+    page
+      .getByRole('button', { name: /^Agregar al calendario/ })
+      .first()
+      .click(),
+  ]);
+  const ics = require('node:fs').readFileSync(await download.path(), 'utf8');
+  if (!ics.startsWith('BEGIN:VCALENDAR') || !ics.includes('BEGIN:VEVENT'))
+    throw new Error(`.ics inválido: ${ics.slice(0, 80)}`);
+  console.log(`✓ .ics ${download.suggestedFilename()} (${ics.length} bytes)`);
 
   // 4. Guardados (deep link directo a la pestaña)
   await page.goto(`${base}/guardados`, { waitUntil: 'networkidle' });
@@ -145,9 +157,24 @@ const shot = async (page, name) => {
 
   // 6. Calendario
   await page.goto(`${base}/calendario`, { waitUntil: 'networkidle' });
-  await page.getByText('Próximos 30 días').waitFor({ timeout: 15000 });
+  await page.getByRole('button', { name: 'Mes siguiente' }).waitFor({ timeout: 15000 });
   await page.waitForTimeout(800);
   await shot(page, '08-calendar');
+  // "Mis planes": el evento guardado aparece en su mes (puede no ser el actual).
+  await page.getByText('Mis planes', { exact: true }).click();
+  for (let m = 0; m < 3; m += 1) {
+    const found = await page
+      .getByText(first.title)
+      .first()
+      .waitFor({ timeout: 5000 })
+      .then(() => true)
+      .catch(() => false);
+    if (found) break;
+    await page.getByRole('button', { name: 'Mes siguiente' }).click();
+  }
+  await page.getByText(first.title).first().waitFor({ timeout: 5000 });
+  await page.waitForTimeout(500);
+  await shot(page, '08b-calendar-plans');
 
   // 7. Deep link en frío a una ficha por slug
   await page.goto(`${base}/event/${search.event.slug}`, { waitUntil: 'networkidle' });

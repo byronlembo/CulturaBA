@@ -1,4 +1,5 @@
-import { StyleSheet, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Pressable, StyleSheet, View } from 'react-native';
 import type { Occurrence } from '@/api/types';
 import { formatBaDateTimeShort, whenText } from '@/lib/dates';
 import { spacing, useColors } from '@/theme/tokens';
@@ -29,9 +30,11 @@ export function statusBadge(
 export function OccurrenceRow({
   occurrence,
   showVenue,
+  onAddToCalendar,
 }: {
   occurrence: Occurrence;
   showVenue?: boolean;
+  onAddToCalendar?: () => void;
 }) {
   const c = useColors();
   const badge = statusBadge(occurrence);
@@ -66,6 +69,16 @@ export function OccurrenceRow({
         ) : null}
       </View>
       {badge ? <Badge label={badge.label} tone={badge.tone} /> : null}
+      {onAddToCalendar && occurrence.status !== 'cancelled' ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Agregar al calendario: ${whenText(occurrence)}`}
+          onPress={onAddToCalendar}
+          hitSlop={8}
+        >
+          <Ionicons name="calendar-outline" size={22} color={c.accent} />
+        </Pressable>
+      ) : null}
     </View>
   );
 }

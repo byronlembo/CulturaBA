@@ -1,8 +1,15 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueries,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { useCallback, useEffect } from 'react';
 import { useApi, useCatalog } from '@/api/context';
-import type { CatalogFilters, UserAction, UserActionRecord } from '@/api/types';
+import type { CatalogFilters, Occurrence, UserAction, UserActionRecord } from '@/api/types';
 import { usePreferences } from '@/store/preferences';
+import { isUpcomingChange } from './calendar/planChanges';
 
 const PAGE = 20;
 
@@ -44,6 +51,18 @@ export function useOccurrences(eventId: string | undefined) {
     queryKey: keys.occurrences(eventId ?? ''),
     queryFn: () => catalog.listOccurrences(eventId ?? ''),
     enabled: Boolean(eventId),
+  });
+}
+
+/** Funciones canceladas, postergadas o reprogramadas de los eventos dados (mismo caché que la ficha). */
+export function usePlanChanges(eventIds: string[]): Occurrence[] {
+  const catalog = useCatalog();
+  return useQueries({
+    queries: eventIds.map((id) => ({
+      queryKey: keys.occurrences(id),
+      queryFn: () => catalog.listOccurrences(id),
+    })),
+    combine: (results) => results.flatMap((r) => (r.data ?? []).filter((o) => isUpcomingChange(o))),
   });
 }
 

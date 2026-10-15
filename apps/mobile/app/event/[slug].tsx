@@ -31,6 +31,7 @@ import {
   useStats,
   useToggleAction,
 } from '@/features/hooks';
+import { addToCalendar, calendarEntry } from '@/lib/calendar';
 import { relativeTimeEs, whenText } from '@/lib/dates';
 import { disciplineIcon } from '@/lib/disciplineIcons';
 import { env } from '@/lib/env';
@@ -187,6 +188,11 @@ function Body({ event }: { event: EventDetail }) {
               key={o.id}
               occurrence={o}
               showVenue={Boolean(o.venueName && o.venueName !== event.venueName)}
+              onAddToCalendar={
+                Date.parse(o.endsAt ?? o.startsAt) >= Date.now()
+                  ? () => addToCalendar(calendarEntry(event, o), event.slug)
+                  : undefined
+              }
             />
           ))
         ) : (
@@ -292,14 +298,6 @@ function Body({ event }: { event: EventDetail }) {
               : 'Fuente oficial'}
             {event.lastVerifiedAt ? ` · Verificado ${relativeTimeEs(event.lastVerifiedAt)}` : ''}
           </Txt>
-        </View>
-        <View style={{ marginTop: spacing.md, opacity: 0.5 }}>
-          <Button
-            label="Agregar al calendario (próximamente)"
-            variant="ghost"
-            icon="calendar-outline"
-            disabled
-          />
         </View>
       </View>
     </>

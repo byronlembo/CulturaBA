@@ -25,13 +25,19 @@
 4. Probar en Expo Go: deep link en frío, compartir, acciones con sesión anónima.
 
 ## Etapa 2 — Notificaciones y calendario
+
+**Hecho (15-oct):** "Agregar al calendario" por función (.ics con avisos 1 día y 2 h antes;
+en el teléfono, enlace a Google Calendar hasta tener builds nativos), calendario por mes con
+filtro "Mis planes" (guardados + Asistiré) y aviso "Cambios en tus planes" en Guardados
+cuando una función próxima se cancela, se posterga o se reprograma.
+
 - Registro de dispositivos (`user_devices`) con Expo Notifications; pedir permiso
   después de mostrar valor.
 - Worker de notificaciones: resumen diario por intereses (por defecto) con
   `dedupe_key`; avisos inmediatos opcionales; cambios relevantes (`event_changes`
   `major`) a quienes guardaron/van; recordatorios (`reminders`) 1 semana / 1 día / 2 h;
   horarios silenciosos y límites; nunca duplicar; abrir la ficha correcta.
-- "Agregar al calendario": .ics por función (+ `expo-calendar` opcional).
+- `expo-calendar` en los builds nativos (hoy el teléfono abre Google Calendar).
 - Cuentas con email convirtiendo la identidad anónima (`updateUser`) sin migrar datos.
 - EAS build/submit; universal links verificados en el dominio definitivo.
 

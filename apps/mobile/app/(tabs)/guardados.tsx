@@ -1,10 +1,21 @@
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { FlatList, View } from 'react-native';
+import { FlatList, Pressable, View } from 'react-native';
 import type { UserAction } from '@/api/types';
 import { EventCard } from '@/components/ui/EventCard';
-import { Button, Chip, EmptyState, ErrorState, Loading, Screen } from '@/components/ui/Primitives';
-import { useEventsByIds, useMyActions } from '@/features/hooks';
+import { statusBadge } from '@/components/ui/OccurrenceRow';
+import {
+  Button,
+  Card,
+  Chip,
+  EmptyState,
+  ErrorState,
+  Loading,
+  Screen,
+  Txt,
+} from '@/components/ui/Primitives';
+import { useEventsByIds, useMyActions, usePlanChanges } from '@/features/hooks';
+import { whenText } from '@/lib/dates';
 import { spacing } from '@/theme/tokens';
 
 const TABS: {
@@ -25,30 +36,56 @@ export default function Saved() {
     () => (actions.data ?? []).filter((a) => a.action === tab).map((a) => a.eventId),
     [actions.data, tab],
   );
+  const planIds = useMemo(
+    () => [
+      ...new Set(
+        (actions.data ?? []).filter((a) => a.action !== 'recommend').map((a) => a.eventId),
+      ),
+    ],
+    [actions.data],
+  );
+  const changes = usePlanChanges(planIds);
   const events = useEventsByIds(ids);
+  const titles = useEventsByIds(planIds);
   const ordered = useMemo(() => {
     const byId = new Map((events.data ?? []).map((e) => [e.id, e]));
     return ids.map((id) => byId.get(id)).filter((e): e is NonNullable<typeof e> => Boolean(e));
   }, [ids, events.data]);
 
+  const eventsById = new Map((titles.data ?? []).map((e) => [e.id, e]));
   const header = (
-    <View
-      style={{
-        flexDirection: 'row',
-        gap: spacing.sm,
-        paddingHorizontal: spacing.lg,
-        paddingBottom: spacing.md,
-      }}
-    >
-      {TABS.map((t) => (
-        <Chip
-          key={t.key}
-          label={t.label}
-          icon={t.icon}
-          selected={tab === t.key}
-          onPress={() => setTab(t.key)}
-        />
-      ))}
+    <View style={{ paddingHorizontal: spacing.lg, paddingBottom: spacing.md, gap: spacing.md }}>
+      {changes.length > 0 ? (
+        <Card style={{ padding: spacing.md, gap: spacing.sm }}>
+          <Txt variant="heading">Cambios en tus planes</Txt>
+          {changes.map((o) => {
+            const event = eventsById.get(o.eventId);
+            return (
+              <Link key={o.id} href={`/event/${event?.slug ?? o.eventId}`} asChild>
+                <Pressable accessibilityRole="link">
+                  <View>
+                    <Txt>{event?.title ?? 'Evento'}</Txt>
+                    <Txt variant="small" tone="muted">
+                      {statusBadge(o)?.label} · {whenText(o)}
+                    </Txt>
+                  </View>
+                </Pressable>
+              </Link>
+            );
+          })}
+        </Card>
+      ) : null}
+      <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+        {TABS.map((t) => (
+          <Chip
+            key={t.key}
+            label={t.label}
+            icon={t.icon}
+            selected={tab === t.key}
+            onPress={() => setTab(t.key)}
+          />
+        ))}
+      </View>
     </View>
   );
 
