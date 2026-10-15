@@ -88,7 +88,10 @@ const shot = async (page, name) => {
   console.log(`feed: «${first.title}» · búsqueda: «${search.word}» → «${search.event.title}»`);
 
   const proxy = process.env.HTTPS_PROXY ?? process.env.https_proxy;
-  const browser = await chromium.launch(proxy ? { proxy: { server: proxy } } : {});
+  // Solo HTTPS por el proxy: el servidor local (http://localhost) va directo.
+  const browser = await chromium.launch(
+    proxy ? { args: [`--proxy-server=https=${proxy.replace(/^https?:\/\//, '')}`] } : {},
+  );
   const page = await browser.newPage({
     viewport: { width: 390, height: 844 },
     deviceScaleFactor: 2,
@@ -133,8 +136,10 @@ const shot = async (page, name) => {
   await page.goto(`${base}/explorar`, { waitUntil: 'networkidle' });
   await page.getByText(all[0].title).first().waitFor({ timeout: 15000 });
   await page.getByPlaceholder('Título, institución, artista…').fill(search.word);
-  await page.getByText(search.event.title).first().waitFor({ timeout: 15000 });
+  // Tras el debounce, la búsqueda refetchea: esperar a que termine antes de afirmar.
   await page.getByText(all[0].title).first().waitFor({ state: 'hidden', timeout: 15000 });
+  await page.waitForLoadState('networkidle');
+  await page.getByText(search.event.title).first().waitFor({ timeout: 15000 });
   await page.waitForTimeout(600);
   await shot(page, '07-explore-search');
 
