@@ -158,7 +158,12 @@ program
       } finally {
         await sql.end();
       }
-      if (opts.json) console.log(JSON.stringify(summaries, null, 2));
+      if (opts.json) {
+        // Con stdout en un pipe (el workflow hace `| tee`), process.exit() inmediato corta la
+        // salida a 64 KB: esperar a que se escriba antes de salir.
+        const out = `${JSON.stringify(summaries, null, 2)}\n`;
+        await new Promise<void>((resolve) => process.stdout.write(out, () => resolve()));
+      }
       process.exit(failed ? 1 : 0);
     },
   );
