@@ -117,7 +117,7 @@ export function useCatalogSources() {
 export function useMyActions() {
   const { user } = useApi();
   return useQuery({
-    queryKey: [...keys.actions, user.kind],
+    queryKey: [...keys.actions, user.id],
     queryFn: () => user.listActions(),
     staleTime: 0,
   });
@@ -132,7 +132,7 @@ export function useHasAction(eventId: string | undefined, action: UserAction): b
 export function useToggleAction(eventId: string | undefined) {
   const { user } = useApi();
   const qc = useQueryClient();
-  const actionsKey = [...keys.actions, user.kind];
+  const actionsKey = [...keys.actions, user.id];
   return useMutation({
     mutationFn: async ({ action, next }: { action: UserAction; next: boolean }) => {
       if (!eventId) return;

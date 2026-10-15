@@ -6,6 +6,7 @@ import type { UserAction, UserApi } from './types';
 export function createSupabaseUserApi(supabase: SupabaseClient<Database>, userId: string): UserApi {
   return {
     kind: 'supabase',
+    id: userId,
 
     async getInterests() {
       const { data, error } = await supabase

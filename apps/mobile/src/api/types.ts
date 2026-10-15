@@ -143,6 +143,8 @@ export interface UserActionRecord {
 
 export interface UserApi {
   readonly kind: 'supabase' | 'local';
+  /** Id del usuario de Supabase, o 'local'. Separa el caché entre cuentas. */
+  readonly id: string;
   getInterests(): Promise<string[]>;
   setInterests(slugs: string[]): Promise<void>;
   listActions(): Promise<UserActionRecord[]>;

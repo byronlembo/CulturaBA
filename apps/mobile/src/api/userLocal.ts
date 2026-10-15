@@ -28,6 +28,7 @@ async function writeJson(key: string, value: unknown): Promise<void> {
 export function createLocalUserApi(): UserApi {
   return {
     kind: 'local',
+    id: 'local',
     getInterests: () => readJson<string[]>(INTERESTS_KEY, []),
     async setInterests(slugs) {
       await writeJson(INTERESTS_KEY, Array.from(new Set(slugs)));

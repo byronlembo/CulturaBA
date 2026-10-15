@@ -6,6 +6,7 @@ import { Pressable, ScrollView, View } from 'react-native';
 import { useApi } from '@/api/context';
 import { InterestPicker } from '@/components/ui/InterestPicker';
 import { Button, Card, Section, Txt } from '@/components/ui/Primitives';
+import { AccountCard } from '@/features/account/AccountCard';
 import { useCatalogSources, useInterests } from '@/features/hooks';
 import { usePreferences } from '@/store/preferences';
 import { spacing, useColors } from '@/theme/tokens';
@@ -13,7 +14,7 @@ import { spacing, useColors } from '@/theme/tokens';
 export default function Profile() {
   const c = useColors();
   const router = useRouter();
-  const { user, mode, sessionPending, sessionError } = useApi();
+  const { mode } = useApi();
   const { interests, setInterests } = useInterests();
   const [draft, setDraft] = useState(interests);
   const sources = useCatalogSources();
@@ -41,23 +42,7 @@ export default function Profile() {
       </Section>
 
       <Section title="Tu cuenta">
-        <Card style={{ padding: spacing.md }}>
-          <Txt variant="heading">
-            {user.kind === 'supabase' ? 'Modo invitado' : 'Solo en este dispositivo'}
-          </Txt>
-          <Txt tone="muted" style={{ marginTop: 4 }}>
-            {sessionPending
-              ? 'Conectando…'
-              : user.kind === 'supabase'
-                ? 'Tus guardados se sincronizan con una identidad anónima. Si reinstalás la app se pierden; crear una cuenta (próximamente) los conserva.'
-                : 'Tus intereses y guardados viven solo en este teléfono.'}
-          </Txt>
-          {sessionError ? (
-            <Txt variant="caption" tone="danger" style={{ marginTop: 6 }}>
-              No se pudo iniciar la sesión anónima: {sessionError}
-            </Txt>
-          ) : null}
-        </Card>
+        <AccountCard />
       </Section>
 
       <Section title="Fuentes oficiales">

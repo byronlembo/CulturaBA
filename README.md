@@ -115,6 +115,12 @@ psql "$DATABASE_URL" -f supabase/seed.sql                # disciplinas, instituc
 pnpm db:types                                            # regenerar tipos tras cambiar migraciones
 ```
 
+Cuentas: la app entra con un código de un solo uso enviado por email (sin enlaces). Las
+plantillas viven en `supabase/templates/`; para subirlas al proyecto remoto:
+`SUPABASE_PROJECT_REF=<ref> bash scripts/push-auth-emails.sh` (con `SUPABASE_ACCESS_TOKEN`).
+Sin SMTP propio, Supabase solo envía emails a los miembros del equipo del proyecto y
+pocos por hora: para usuarios reales hay que configurar SMTP (Auth → SMTP Settings).
+
 Secretos del repositorio para `ingest.yml`: `DATABASE_URL` (URI del **session
 pooler**, IPv4). Variable opcional `INGEST_USER_AGENT`.
 

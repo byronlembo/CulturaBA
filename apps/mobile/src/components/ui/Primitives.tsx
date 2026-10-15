@@ -6,6 +6,8 @@ import {
   type PressableProps,
   StyleSheet,
   Text,
+  TextInput,
+  type TextInputProps,
   type TextProps,
   View,
   type ViewProps,
@@ -72,6 +74,21 @@ export function Button({
         </>
       )}
     </Pressable>
+  );
+}
+
+export function Field({ style, ...props }: TextInputProps) {
+  const c = useColors();
+  return (
+    <TextInput
+      placeholderTextColor={c.muted}
+      style={[
+        styles.field,
+        { color: c.text, backgroundColor: c.surface, borderColor: c.border },
+        style,
+      ]}
+      {...props}
+    />
   );
 }
 
@@ -253,6 +270,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     borderRadius: radius.md,
     minHeight: 46,
+  },
+  field: {
+    borderWidth: 1,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 10,
+    minHeight: 44,
+    fontSize: 15,
   },
   card: { borderRadius: radius.lg, borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden' },
   section: { marginTop: spacing.xl, paddingHorizontal: spacing.lg },
