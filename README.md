@@ -5,6 +5,11 @@ que se actualiza solo desde las agendas oficiales, con intereses, fichas verific
 acciones sociales y compartir. Monorepo con el worker de ingestión, el esquema de
 base de datos (Supabase/Postgres) y la app móvil (Expo).
 
+**Estado (15-oct-2026):** fuentes en producción: Teatro Colón y la agenda oficial de la
+Ciudad (Linda); 266 eventos publicados en Supabase. Complejo Teatral implementado pero
+fuera del cron; MNBA y Palacio Libertad bloqueados por Cloudflare. Detalle en
+[`docs/informe-etapa-1.md`](docs/informe-etapa-1.md).
+
 Documentación: [`docs/product-spec.md`](docs/product-spec.md) ·
 [`docs/architecture.md`](docs/architecture.md) ·
 [`docs/source-inventory.md`](docs/source-inventory.md) ·

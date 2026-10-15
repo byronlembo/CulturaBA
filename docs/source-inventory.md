@@ -11,9 +11,9 @@
 
 | Fuente (`slug`) | Institución | URL oficial | Acceso | Método | Peticiones/corrida | Prioridad | Conector |
 |---|---|---|---|---|---|---|---|
-| `teatro-colon` | Teatro Colón | https://teatrocolon.org.ar/calendario/ | 200 (Cloudflare CDN, sin challenge) | HTML server-side (`cheerio`) | ~3 listados mensuales + ~30 detalles | 100 | en implementación |
-| `complejo-teatral` | Complejo Teatral de Buenos Aires | https://complejoteatral.gob.ar/ | 200 (Cloudflare CDN, sin challenge) | HTML server-side + agenda diaria `/agenda/?fecha=` | 1 home + 28 días + ~33 detalles ≈ 62 | 100 | en implementación |
-| `agenda-ba` | Agregador oficial de la Ciudad (**Linda**) | https://linda.buenosaires.gob.ar/ | 200 (sin Cloudflare) | **API JSON** `/api/frontend/events/filter?limit=200` | 1–2 | 10 | en implementación |
+| `teatro-colon` | Teatro Colón | https://teatrocolon.org.ar/calendario/ | 200 (Cloudflare CDN, sin challenge) | HTML server-side (`cheerio`) | ~3 listados mensuales + ~30 detalles | 100 | **en producción** |
+| `complejo-teatral` | Complejo Teatral de Buenos Aires | https://complejoteatral.gob.ar/ | 200 (Cloudflare CDN, sin challenge) | HTML server-side + agenda diaria `/agenda/?fecha=` | 1 home + 28 días + ~33 detalles ≈ 62 | 100 | implementado, fuera del cron (`ready: false`) |
+| `agenda-ba` | Agregador oficial de la Ciudad (**Linda**) | https://linda.buenosaires.gob.ar/ | 200 (sin Cloudflare) | **API JSON** `/api/frontend/events/filter?limit=200` | 1–2 | 10 | **en producción** |
 | `mnba` | Museo Nacional de Bellas Artes | https://bellasartes.gob.ar/agenda/ | **403 Cloudflare managed challenge (Turnstile interactivo) en toda la zona** | — | — | 100 | **bloqueado** |
 | `palacio-libertad` | Palacio Libertad | https://palaciolibertad.gob.ar/agenda/ | **403 challenge en toda la zona (incluso robots.txt)** | — | — | 100 | **bloqueado** |
 | `cultura-gob-ar` | Agenda Cultural Federal | https://www.cultura.gob.ar/agenda/filtro/ | **403 challenge**; `datos.cultura.gob.ar` también | — | — | complementaria | bloqueado |

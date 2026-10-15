@@ -1,127 +1,136 @@
-# Informe de entrega — Etapa 1 (14 de octubre de 2026)
+# Informe de entrega — Etapa 1 (15 de octubre de 2026)
 
-Rama: `claude/wonderful-ride-0g1771` · repositorio `byronlembo/CulturaBA`.
+Rama: `claude/wonderful-ride-0g1771` · repositorio `byronlembo/CulturaBA` · proyecto
+Supabase `ioyaejccerbfczpjgstg`.
 
-## 1. Qué quedó implementado
+## 1. Resumen
 
-| Área | Estado | Evidencia |
-|---|---|---|
-| Monorepo pnpm (shared · ingestion · devapi · mobile), Biome, TypeScript estricto | ✅ | `pnpm lint`, `pnpm typecheck` limpios |
-| Esquema Postgres/Supabase: 8 migraciones, Evento ≠ Función, procedencia completa, RLS con grants explícitos, vistas públicas, `event_stats` por trigger | ✅ | `pnpm db:reset` aplica dos veces limpio; `pnpm db:check-rls` pasa (anon + 2 usuarios) |
-| Postgres local sin Docker + stub `auth` compatible con Supabase | ✅ | `scripts/pg-local.sh` |
-| Dominio compartido: contrato `NormalizedEvent` (zod 4), publicabilidad con motivos, fechas/horas/rangos en español con inferencia de año acotada, dedup (Dice), slugs estables, enlaces | ✅ | **92 tests** (vitest) |
-| Worker de ingestión: HTTP cortés (cola por host, backoff, `Retry-After`, timeout, UA, robots.txt), fixtures grabables, pipeline con matching por external id → dedup key + fechas → fuzzy con revisión, merge por prioridad, detección de cambios con severidad, reconciliación de funciones (reprogramación, cancelación, venue, ausencias), política de desaparición con guardia, dry-run transaccional, métricas por corrida, CLI | ✅ | **31 tests** (14 de HTTP/fixtures + 17 escenarios de integración sobre Postgres real con fixtures relativos al reloj) |
-| Conector sintético `sample` (plantilla) | ✅ | `pnpm ingest run --source sample --from-fixture latest` |
-| **Conectores Teatro Colón, MNBA, Palacio Libertad** | ⛔ **no implementados** | ver §2 |
-| App Expo SDK 57: onboarding de invitado (2–3 intereses), Para vos, Explorar (búsqueda + filtros), Calendario (30 días, rangos por día), Guardados, Perfil, ficha completa, Asistiré/Recomiendo/Guardar idempotentes y reversibles, compartir nativo con enlace estable y fuente oficial, deep links `culturaba://event/<slug>` y `https://…/event/<slug>`, imágenes de respaldo, estados de carga/error/vacío, claro/oscuro | ✅ | **21 tests** (Jest) + recorrido Playwright de 9 pantallas sobre la web export con datos reales de la base local (`docs/screenshots/`) |
-| API de desarrollo (`packages/devapi`) para la app sin Supabase | ✅ | usada por el recorrido Playwright |
-| CI (`ci.yml`): lint, typecheck, RLS smoke, vitest + jest, export web | ✅ | pendiente de ver correr en GitHub (se activa con el push) |
-| Cron de ingestión (`ingest.yml`) cada 6 h + manual, resumen y logs | ✅ (en espera) | sin efecto hasta registrar un conector real y cargar `DATABASE_URL` |
-| Documentación: inventario de fuentes, arquitectura, especificación de producto, roadmap, 5 ADR, README | ✅ | `docs/` |
+El catálogo real está cargado y la app lo muestra. Dos fuentes oficiales funcionan en
+vivo: **Teatro Colón** y la **agenda oficial de la Ciudad (Linda)**. Juntas aportan
+**266 eventos publicados y 736 funciones futuras** al 15-oct-2026, más 38 candidatos que
+no se publican porque les falta un dato. La app web, conectada a Supabase con sesión
+anónima, recorre las nueve pantallas con esos datos.
+
+Tres fuentes quedan fuera de esta etapa. MNBA y Palacio Libertad están detrás de un
+desafío interactivo de Cloudflare que no se elude. El conector del Complejo Teatral
+existe, pero está fuera de las corridas programadas hasta corregir defectos de su
+lectura de horarios. Sus producciones igual llegan al catálogo a través de Linda.
 
 ## 2. Fuentes: qué funciona realmente
 
-**Ninguna fuente real está conectada todavía.** La política de red del entorno de
-desarrollo denegó (HTTP 403 en el túnel del proxy, en todos los reintentos a lo largo
-de la sesión) el acceso a `teatrocolon.org.ar`, `bellasartes.gob.ar`,
-`palaciolibertad.gob.ar`, `complejoteatral.gob.ar`, `turismo.buenosaires.gob.ar`,
-`cultura.gob.ar` y también a `*.supabase.co`. Sin poder leer una sola página, escribir
-un parser habría sido inventar estructura y datos, cosa que el encargo prohíbe.
+| Fuente | Estado | Método | Corrida en vivo (15-oct) | Verificación |
+|---|---|---|---|---|
+| Teatro Colón | ✅ en producción | HTML: calendario mensual + ficha de cada producción | 29 descubiertos · 29 publicados · 69 funciones · 33 peticiones | 2 rondas de verificación adversarial y correcciones |
+| Agenda de la Ciudad (Linda) | ✅ en producción, prioridad 10 | API JSON oficial, 1 petición | 286 descubiertos · 248 completos · 38 candidatos | verificación adversarial (2 lentes); defectos corregidos y cubiertos por tests |
+| Complejo Teatral | ⏸ fuera del cron (`ready: false`) | HTML + agenda diaria | dry-run 13/15 publicables | la verificación encontró 2 defectos bloqueantes y 9 mayores; ver §8 |
+| MNBA | ⛔ bloqueado | — | `403` con desafío Turnstile en todo el sitio | no se intentó eludir |
+| Palacio Libertad | ⛔ bloqueado | — | `403` con desafío en todo el sitio, incluso `robots.txt` | no se intentó eludir |
 
-Lo que sí está listo para que la implementación sea corta en cuanto haya red:
-- Contrato de conector (`discover`/`enrich` con IO, `parse` puro), cliente de grabación
-  de fixtures y de reproducción offline, y una plantilla funcional (`sample`).
-- Tokenizadores de fechas en español probados contra los formatos típicos de agenda.
-- Protocolo de relevamiento por fuente y fichas con hipótesis marcadas
-  (`docs/source-inventory.md`).
+Detalles por fuente, selectores y ejemplos literales: `docs/source-inventory.md` y
+`docs/research/`.
 
-## 3. Cantidad de eventos reales importados
+**Cómo se actualizan.** `ingest.yml` corre cada 6 horas en GitHub Actions contra
+Supabase. Hasta que se cargue el secreto `DATABASE_URL`, las corridas programadas se
+saltean con un aviso en vez de fallar.
 
-**0 eventos reales.** La base local contiene únicamente los eventos sintéticos del
-conector `sample` (3 publicados + 2 candidatos en la base de test), usados para
-validar el pipeline y la app. No se rellenó nada con datos ficticios en el catálogo
-"de producción": el proyecto de Supabase sigue vacío (no se alcanzó por red).
+## 3. Catálogo real (15-oct-2026, verificado por la API pública)
+
+| Medida | Valor |
+|---|---|
+| Eventos publicados | 266 |
+| Funciones futuras visibles | 736 |
+| Candidatos (no publicados) | 38 |
+| Instituciones | 90 |
+| Venues | 101 |
+| Eventos unidos entre Colón y Linda | 8 |
+| Publicados con imagen oficial | 266 |
+| Publicados gratuitos según la fuente | 111 |
+
+Motivos de los candidatos:
+- **Sin disciplina cultural (29):** ferias tecnológicas, deporte y gastronomía de Linda.
+- **Sin sede atribuible (6):** "Varias sedes" o sin ubicación.
+- **Sin funciones (6):** el texto del propio ítem contradice las fechas u horas de Linda.
+
+La segunda y la tercera corrida en vivo seguidas registraron **0 cambios**. Una corrida
+idéntica no altera nada.
 
 ## 4. Qué se probó y cómo
 
-- **Unitario:** 92 (shared) + 14 (HTTP/fixtures) + 21 (app) tests.
-- **Integración con base real:** 17 escenarios: creación y publicación selectiva,
-  candidatos con motivos, venue creado solo con dirección de la fuente, dry-run sin
-  persistir, idempotencia (segunda corrida = 0 cambios), reprogramación, cancelación,
-  cambios editoriales con severidad, promoción candidato→publicado, ausencia en dos
-  corridas → `missing`/`suspended` → reaparición, guardia anti-ausencias masivas,
-  función desaparecida de un registro aún visible, dedup por título equivalente,
-  no-fusión por temporada distinta, parecidos marcados para revisión, venue
-  irresoluble sin inventar dirección, fuente deshabilitada, fallo de descubrimiento,
-  aislamiento de un ítem roto.
-- **RLS:** `supabase/tests/rls.sql` (anon ve solo publicados y nunca `raw_payload`
-  ni internals; usuarios solo sus filas; contadores por trigger; unicidad).
-- **App end-to-end (web):** Playwright sobre `expo export -p web` + `devapi`:
-  bienvenida → intereses → feed → ficha → Guardar/Asistiré → Guardados → búsqueda
-  "goya" filtra de verdad → calendario → deep link en frío por slug.
-- **No probado (imposible aquí):** builds nativos, Expo Go en dispositivo, push, sesión
-  anónima contra Supabase real, universal links en dominio, PostgREST real (la
-  implementación Supabase del `CatalogApi` está escrita contra la API de supabase-js
-  pero no ejecutada).
+- **Tests automáticos:** 95 (shared) + 157 (ingestión, incluidos 27 escenarios de
+  integración sobre Postgres real) + 21 (app). `pnpm lint`, `pnpm typecheck` y
+  `pnpm test` limpios.
+- **Conectores:** tests con fixtures grabados el 14-oct y valores exactos verificados a
+  mano contra el HTML o el JSON. Dry-runs con fixtures y en vivo.
+- **Dedup entre fuentes:** un registro de Linda se une al evento del Colón si enlaza su
+  ficha oficial o comparte la página de entradas oficiales de la Ciudad con id de evento.
+  Dos ítems de la misma fuente nunca se unen así. Hay tests que fallan si se quita cada regla.
+- **RLS en Supabase real:** la clave publicable ve 266 eventos publicados y 0
+  candidatos. De `source_records` solo ve 6 columnas públicas de eventos publicados;
+  `raw_payload`, `normalized` y el resto devuelven `42501`.
+- **App:** export web contra Supabase y recorrido Playwright de 9 pantallas
+  (`docs/screenshots/`), con capturas revisadas a ojo:
+  - bienvenida, intereses y feed;
+  - ficha con acciones Guardar y Asistiré;
+  - Guardados, búsqueda "dictaduras", calendario y deep link en frío.
+
+  Los usuarios anónimos de prueba se borraron después.
+- **No probado aquí:** builds nativos, Expo Go en un teléfono, push, universal links en
+  el dominio.
 
 ## 5. Comandos
 
 ```bash
 pnpm install
-pnpm db:reset && pnpm db:check-rls && pnpm db:reset-test
+pnpm db:start && pnpm db:reset && pnpm db:reset-test && pnpm db:check-rls
 pnpm lint && pnpm typecheck && pnpm test
 pnpm ingest list-sources
-pnpm ingest run --source sample --from-fixture latest --dry-run
-pnpm dev:api                                   # terminal aparte
-pnpm mobile                                    # expo start (con apps/mobile/.env en modo dev)
+pnpm ingest run --source teatro-colon --from-fixture 2026-10-14 --dry-run
+pnpm ingest run --source agenda-ba                   # en vivo
+bash scripts/sync-catalog-to-supabase.sh --yes       # solo carga inicial (trunca el destino)
 pnpm --filter @culturaba/mobile export:web && node scripts/serve-dist.mjs apps/mobile/dist 3000
-node scripts/screenshot-web.cjs                # requiere `playwright`
+node scripts/screenshot-web.cjs                      # con SUPABASE_URL y SUPABASE_PUBLISHABLE_KEY
 ```
+
+Detrás de un proxy, el `fetch` de Node necesita `NODE_USE_ENV_PROXY=1`; el CLI avisa.
 
 ## 6. Variables de entorno (sin secretos)
 
-Raíz `.env` (ver `.env.example`): `DATABASE_URL`, `TEST_DATABASE_URL`,
-`INGEST_USER_AGENT`, `AI_SUMMARY_ENABLED`, `LOG_LEVEL`, `HTTP_TIMEOUT_MS`,
-`HTTP_MAX_RETRIES`, `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`
-(solo scripts de administración; **no se usa en el código**), `DEV_API_PORT`.
+- **Raíz `.env`** (ver `.env.example`): `DATABASE_URL`, `TEST_DATABASE_URL`,
+  `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `INGEST_USER_AGENT`, `LOG_LEVEL`,
+  `HTTP_TIMEOUT_MS`, `HTTP_MAX_RETRIES`. Para la carga inicial también
+  `SUPABASE_ACCESS_TOKEN`; la app nunca lo usa.
+- **App `apps/mobile/.env`:** `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY`,
+  `EXPO_PUBLIC_WEB_BASE_URL`.
+- **GitHub Actions:** secreto `DATABASE_URL`, que es la URI del *session pooler* de
+  Supabase.
 
-App `apps/mobile/.env` (ver `apps/mobile/.env.example`): `EXPO_PUBLIC_SUPABASE_URL`,
-`EXPO_PUBLIC_SUPABASE_ANON_KEY`, `EXPO_PUBLIC_WEB_BASE_URL`, o `EXPO_PUBLIC_API_MODE=dev`
-+ `EXPO_PUBLIC_DEV_API_URL`.
+## 7. Configuración pendiente
 
-GitHub Actions: secreto `DATABASE_URL` (session pooler) y variable opcional
-`INGEST_USER_AGENT`.
+1. **GitHub:** cargar el secreto `DATABASE_URL` con la URI del session pooler. Con eso
+   el cron empieza a actualizar Supabase cada 6 horas.
+2. **Seguridad:** revocar el token personal de Supabase (`sbp_…`) y rotar la clave
+   `sb_secret_…`, que pasaron por el chat.
+3. **Dominio:** publicar la web export en `culturaba.xn--lembodiseo-19a.com`, así los
+   enlaces compartidos abren algo útil.
+4. **Expo:** bundle id definitivo, imágenes de respaldo propias y EAS en la Etapa 2.
 
-## 7. Configuración pendiente de servicios externos
+## 8. Limitaciones conocidas
 
-1. **Entorno de desarrollo:** permitir en *Network access* los dominios culturales y
-   `*.supabase.co`, `*.pooler.supabase.com` (probablemente en una sesión nueva).
-2. **Supabase:** `supabase db push --db-url <pooler>` + `seed.sql`; activar *Anonymous
-   sign-ins*; obtener la cadena del *session pooler* (las API keys no sirven para
-   migraciones); **rotar la clave `sb_secret_`** que se compartió por chat.
-3. **GitHub:** secreto `DATABASE_URL`; primera corrida por *workflow_dispatch* cuando
-   exista un conector real.
-4. **Dominio:** confirmar `culturaba.xn--lembodiseo-19a.com` (o la variante elegida; evitar
-   la ñ en el host) para universal links; publicar la web export ahí para que los
-   enlaces compartidos abran algo útil.
-5. **Expo:** bundle id/package (`ar.com.culturaba.app` placeholder); imágenes de
-   respaldo definitivas (hoy son gradientes generados); EAS en Etapa 2.
-
-## 8. Limitaciones conocidas y riesgos
-
-- Sin conectores reales no hay catálogo; es la primera tarea de la próxima sesión.
-- Direcciones de los tres venues del seed son datos públicos conocidos pero quedan
-  con `address_verified_at = null` hasta confirmarlas en los sitios.
-- Inferencia de año en fechas sin año: acotada a 12 meses; casos límite reales por ver.
-- `react-native-web`: no poner `style` a un `Pressable` dentro de `<Link asChild>`
-  (reenvía el array al `<a>`); patrón ya corregido y documentado.
-- Hotlinking de imágenes de las fuentes: respaldo automático si falla; caché en Etapa 3.
-- Cron de GitHub: retrasos y auto-desactivación tras 60 días sin actividad.
-
-## 9. Próximos pasos recomendados
-
-1. Sesión con red: relevar + grabar fixtures + implementar Teatro Colón, MNBA y
-   Palacio Libertad; correr en vivo; revisar candidatos y duplicados.
-2. Desplegar esquema a Supabase y apuntar la app; probar en Expo Go (deep link,
-   compartir, acciones con sesión anónima).
-3. Etapa 2: push con resumen diario, recordatorios y `.ics` (el esquema ya está).
+- **Complejo Teatral fuera del cron.** Su lectura de horarios en texto libre puede
+  inventar horas o años en algunos patrones: listas de horas que absorben números de
+  día, año de rangos tomado del inicio, avisos con día sin mes y "Hasta el X" con inicio
+  inventado. Los defectos están documentados con evidencia y es lo primero de la Etapa 2.
+- **Linda es un agregador con errores propios.** Cuando su texto y sus fechas
+  estructuradas se contradicen, no se publican funciones. Invasiones I queda así aunque
+  sus fechas estructuradas sean las correctas, y "Más de 100 piezas inéditas…" no se
+  detecta.
+- **Muestras en Linda.** Se publican como tramos de días que Linda lista, así que un
+  museo cerrado los martes no aparece abierto. El inicio es el primer día que Linda
+  todavía muestra, no la inauguración.
+- **Dedup cruzado.** Linda enlaza al Complejo Teatral con URLs `/ver/…` que no
+  coinciden con `/produccion/…`. Esos casos se unen por título, no por enlace.
+- **MNBA y Palacio Libertad:** ver las opciones en `docs/source-inventory.md`. Son
+  fixtures capturados por una persona, un equipo propio con IP residencial o cobertura
+  parcial vía Linda.
+- **Carga inicial.** El script de sincronización trunca el catálogo remoto y las
+  acciones de usuarios. Es solo para la primera carga; después escribe el cron.

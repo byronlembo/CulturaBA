@@ -5,22 +5,24 @@
 | Entregable | Estado |
 |---|---|
 | Monorepo, lint/typecheck/tests, CI | ✅ |
-| Modelo de datos con Evento/Función, procedencia, RLS, vistas públicas | ✅ (smoke test de RLS y tests de integración) |
-| Dominio compartido: fechas en español, dedup, publicabilidad | ✅ 92 tests |
-| Worker de ingestión: HTTP cortés, fixtures, pipeline, dedup, cambios, ausencias, CLI | ✅ 31 tests (17 escenarios de integración sobre Postgres real) |
-| Conectores Teatro Colón, MNBA, Palacio Libertad | ⛔ **bloqueado**: la red del entorno de desarrollo denegó el acceso a los sitios; ver `docs/source-inventory.md` para el protocolo y la plantilla (`sample`) |
-| App: onboarding, Para vos, Explorar, Calendario, Guardados, Perfil, ficha, acciones sociales, compartir, deep links | ✅ 21 tests Jest + recorrido Playwright sobre la web export |
-| Automatización: `ingest.yml` (cron), `ci.yml` | ✅ (el cron queda en espera hasta registrar el primer conector real y cargar `DATABASE_URL`) |
-| Despliegue a Supabase (`db push`) | ⏳ pendiente de red + cadena de conexión del *session pooler* |
+| Modelo de datos con Evento/Función, procedencia, RLS, vistas públicas | ✅ aplicado en Supabase y verificado por REST |
+| Dominio compartido: fechas en español, dedup, publicabilidad | ✅ 95 tests |
+| Worker de ingestión: HTTP cortés, fixtures, pipeline, dedup entre fuentes, cambios, ausencias, CLI | ✅ 157 tests (27 de integración sobre Postgres real) |
+| Conector Teatro Colón | ✅ en producción |
+| Conector agenda de la Ciudad (Linda) | ✅ en producción (agregador, prioridad 10) |
+| Conector Complejo Teatral | ⏸ implementado, fuera del cron hasta corregir la lectura de horarios |
+| Conectores MNBA y Palacio Libertad | ⛔ bloqueados por desafío de Cloudflare (no se elude) |
+| Catálogo real en Supabase | ✅ 266 eventos publicados, 736 funciones futuras (15-oct) |
+| App: onboarding, Para vos, Explorar, Calendario, Guardados, Perfil, ficha, acciones sociales, compartir, deep links | ✅ 21 tests Jest + recorrido Playwright contra Supabase |
+| Automatización: `ingest.yml` (cron cada 6 h), `ci.yml` | ✅ el cron espera el secreto `DATABASE_URL` |
 
-### Siguientes pasos inmediatos (en una sesión con red)
-1. Relevar las tres fuentes con el protocolo; grabar fixtures; implementar y probar
-   los conectores; correr en vivo y revisar candidatos.
-2. `supabase db push --db-url …` + activar *Anonymous sign-ins* en Auth; cargar
-   `DATABASE_URL` (pooler) como secreto del repo; primera corrida por `workflow_dispatch`.
-3. Apuntar la app al proyecto (`apps/mobile/.env`) y probar en Expo Go: deep link en
-   frío, compartir, acciones sociales con sesión anónima.
-4. Confirmar direcciones de venues (`address_verified_at`) desde las páginas oficiales.
+### Siguientes pasos inmediatos
+1. Cargar `DATABASE_URL` (session pooler) como secreto y lanzar `ingest.yml` a mano una vez.
+2. Corregir el conector del Complejo Teatral con los defectos documentados y volver a
+   activarlo (`ready: true`).
+3. Decidir el camino para MNBA y Palacio Libertad (fixtures manuales, equipo propio o
+   cobertura vía Linda).
+4. Probar en Expo Go: deep link en frío, compartir, acciones con sesión anónima.
 
 ## Etapa 2 — Notificaciones y calendario
 - Registro de dispositivos (`user_devices`) con Expo Notifications; pedir permiso
@@ -37,8 +39,8 @@
 - Panel mínimo de revisión: fuentes y última corrida, errores, candidatos
   (`candidate_reasons`), duplicados (`event_duplicates`), corregir fechas, desactivar
   fuente, auditar procedencia. Acceso restringido (rol admin), separado de la app.
-- Más fuentes: Complejo Teatral, agendas de la Ciudad (dedup cross-institución),
-  MALBA, Proa, Moderno, Recoleta, Usina del Arte.
+- Más fuentes propias: MALBA, Proa, Moderno, Recoleta, Usina del Arte (hoy llegan vía
+  Linda con prioridad baja).
 - Resúmenes "Qué esperar" con IA, basados solo en el texto oficial, con
   `ai_summary_source_hash` para regenerar únicamente cuando cambia la fuente.
 - Caché/redimensionado de imágenes en Storage con atribución.
