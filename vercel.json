@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "EXPO_PUBLIC_SUPABASE_URL=https://ioyaejccerbfczpjgstg.supabase.co EXPO_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_GnQMCCghtslfRX0u13km4Q_E-8GMKxv EXPO_PUBLIC_WEB_BASE_URL=https://${VERCEL_PROJECT_PRODUCTION_URL:-culturaba.vercel.app} pnpm --filter @culturaba/mobile export:web",
+  "buildCommand": "bash scripts/vercel-build.sh",
   "outputDirectory": "apps/mobile/dist",
   "rewrites": [
     {
