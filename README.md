@@ -18,10 +18,10 @@ Documentación: [`docs/product-spec.md`](docs/product-spec.md) ·
 
 ## Probar la app
 
-- **En el navegador (o el navegador del teléfono):** https://byronlembo.github.io/CulturaBA/ —
-  la publica `.github/workflows/pages.yml` en cada push que toca la app. Usa el catálogo
-  real de Supabase con sesión anónima. Requiere activar Pages una vez (Settings → Pages →
-  Source: *GitHub Actions*).
+- **En el navegador (o el navegador del teléfono):** Vercel. Importar el repo en
+  https://vercel.com/new con la configuración por defecto: `vercel.json` define install,
+  build (web export contra el Supabase real, solo con la clave publicable), salida y
+  reescrituras para que los deep links abran en frío. Cada push publica de nuevo.
 - **En el teléfono con Expo Go:** clonar el repo, crear `apps/mobile/.env` a partir de
   `apps/mobile/.env.example` con la URL y la clave publicable de Supabase, y correr
   `pnpm install && pnpm mobile`; escanear el QR con Expo Go (misma red Wi-Fi, o
