@@ -16,6 +16,17 @@ Documentación: [`docs/product-spec.md`](docs/product-spec.md) ·
 [`docs/roadmap.md`](docs/roadmap.md) · [`docs/adr/`](docs/adr/README.md) ·
 [`docs/informe-etapa-1.md`](docs/informe-etapa-1.md).
 
+## Probar la app
+
+- **En el navegador (o el navegador del teléfono):** https://byronlembo.github.io/CulturaBA/ —
+  la publica `.github/workflows/pages.yml` en cada push que toca la app. Usa el catálogo
+  real de Supabase con sesión anónima. Requiere activar Pages una vez (Settings → Pages →
+  Source: *GitHub Actions*).
+- **En el teléfono con Expo Go:** clonar el repo, crear `apps/mobile/.env` a partir de
+  `apps/mobile/.env.example` con la URL y la clave publicable de Supabase, y correr
+  `pnpm install && pnpm mobile`; escanear el QR con Expo Go (misma red Wi-Fi, o
+  `pnpm --filter @culturaba/mobile exec expo start --tunnel`).
+
 ## Estructura
 
 ```

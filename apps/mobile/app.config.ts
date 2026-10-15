@@ -4,6 +4,9 @@ import type { ExpoConfig } from 'expo/config';
 const webBaseUrl =
   process.env.EXPO_PUBLIC_WEB_BASE_URL ?? 'https://culturaba.xn--lembodiseo-19a.com';
 const webHost = new URL(webBaseUrl).host;
+// Subruta de la web export cuando no se sirve en la raíz del dominio (p. ej. '/CulturaBA' en
+// GitHub Pages). Sin definir, la app vive en '/'.
+const webBasePath = process.env.EXPO_WEB_BASE_PATH?.replace(/\/+$/, '') || undefined;
 
 const config: ExpoConfig = {
   name: 'CulturaBA',
@@ -50,6 +53,7 @@ const config: ExpoConfig = {
     ],
     'expo-web-browser',
   ],
+  ...(webBasePath ? { experiments: { baseUrl: webBasePath } } : {}),
   extra: {
     webBaseUrl,
   },

@@ -1,0 +1,57 @@
+name: Web (GitHub Pages)
+
+# Publica la versión web de la app en https://byronlembo.github.io/CulturaBA/ para probarla
+# desde cualquier navegador o teléfono. Requiere activar Pages una vez:
+# Settings → Pages → Build and deployment → Source: "GitHub Actions".
+
+on:
+  push:
+    branches: [claude/wonderful-ride-0g1771]
+    paths:
+      - 'apps/mobile/**'
+      - 'packages/shared/**'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Valores públicos por diseño: la clave publicable solo lee lo que permite RLS.
+      EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL || 'https://ioyaejccerbfczpjgstg.supabase.co' }}
+      EXPO_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_GnQMCCghtslfRX0u13km4Q_E-8GMKxv' }}
+      EXPO_PUBLIC_WEB_BASE_URL: https://byronlembo.github.io/CulturaBA
+      EXPO_WEB_BASE_PATH: /CulturaBA
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @culturaba/mobile export:web
+      # Pages no tiene reescrituras: 404.html = la app, así /CulturaBA/event/<slug> abre en frío.
+      - run: cp apps/mobile/dist/index.html apps/mobile/dist/404.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/mobile/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
