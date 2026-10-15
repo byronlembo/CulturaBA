@@ -2,13 +2,11 @@ import {
   BA_TZ,
   baDateTime,
   detectFreeEs,
-  detectStatusEs,
   htmlToText,
   type LocalTimeParts,
   type NormalizedEventInput,
   NormalizedEventSchema,
   type NormalizedOccurrenceInput,
-  type ParsedOccurrenceStatus,
   partsToLocalDate,
   toIsoInstant,
   type VenueRef,
@@ -31,6 +29,15 @@ import {
   timeKey,
 } from './dates';
 import { disciplinesFor } from './disciplines';
+import {
+  claimFromText,
+  type NoticeSlot,
+  type NoticeSource,
+  resolveNotices,
+  STATUS_RANK,
+  type StatusClaim,
+  strongestClaim,
+} from './notices';
 import { venueForPlace } from './venues';
 
 /**
@@ -58,6 +65,11 @@ export interface ListingRow {
   category: string;
   /** `.data p` del ítem: compositor, abono, nota de preventa. */
   dataText: string;
+  /**
+   * Las líneas de `.data` (cortadas en `<br>` / `</p>`): un aviso se lee por línea para
+   * no mezclar fechas de dos avisos. Opcional: crudos viejos no lo traen.
+   */
+  dataLines?: string[];
   ticketsUrl: string | null;
   imageUrl: string | null;
   year: number;
@@ -127,6 +139,14 @@ function clean(text: string | null | undefined): string {
   return (text ?? '').replace(/\s+/g, ' ').trim();
 }
 
+/** HTML → líneas de texto no vacías (cortes en `<br>`, `</p>`, …). */
+function textLines(html: string | null | undefined): string[] {
+  return htmlToText(html ?? '')
+    .split('\n')
+    .map(clean)
+    .filter((l) => l.length > 0);
+}
+
 function absoluteImageUrl(src: string | null | undefined): string | null {
   const s = clean(src);
   return /^https?:\/\//i.test(s) ? s : null;
@@ -183,6 +203,7 @@ export function parseCalendarPage(
       ...splitTitleHtmlForListing($el.find('.event-content h1').first().html()),
       category: clean($el.find('.event-content .category').first().text()),
       dataText: clean(htmlToText($el.find('.event-content .data').first().html() ?? '')),
+      dataLines: textLines($el.find('.event-content .data').first().html()),
       ticketsUrl: cleanTicketsUrl($el.find('.buttons a.button.red').first().attr('href')),
       imageUrl: absoluteImageUrl($el.find('figure img').first().attr('src')),
       year,
@@ -248,6 +269,8 @@ export interface DetailPage {
    * libre de la producción: ahí aparecería un aviso de suspensión o cancelación.
    */
   dataText: string;
+  /** Las líneas de `.data` (un `<br>` separa avisos distintos). */
+  dataLines: string[];
   synopsisText: string;
   functions: DetailFunction[];
   durationMinutes: number | null;
@@ -300,14 +323,15 @@ export function parseDetailPage(html: string): DetailPage {
     ) ?? absoluteImageUrl($('meta[property="og:image"]').attr('content'));
 
   const metaDescription = clean(htmlToText($('meta[name="description"]').attr('content') ?? ''));
-  const dataText = clean(
-    main
-      .find('.production-info-switch .data p')
-      .map((_, p) => clean($(p).text()))
-      .get()
-      .filter((t) => t.length > 0)
-      .join(' '),
-  );
+  const dataLines = [
+    ...new Set(
+      main
+        .find('.production-info-switch .data p')
+        .toArray()
+        .flatMap((p) => textLines($(p).html())),
+    ),
+  ];
+  const dataText = dataLines.join(' ');
   const synopsis = $('section#sinopsis').first().clone();
   synopsis.find('h4#the_place').remove();
   const synopsisText = htmlToText(synopsis.html() ?? '');
@@ -392,6 +416,7 @@ export function parseDetailPage(html: string): DetailPage {
     imageUrl,
     metaDescription,
     dataText,
+    dataLines,
     synopsisText,
     functions,
     durationMinutes,
@@ -403,46 +428,98 @@ export function parseDetailPage(html: string): DetailPage {
 
 // ── Normalización ──────────────────────────────────────────────────────────
 
-function statusFromText(text: string): ParsedOccurrenceStatus | null {
-  const detected = detectStatusEs(text);
-  if (detected === 'cancelled' || detected === 'postponed' || detected === 'sold_out') {
-    return detected;
-  }
-  return null;
-}
-
-/** Estado afirmado por la fuente + texto literal que lo afirma (statusReason). */
-interface StatusClaim {
-  status: ParsedOccurrenceStatus;
-  reason: string;
-}
-
-const STATUS_RANK: Record<ParsedOccurrenceStatus, number> = {
-  scheduled: 0,
-  sold_out: 1,
-  postponed: 2,
-  cancelled: 3,
-};
-
-function claimFromText(text: string | null | undefined): StatusClaim | null {
-  const t = clean(text);
-  const status = t ? statusFromText(t) : null;
-  return status ? { status, reason: t } : null;
-}
-
-/** El estado más grave entre todas las marcas (cancelada > postergada > agotada). */
-function strongestClaim(claims: readonly (StatusClaim | null)[]): StatusClaim | null {
-  let best: StatusClaim | null = null;
-  for (const c of claims) {
-    if (c && (!best || STATUS_RANK[c.status] > STATUS_RANK[best.status])) best = c;
-  }
-  return best;
-}
-
 function listingDataOf(raw: RawRecord): ListingData | null {
   const l = raw.listing as Partial<ListingData> | undefined;
   if (!l || typeof l !== 'object' || !Array.isArray(l.rows)) return null;
   return { slug: typeof l.slug === 'string' ? l.slug : raw.externalId, rows: l.rows };
+}
+
+/**
+ * Textos de la producción donde puede aparecer un aviso de estado. El título y el
+ * `.data` del listado se repiten en CADA fila de la producción (en los fixtures, las 71
+ * filas llevan el mismo texto que las demás de su producción): son texto de la
+ * producción, no de la función. Solo un texto que aparece en ALGUNAS filas (no en
+ * todas) es de esas funciones.
+ */
+function noticeSourcesOf(detail: DetailPage, listingRows: readonly ListingRow[]): NoticeSource[] {
+  const sources: NoticeSource[] = [];
+  if (detail.title) sources.push({ text: detail.title, kind: 'name', label: 'título' });
+  if (detail.subtitle) sources.push({ text: detail.subtitle, kind: 'name', label: 'subtítulo' });
+  for (const line of detail.dataLines) {
+    sources.push({ text: line, kind: 'free', label: '.data del detalle' });
+  }
+  if (detail.categoryLabel) {
+    sources.push({ text: detail.categoryLabel, kind: 'free', label: 'categoría' });
+  }
+
+  const allKeys = new Set<string>();
+  const byText = new Map<
+    string,
+    { kind: NoticeSource['kind']; label: string; keys: Set<string> }
+  >();
+  const add = (text: string, kind: NoticeSource['kind'], label: string, key: string): void => {
+    const t = clean(text);
+    if (!t) return;
+    const id = `${kind}|${t}`;
+    const entry = byText.get(id) ?? { kind, label, keys: new Set<string>() };
+    entry.keys.add(key);
+    byText.set(id, entry);
+  };
+  for (const row of listingRows) {
+    const key = dayTimeKey(row.month, row.day, row.time);
+    allKeys.add(key);
+    add(row.title, 'name', 'título del listado', key);
+    for (const line of row.dataLines ?? [row.dataText]) add(line, 'free', '.data del listado', key);
+  }
+  for (const [id, entry] of byText) {
+    const text = id.slice(entry.kind.length + 1);
+    const rowSpecific = allKeys.size > 1 && entry.keys.size < allKeys.size;
+    sources.push({
+      text,
+      kind: entry.kind,
+      label: entry.label,
+      ...(rowSpecific ? { rowKeys: [...entry.keys] } : {}),
+    });
+  }
+  return sources;
+}
+
+/** Una función lista para emitir, antes de aplicarle los avisos de la producción. */
+interface PendingOccurrence {
+  occurrence: Omit<NormalizedOccurrenceInput, 'status'>;
+  slot: Omit<NoticeSlot, 'id'>;
+  /** Marcas de la propia función: clase sold_out, texto del bloque. */
+  own: StatusClaim[];
+}
+
+/**
+ * Estado de cada función = la marca más grave entre las suyas y los avisos de la
+ * producción que la nombran. Un aviso grave que no se puede asignar a una fecha deja
+ * fuera las funciones que podría alcanzar (salvo que su propia marca ya sea igual de
+ * grave): ante la duda no se emite la función, y el evento queda candidato si no queda
+ * ninguna.
+ */
+function applyNotices(
+  pending: readonly PendingOccurrence[],
+  sources: readonly NoticeSource[],
+  warnings: string[],
+): NormalizedOccurrenceInput[] {
+  const slots: NoticeSlot[] = pending.map((p, id) => ({ ...p.slot, id }));
+  const notices = resolveNotices(sources, slots);
+  warnings.push(...notices.warnings);
+  const out: NormalizedOccurrenceInput[] = [];
+  pending.forEach((p, id) => {
+    const claim = strongestClaim([...p.own, ...(notices.claims.get(id) ?? [])]);
+    const block = notices.blocked.get(id);
+    if (block && (!claim || STATUS_RANK[claim.status] < STATUS_RANK[block.status])) return;
+    const occurrence: NormalizedOccurrenceInput = {
+      ...p.occurrence,
+      status: claim?.status ?? 'scheduled',
+    };
+    if (claim) occurrence.statusReason = claim.reason;
+    out.push(occurrence);
+  });
+  return out;
 }
 
 export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
@@ -475,32 +552,12 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
 
   // Año de cada función: el listado mensual lo conoce; el detalle solo trae dd/mm.
   const listingYears = new Map<string, number>();
-  // Filas del listado por (mes, día, hora): su `.data` es texto libre POR FUNCIÓN.
-  const rowsByKey = new Map<string, ListingRow[]>();
-  for (const row of listingRows) {
-    const key = dayTimeKey(row.month, row.day, row.time);
-    listingYears.set(key, row.year);
-    rowsByKey.set(key, [...(rowsByKey.get(key) ?? []), row]);
-  }
+  for (const row of listingRows)
+    listingYears.set(dayTimeKey(row.month, row.day, row.time), row.year);
 
-  // Marcas de estado de TODA la producción: título/subtítulo, `.data` y categoría del
-  // detalle (el relevamiento §11: una cancelación solo aparecería como texto libre).
-  const productionClaim = strongestClaim([
-    claimFromText(title),
-    claimFromText(detail.subtitle),
-    claimFromText(detail.dataText),
-    claimFromText(detail.categoryLabel),
-  ]);
-  if (productionClaim) {
-    warnings.push(
-      `estado '${productionClaim.status}' de toda la producción por texto de la fuente: '${productionClaim.reason}'`,
-    );
-  }
-  const rowClaimsOf = (key: string): (StatusClaim | null)[] =>
-    (rowsByKey.get(key) ?? []).flatMap((row) => [
-      claimFromText(row.dataText),
-      claimFromText(row.title),
-    ]);
+  // Avisos de estado en texto libre de la producción (relevamiento §11: una cancelación
+  // solo aparecería como texto en `.data`). Se asignan por fecha en applyNotices.
+  const noticeSources = noticeSourcesOf(detail, listingRows);
 
   interface Candidate {
     f: DetailFunction;
@@ -508,6 +565,8 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
     key: string;
     /** Año explícito en el texto o confirmado por una fila del listado mensual. */
     yearConfirmed: boolean;
+    year: number;
+    weekday: number;
     startsAt: string;
     startDate: string;
     startMs: number;
@@ -529,12 +588,15 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
       continue;
     }
     try {
-      const startsAt = toIsoInstant(baDateTime({ year, month: f.month, day: f.day }, f.time));
+      const start = baDateTime({ year, month: f.month, day: f.day }, f.time);
+      const startsAt = toIsoInstant(start);
       candidates.push({
         f,
         time: f.time,
         key,
         yearConfirmed: f.year !== null || listingYears.has(key),
+        year,
+        weekday: start.weekday,
         startsAt,
         startDate: partsToLocalDate({ year, month: f.month, day: f.day }),
         startMs: Date.parse(startsAt),
@@ -544,7 +606,7 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
     }
   }
 
-  const occurrences: NormalizedOccurrenceInput[] = [];
+  const pending: PendingOccurrence[] = [];
   const seen = new Set<string>();
   const nowMs = now.toMillis();
   let skippedPast = 0;
@@ -573,33 +635,39 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
     if (seen.has(externalId)) return;
     seen.add(externalId);
 
-    const claim = strongestClaim([
-      f.soldOut ? { status: 'sold_out', reason: 'marcada como agotada en el sitio' } : null,
-      claimFromText(f.nearText),
-      ...rowClaimsOf(c.key),
-      productionClaim,
-    ]);
-    const status: ParsedOccurrenceStatus = claim?.status ?? 'scheduled';
     const isFree = detectFreeEs(f.buttonText) === true;
-    const occurrence: NormalizedOccurrenceInput = {
-      externalId,
-      kind: 'timed',
-      startsAt: c.startsAt,
-      endsAt: null,
-      startDate: c.startDate,
-      endDate: c.startDate,
-      timezone: BA_TZ,
-      scheduleText: null,
-      recurrenceRule: null,
-      sourceDateText: f.monthHeading ? `${f.text} (${f.monthHeading})` : f.text,
-      venue,
-      status,
-      // Sin link si el sitio no la vende online (próximamente o inactive).
-      ticketsUrl: f.comingSoon || f.inactive ? null : f.ticketsUrl,
-      price: isFree ? { text: f.buttonText, isFree: true, verified: true } : null,
-    };
-    if (claim) occurrence.statusReason = claim.reason;
-    occurrences.push(occurrence);
+    pending.push({
+      occurrence: {
+        externalId,
+        kind: 'timed',
+        startsAt: c.startsAt,
+        endsAt: null,
+        startDate: c.startDate,
+        endDate: c.startDate,
+        timezone: BA_TZ,
+        scheduleText: null,
+        recurrenceRule: null,
+        sourceDateText: f.monthHeading ? `${f.text} (${f.monthHeading})` : f.text,
+        venue,
+        // Sin link si el sitio no la vende online (próximamente o inactive).
+        ticketsUrl: f.comingSoon || f.inactive ? null : f.ticketsUrl,
+        price: isFree ? { text: f.buttonText, isFree: true, verified: true } : null,
+      },
+      slot: {
+        year: c.year,
+        month: f.month as number,
+        day: f.day as number,
+        weekday: c.weekday,
+        time: c.time,
+        key: c.key,
+      },
+      own: [
+        ...(f.soldOut
+          ? [{ status: 'sold_out' as const, reason: 'marcada como agotada en el sitio' }]
+          : []),
+        ...[claimFromText(f.nearText)].filter((x): x is StatusClaim => x !== null),
+      ],
+    });
   });
   if (skippedPast) warnings.push(`${skippedPast} funciones pasadas (div.day.inactive) omitidas`);
   if (outOfOrder.length) {
@@ -618,12 +686,10 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
     warnings.push('detalle sin section.dates: funciones tomadas del listado mensual');
     for (const row of listingRows) {
       if (!row.time) continue;
-      let startsAt: string;
+      let start: ReturnType<typeof baDateTime>;
       let startDate: string;
       try {
-        startsAt = toIsoInstant(
-          baDateTime({ year: row.year, month: row.month, day: row.day }, row.time),
-        );
+        start = baDateTime({ year: row.year, month: row.month, day: row.day }, row.time);
         startDate = partsToLocalDate({ year: row.year, month: row.month, day: row.day });
       } catch {
         continue;
@@ -631,31 +697,36 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
       const externalId = `${slug}|${startDate}|${timeKey(row.time)}`;
       if (seen.has(externalId)) continue;
       seen.add(externalId);
-      const claim = strongestClaim([
-        claimFromText(row.dataText),
-        claimFromText(row.title),
-        productionClaim,
-      ]);
-      const status: ParsedOccurrenceStatus = claim?.status ?? 'scheduled';
-      occurrences.push({
-        externalId,
-        kind: 'timed',
-        startsAt,
-        endsAt: null,
-        startDate,
-        endDate: startDate,
-        timezone: BA_TZ,
-        scheduleText: null,
-        recurrenceRule: null,
-        sourceDateText: row.dateText,
-        venue,
-        status,
-        ticketsUrl: row.ticketsUrl,
-        price: null,
-        ...(claim ? { statusReason: claim.reason } : {}),
+      pending.push({
+        occurrence: {
+          externalId,
+          kind: 'timed',
+          startsAt: toIsoInstant(start),
+          endsAt: null,
+          startDate,
+          endDate: startDate,
+          timezone: BA_TZ,
+          scheduleText: null,
+          recurrenceRule: null,
+          sourceDateText: row.dateText,
+          venue,
+          ticketsUrl: row.ticketsUrl,
+          price: null,
+        },
+        slot: {
+          year: row.year,
+          month: row.month,
+          day: row.day,
+          weekday: start.weekday,
+          time: row.time,
+          key: dayTimeKey(row.month, row.day, row.time),
+        },
+        own: [],
       });
     }
   }
+
+  const occurrences = applyNotices(pending, noticeSources, warnings);
 
   // Entradas a nivel evento: la URL común de las funciones o, si no, la del listado.
   const ticketUrls = [...new Set(occurrences.map((o) => o.ticketsUrl).filter(Boolean))] as string[];

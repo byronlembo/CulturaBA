@@ -11,6 +11,7 @@
   ],
   "institutionSlug": "teatro-colon",
   "officialUrl": "https://teatrocolon.org.ar/produccion/la-intimidad-de-la-voz/",
+  "sameAsUrls": [],
   "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/d0f693c8-0873-4b14-86f0-9a121c334424",
   "imageUrl": "https://teatrocolon.org.ar/wp-content/uploads/2026/05/10_Clasica-Joven.png",
   "priceText": "Gratuita",

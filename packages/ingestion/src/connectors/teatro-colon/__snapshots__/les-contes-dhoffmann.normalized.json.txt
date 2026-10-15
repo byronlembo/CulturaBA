@@ -11,6 +11,7 @@
   ],
   "institutionSlug": "teatro-colon",
   "officialUrl": "https://teatrocolon.org.ar/produccion/les-contes-dhoffmann/",
+  "sameAsUrls": [],
   "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/8df036b4-df44-49bf-aafb-2402f5ea675e",
   "imageUrl": "https://teatrocolon.org.ar/wp-content/uploads/2025/12/Opera_Hoffmann_redes-web.png",
   "priceVerified": false,

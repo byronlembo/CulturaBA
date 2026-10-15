@@ -203,6 +203,31 @@ describe('teatro-colon · fixtures 2026-10-14', () => {
     }
   });
 
+  it('ningún aviso de estado en los textos de los fixtures; el listado repite el texto de la producción', () => {
+    for (const [slug] of items) {
+      expect(warningsOf(items, slug).filter((w) => /aviso|palabra de estado/.test(w))).toEqual([]);
+    }
+    // Título y `.data` del listado son de la PRODUCCIÓN: iguales en todas sus filas.
+    const texts = new Map<string, Set<string>>();
+    for (const [file, month] of [
+      ['006-calendario-2026-10.html', 10],
+      ['007-calendario-2026-11.html', 11],
+      ['008-calendario-2026-12.html', 12],
+    ] as const) {
+      const page = parseCalendarPage(readFileSync(join(FIXTURE_DIR, file), 'utf8'), {
+        year: 2026,
+        month,
+      });
+      for (const row of page.rows) {
+        const set = texts.get(row.slug) ?? new Set<string>();
+        set.add(`${row.title}|${row.dataText}`);
+        texts.set(row.slug, set);
+      }
+    }
+    expect(texts.size).toBe(30);
+    expect([...texts.values()].filter((s) => s.size !== 1)).toEqual([]);
+  });
+
   it('reglas de datos: nunca precios inventados, instantes -03:00, venues resolubles o nulos', () => {
     for (const [, { result }] of items) {
       if (!result.ok) continue;
@@ -460,6 +485,27 @@ describe('parseCalendarPage', () => {
     expect(almohadones?.category).toBe('Colón para niños');
     const berliner = page.rows.find((r) => r.slug === 'berliner-philharmoniker');
     expect(berliner?.dataText).toBe('Funciones del 21, 22 y 23 de octubre de 2026');
+    expect(berliner?.dataLines).toEqual(['Funciones del 21, 22 y 23 de octubre de 2026']);
+  });
+
+  it('`.data` por línea (<br>) en el listado y en el detalle', () => {
+    const page = parseCalendarPage(
+      readFileSync(join(FIXTURE_DIR, '007-calendario-2026-11.html'), 'utf8'),
+      { year: 2026, month: 11 },
+    );
+    const lines = [
+      'Preventa Santander Select: Del 17 al 20 de octubre',
+      'Venta general: Del 21 de octubre al 2 de noviembre',
+    ];
+    expect(page.rows.find((r) => r.slug.startsWith('monteverdi-choir'))?.dataLines).toEqual(lines);
+    const detail = parseDetailPage(
+      readFileSync(
+        join(FIXTURE_DIR, '023-produccion-monteverdi-choir-english-baroque-soloists.html'),
+        'utf8',
+      ),
+    );
+    expect(detail.dataLines).toEqual(lines);
+    expect(detail.dataText).toBe(lines.join(' '));
   });
 });
 
@@ -532,11 +578,12 @@ function listingRowOf(o: {
   day: number;
   time: { hour: number; minute: number };
   dataText?: string;
+  title?: string;
 }) {
   return {
     slug: 'obra-x',
     detailUrl: 'https://teatrocolon.org.ar/produccion/obra-x/',
-    title: 'Obra X',
+    title: o.title ?? 'Obra X',
     category: 'Ópera',
     dataText: o.dataText ?? '',
     ticketsUrl: null,
@@ -662,68 +709,340 @@ describe('buildEvent · estados y marcadores', () => {
     ]);
   });
 
-  it('estado por texto de la producción (título, .data) y del .data del listado por función', () => {
-    const days = [
-      dayHtml({ text: 'viernes 16/10, 20:00 hs' }),
-      dayHtml({ text: 'sábado 17/10, 20:00 hs' }),
-    ];
-    const months = [{ name: 'octubre', days }];
+  describe('avisos de estado de la producción: solo alcanzan a las funciones que nombran', () => {
+    const d16 = dayHtml({ text: 'viernes 16/10, 20:00 hs' });
+    const d17 = dayHtml({ text: 'sábado 17/10, 20:00 hs' });
+    const d18 = dayHtml({ text: 'domingo 18/10, 20:00 hs' });
+    const octubre = (...days: string[]) => [{ name: 'octubre', days }];
+    const statuses = (res: ParseResult) =>
+      res.ok ? res.event.occurrences.map((o) => [o.startDate, o.status, o.statusReason]) : null;
 
-    const suspendido = buildEvent(
-      rawOf(detailHtml({ title: 'Recital X – SUSPENDIDO', months })),
-      parseCtx,
-    );
-    expect(suspendido.ok).toBe(true);
-    if (!suspendido.ok) return;
-    expect(suspendido.event.occurrences.map((o) => [o.status, o.statusReason])).toEqual([
-      ['cancelled', 'Recital X – SUSPENDIDO'],
-      ['cancelled', 'Recital X – SUSPENDIDO'],
-    ]);
-    expect(suspendido.warnings).toContain(
-      "estado 'cancelled' de toda la producción por texto de la fuente: 'Recital X – SUSPENDIDO'",
-    );
+    it('.data con fecha concreta ⇒ solo esa función (16 de octubre, 17/10, del 16 y 17)', () => {
+      const n1 = buildEvent(
+        rawOf(
+          detailHtml({
+            data: 'La función del viernes 16 de octubre fue suspendida',
+            months: octubre(d16, d17),
+          }),
+        ),
+        parseCtx,
+      );
+      expect(statuses(n1)).toEqual([
+        ['2026-10-16', 'cancelled', 'La función del viernes 16 de octubre fue suspendida'],
+        ['2026-10-17', 'scheduled', undefined],
+      ]);
+      expect(n1.ok && n1.warnings).toEqual([
+        "aviso 'cancelled' (.data del detalle) asignado a 16/10 20:00: 'La función del viernes 16 de octubre fue suspendida'",
+      ]);
 
-    const postergada = buildEvent(
-      rawOf(detailHtml({ data: 'Funciones postergadas hasta nuevo aviso', months })),
-      parseCtx,
-    );
-    expect(postergada.ok && postergada.event.occurrences.map((o) => o.status)).toEqual([
-      'postponed',
-      'postponed',
-    ]);
+      // Por oración: la "Nueva función: 18/10" no queda agotada (con punto o con <br>).
+      for (const data of [
+        'Funciones del 16 y 17 agotadas. Nueva función: 18/10',
+        'Funciones del 16 y 17 agotadas<br>Nueva función: 18/10',
+      ]) {
+        const n4 = buildEvent(
+          rawOf(detailHtml({ data, months: octubre(d16, d17, d18) })),
+          parseCtx,
+        );
+        expect(statuses(n4)).toEqual([
+          ['2026-10-16', 'sold_out', 'Funciones del 16 y 17 agotadas'],
+          ['2026-10-17', 'sold_out', 'Funciones del 16 y 17 agotadas'],
+          ['2026-10-18', 'scheduled', undefined],
+        ]);
+        expect(n4.ok && n4.event.occurrences[2]?.ticketsUrl).toBe('https://tix.example/x');
+      }
 
-    // `.data` de UNA fila del listado ⇒ solo esa función (misma fecha y hora).
-    const cancelRow = listingRowOf({
-      month: 10,
-      day: 16,
-      time: { hour: 20, minute: 0 },
-      dataText: 'FUNCIÓN CANCELADA',
+      // Rango con mes: 16 al 17 ⇒ no alcanza al 18.
+      const rango = buildEvent(
+        rawOf(
+          detailHtml({
+            data: 'Funciones del 16 al 17 de octubre suspendidas',
+            months: octubre(d16, d17, d18),
+          }),
+        ),
+        parseCtx,
+      );
+      expect(rango.ok && rango.event.occurrences.map((o) => o.status)).toEqual([
+        'cancelled',
+        'cancelled',
+        'scheduled',
+      ]);
+
+      // Con hora publicada, solo la función de esa hora.
+      const conHora = buildEvent(
+        rawOf(
+          detailHtml({
+            data: 'Función del 16/10 de las 17 hs cancelada',
+            months: octubre(dayHtml({ text: 'viernes 16/10, 17:00 hs' }), d16, d17),
+          }),
+        ),
+        parseCtx,
+      );
+      expect(conHora.ok && conHora.event.occurrences.map((o) => [o.startsAt, o.status])).toEqual([
+        ['2026-10-16T17:00:00-03:00', 'cancelled'],
+        ['2026-10-16T20:00:00-03:00', 'scheduled'],
+        ['2026-10-17T20:00:00-03:00', 'scheduled'],
+      ]);
     });
-    const okRow = listingRowOf({ month: 10, day: 17, time: { hour: 20, minute: 0 } });
-    const porFila = buildEvent(rawOf(detailHtml({ months }), [cancelRow, okRow]), parseCtx);
-    expect(
-      porFila.ok && porFila.event.occurrences.map((o) => [o.startDate, o.status, o.statusReason]),
-    ).toEqual([
-      ['2026-10-16', 'cancelled', 'FUNCIÓN CANCELADA'],
-      ['2026-10-17', 'scheduled', undefined],
-    ]);
 
-    // Gana la marca más grave: agotada (clase) + producción postergada ⇒ postponed.
-    const mixta = buildEvent(
-      rawOf(
-        detailHtml({
-          data: 'Postergada',
-          months: [
-            {
-              name: 'octubre',
-              days: [dayHtml({ text: 'viernes 16/10, 20:00 hs', classes: 'sold_out' })],
-            },
-          ],
-        }),
-      ),
-      parseCtx,
-    );
-    expect(mixta.ok && mixta.event.occurrences.map((o) => o.status)).toEqual(['postponed']);
+    it('subtítulo con fecha ⇒ solo esa función; el nombre de la obra no es un aviso', () => {
+      const n3 = buildEvent(
+        rawOf(
+          detailHtml({ title: 'Obra X<br>Función del 17/10 cancelada', months: octubre(d16, d17) }),
+        ),
+        parseCtx,
+      );
+      expect(statuses(n3)).toEqual([
+        ['2026-10-16', 'scheduled', undefined],
+        ['2026-10-17', 'cancelled', 'Función del 17/10 cancelada'],
+      ]);
+
+      for (const title of ['El amor pospuesto', 'Tosca – La pasión pospuesta']) {
+        const n6 = buildEvent(rawOf(detailHtml({ title, months: octubre(d16, d17) })), parseCtx);
+        expect(n6.ok && n6.event.occurrences.map((o) => o.status)).toEqual([
+          'scheduled',
+          'scheduled',
+        ]);
+        expect(n6.ok && n6.warnings).toEqual([
+          `palabra de estado dentro del nombre (título), no se toma como aviso: '${title === 'El amor pospuesto' ? title : 'La pasión pospuesta'}'`,
+        ]);
+      }
+    });
+
+    it('agotado sin fecha asignable ⇒ no cambia ningún estado, queda el aviso literal', () => {
+      const n2 = buildEvent(
+        rawOf(detailHtml({ data: 'Gran abono agotado', months: octubre(d16, d17) })),
+        parseCtx,
+      );
+      expect(statuses(n2)).toEqual([
+        ['2026-10-16', 'scheduled', undefined],
+        ['2026-10-17', 'scheduled', undefined],
+      ]);
+      expect(n2.ok && n2.warnings).toEqual([
+        "aviso 'sold_out' (.data del detalle) sin fecha asignable, no se aplica a ninguna función: 'Gran abono agotado'",
+      ]);
+
+      // Solo el mes ("de octubre") tampoco es una fecha concreta.
+      const mes = buildEvent(
+        rawOf(
+          detailHtml({
+            data: 'Las funciones de octubre están agotadas',
+            months: octubre(d16, d17),
+          }),
+        ),
+        parseCtx,
+      );
+      expect(mes.ok && mes.event.occurrences.map((o) => o.status)).toEqual([
+        'scheduled',
+        'scheduled',
+      ]);
+    });
+
+    it('aviso grave sin fecha asignable ⇒ no se emiten las funciones que podría alcanzar', () => {
+      // Título con marcador separado y sin fecha: no se supone que alcanza a todas;
+      // no se emite ninguna y el evento queda candidato (missing:occurrences).
+      const suspendido = buildEvent(
+        rawOf(detailHtml({ title: 'Recital X – SUSPENDIDO', months: octubre(d16, d17) })),
+        parseCtx,
+      );
+      expect(suspendido.ok).toBe(true);
+      if (!suspendido.ok) return;
+      expect(suspendido.event.occurrences).toEqual([]);
+      expect(suspendido.warnings).toEqual([
+        "aviso 'cancelled' (título) sin fecha asignable: no se emiten las funciones que podría alcanzar (16/10 20:00, 17/10 20:00): 'SUSPENDIDO'",
+      ]);
+      expect(publishability(suspendido.event)).toEqual({
+        publishable: false,
+        reasons: ['missing:occurrences'],
+      });
+
+      const postergadas = buildEvent(
+        rawOf(
+          detailHtml({
+            data: 'Funciones postergadas hasta nuevo aviso',
+            months: octubre(d16, d17),
+          }),
+        ),
+        parseCtx,
+      );
+      expect(postergadas.ok && postergadas.event.occurrences).toEqual([]);
+
+      // Día de semana sin número ⇒ solo se retienen las funciones de ese día.
+      const viernes = buildEvent(
+        rawOf(
+          detailHtml({ data: 'La función del viernes fue cancelada', months: octubre(d16, d17) }),
+        ),
+        parseCtx,
+      );
+      expect(statuses(viernes)).toEqual([['2026-10-17', 'scheduled', undefined]]);
+      expect(viernes.ok && viernes.warnings).toEqual([
+        "aviso 'cancelled' (.data del detalle) sin fecha asignable: no se emiten las funciones que podría alcanzar (16/10 20:00): 'La función del viernes fue cancelada'",
+      ]);
+
+      // "del 16" sin mes con funciones el 16/10 y el 16/11 ⇒ ambiguo: se retienen las dos.
+      const ambiguo = buildEvent(
+        rawOf(
+          detailHtml({
+            data: 'Función del 16 suspendida',
+            months: [
+              { name: 'octubre', days: [d16, d17] },
+              { name: 'noviembre', days: [dayHtml({ text: 'lunes 16/11, 20:00 hs' })] },
+            ],
+          }),
+        ),
+        parseCtx,
+      );
+      expect(statuses(ambiguo)).toEqual([['2026-10-17', 'scheduled', undefined]]);
+
+      // La marca propia de la función, si es igual de grave, se mantiene: aviso con fecha
+      // (postergada el 16) gana a la clase sold_out; sin fecha, la agotada se retiene.
+      const mixta = buildEvent(
+        rawOf(
+          detailHtml({
+            data: 'Función del 16/10 postergada',
+            months: octubre(dayHtml({ text: 'viernes 16/10, 20:00 hs', classes: 'sold_out' })),
+          }),
+        ),
+        parseCtx,
+      );
+      expect(statuses(mixta)).toEqual([
+        ['2026-10-16', 'postponed', 'Función del 16/10 postergada'],
+      ]);
+      const retenida = buildEvent(
+        rawOf(
+          detailHtml({
+            data: 'Postergada',
+            months: octubre(dayHtml({ text: 'viernes 16/10, 20:00 hs', classes: 'sold_out' })),
+          }),
+        ),
+        parseCtx,
+      );
+      expect(retenida.ok && retenida.event.occurrences).toEqual([]);
+    });
+
+    it('fecha del aviso sin función publicada o reprogramación ⇒ solo aviso', () => {
+      const sinFuncion = buildEvent(
+        rawOf(detailHtml({ data: 'Función del 20/10 cancelada', months: octubre(d16, d17) })),
+        parseCtx,
+      );
+      expect(sinFuncion.ok && sinFuncion.event.occurrences.map((o) => o.status)).toEqual([
+        'scheduled',
+        'scheduled',
+      ]);
+      expect(sinFuncion.ok && sinFuncion.warnings).toEqual([
+        "aviso 'cancelled' (.data del detalle) nombra fechas sin función publicada (20/10): 'Función del 20/10 cancelada'",
+      ]);
+
+      // "el 1er piso" no es el día 1 (no hay función el 1 de ningún mes que pudiera tomar).
+      const piso = buildEvent(
+        rawOf(
+          detailHtml({
+            data: 'Agotadas las localidades para el 1er piso',
+            months: [
+              { name: 'octubre', days: [d16] },
+              { name: 'noviembre', days: [dayHtml({ text: 'domingo 01/11, 20:00 hs' })] },
+            ],
+          }),
+        ),
+        parseCtx,
+      );
+      expect(piso.ok && piso.event.occurrences.map((o) => o.status)).toEqual([
+        'scheduled',
+        'scheduled',
+      ]);
+
+      const reprogramada = buildEvent(
+        rawOf(detailHtml({ data: 'Función del 16/10 reprogramada', months: octubre(d16, d17) })),
+        parseCtx,
+      );
+      expect(reprogramada.ok && reprogramada.event.occurrences.map((o) => o.status)).toEqual([
+        'scheduled',
+        'scheduled',
+      ]);
+      expect(reprogramada.ok && reprogramada.warnings).toEqual([
+        "aviso de reprogramación (.data del detalle), no cambia el estado: 'Función del 16/10 reprogramada'",
+      ]);
+    });
+
+    it('listado: el texto repetido en todas las filas es de la producción; el de algunas, de esas', () => {
+      const rows = (dataText: string, title = 'Obra X') => [
+        listingRowOf({ month: 10, day: 16, time: { hour: 20, minute: 0 }, dataText, title }),
+        listingRowOf({ month: 10, day: 17, time: { hour: 20, minute: 0 }, dataText, title }),
+      ];
+      const conFecha = buildEvent(
+        rawOf(
+          detailHtml({ months: octubre(d16, d17) }),
+          rows('La función del viernes 16 de octubre fue suspendida'),
+        ),
+        parseCtx,
+      );
+      expect(statuses(conFecha)).toEqual([
+        ['2026-10-16', 'cancelled', 'La función del viernes 16 de octubre fue suspendida'],
+        ['2026-10-17', 'scheduled', undefined],
+      ]);
+
+      const tituloObra = buildEvent(
+        rawOf(
+          detailHtml({ title: 'El amor pospuesto', months: octubre(d16, d17) }),
+          rows('', 'El amor pospuesto'),
+        ),
+        parseCtx,
+      );
+      expect(tituloObra.ok && tituloObra.event.occurrences.map((o) => o.status)).toEqual([
+        'scheduled',
+        'scheduled',
+      ]);
+
+      const enTodas = buildEvent(
+        rawOf(detailHtml({ months: octubre(d16, d17) }), rows('FUNCIÓN CANCELADA')),
+        parseCtx,
+      );
+      expect(enTodas.ok && enTodas.event.occurrences).toEqual([]);
+
+      // `.data` de UNA fila (las otras no lo traen) ⇒ solo esa función.
+      const cancelRow = listingRowOf({
+        month: 10,
+        day: 16,
+        time: { hour: 20, minute: 0 },
+        dataText: 'FUNCIÓN CANCELADA',
+      });
+      const okRow = listingRowOf({ month: 10, day: 17, time: { hour: 20, minute: 0 } });
+      const porFila = buildEvent(
+        rawOf(detailHtml({ months: octubre(d16, d17) }), [cancelRow, okRow]),
+        parseCtx,
+      );
+      expect(statuses(porFila)).toEqual([
+        ['2026-10-16', 'cancelled', 'FUNCIÓN CANCELADA'],
+        ['2026-10-17', 'scheduled', undefined],
+      ]);
+      expect(porFila.ok && porFila.warnings).toEqual([
+        "aviso 'cancelled' (.data del listado) asignado a 16/10 20:00: 'FUNCIÓN CANCELADA'",
+      ]);
+    });
+
+    it('respaldo sin section.dates: el aviso con fecha alcanza solo a esa fila', () => {
+      const html = detailHtml({ data: 'Función del 17/10 cancelada', withDates: false });
+      const res = buildEvent(
+        rawOf(html, [
+          listingRowOf({ month: 10, day: 16, time: { hour: 20, minute: 0 } }),
+          listingRowOf({ month: 10, day: 17, time: { hour: 20, minute: 0 } }),
+        ]),
+        parseCtx,
+      );
+      expect(statuses(res)).toEqual([
+        ['2026-10-16', 'scheduled', undefined],
+        ['2026-10-17', 'cancelled', 'Función del 17/10 cancelada'],
+      ]);
+    });
+
+    it('los estados son estables: dos parse del mismo crudo dan lo mismo', () => {
+      const raw = rawOf(
+        detailHtml({ data: 'Funciones del 16 y 17 agotadas', months: octubre(d16, d17, d18) }),
+      );
+      expect(JSON.stringify(buildEvent(raw, parseCtx))).toBe(
+        JSON.stringify(buildEvent(raw, parseCtx)),
+      );
+    });
   });
 
   it('sin hora confirmada no hay ocurrencia; sin detalle falla; sin fechas usa el listado', () => {
