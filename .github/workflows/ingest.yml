@@ -38,12 +38,18 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Comprobar configuración
+        id: config
         run: |
-          if [ -z "$DATABASE_URL" ]; then
-            echo "::error::Falta el secreto DATABASE_URL (session pooler de Supabase)"; exit 1
+          if [ -n "$DATABASE_URL" ]; then echo "ready=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          # Sin el secreto, el cron se saltea con un aviso (no un fallo cada 6 h); a mano, falla.
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "::notice::Falta el secreto DATABASE_URL (session pooler de Supabase): corrida programada salteada"
+            echo "ready=false" >> "$GITHUB_OUTPUT"; exit 0
           fi
+          echo "::error::Falta el secreto DATABASE_URL (session pooler de Supabase)"; exit 1
       - name: Ejecutar conectores
         id: run
+        if: steps.config.outputs.ready == 'true'
         run: |
           set -o pipefail
           SOURCE="${{ github.event.inputs.source || 'all' }}"
@@ -51,7 +57,7 @@ jobs:
           if [ "$SOURCE" = "all" ]; then ARGS="--all"; else ARGS="--source $SOURCE"; fi
           pnpm -s ingest run $ARGS --trigger cron --json $DRY 2>ingest.log | tee summary.json
       - name: Resumen
-        if: always()
+        if: always() && steps.config.outputs.ready == 'true'
         run: |
           {
             echo "## Ingestión"
@@ -68,7 +74,7 @@ jobs:
             fi
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Guardar logs
-        if: always()
+        if: always() && steps.config.outputs.ready == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: ingest-logs-${{ github.run_id }}
