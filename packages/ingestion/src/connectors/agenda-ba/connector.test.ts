@@ -28,6 +28,7 @@ import {
   pickTicketsUrl,
   sameAsLinks,
   statusFromTitle,
+  textContradiction,
 } from './parse';
 import { classifyPlace, resolvePlace } from './venues';
 
@@ -164,7 +165,8 @@ describe('agenda-ba · discover (fixtures 2026-10-14)', () => {
     const truncated = {
       filters: {},
       events: full.slice(0, 200),
-      pagination: { page: 1, limit: 200, total: 268, totalPages: 2 },
+      // total = lo que efectivamente cubren las dos páginas (si no, discover lanza: ver abajo).
+      pagination: { page: 1, limit: 200, total: 266, totalPages: 2 },
     };
     const http = new StubHttpClient({
       [LIST_URL]: JSON.stringify(truncated),
@@ -180,6 +182,22 @@ describe('agenda-ba · discover (fixtures 2026-10-14)', () => {
     expect(clasicos?.url).toBe(
       LINDA('clasicos-del-rock-nacional-por-la-banda-sinfonica-de-la-ciudad-0'),
     );
+  });
+
+  it('si las dos páginas no cubren el total anunciado, falla en vez de devolver un descubrimiento parcial', async () => {
+    const full = apiEvents(PAGE1);
+    const truncated = {
+      filters: {},
+      events: full.slice(0, 200),
+      pagination: { page: 1, limit: 200, total: 268, totalPages: 2 },
+    };
+    const http = new StubHttpClient({
+      [LIST_URL]: JSON.stringify(truncated),
+      [`${LIST_URL}&page=2`]: readFileSync(join(FIXTURES, PAGE2), 'utf8'),
+    });
+    await expect(
+      connector.discover({ http, logger: silentLogger, now: () => NOW }),
+    ).rejects.toThrow('la API anuncia 268 eventos y se obtuvieron 266 en 2 petición(es)');
   });
 
   it('falla con claridad si la API no trae eventos', async () => {
@@ -216,10 +234,10 @@ describe('agenda-ba · URL pública verificada contra los detalles 025–030', (
 });
 
 describe('agenda-ba · parse de TODOS los ítems', () => {
-  it('ninguno inválido; 233 publicables y 35 candidatos con motivo', () => {
+  it('ninguno inválido; 230 publicables y 38 candidatos con motivo', () => {
     const counts = { ok: 0, incomplete: 0, invalid: 0 };
     for (const p of all.values()) counts[p.status] += 1;
-    expect(counts).toEqual({ ok: 233, incomplete: 35, invalid: 0 });
+    expect(counts).toEqual({ ok: 230, incomplete: 38, invalid: 0 });
 
     const byReason: Record<string, string[]> = {};
     for (const [slug, p] of all) {
@@ -238,8 +256,20 @@ describe('agenda-ba · parse de TODOS los ítems', () => {
     expect(byReason['missing:venue,missing:discipline']).toEqual([
       'acceleration-week-foodrise-2026',
     ]);
-    // Solo etiquetas no culturales (Tecweek 27 → 26 acá + 1 arriba, Deporte 3).
-    expect(byReason['missing:discipline']).toHaveLength(29);
+    // El texto del ítem publica horas o fechas que no coinciden con fechasDelEvento: no se
+    // sabe cuál es la verdadera, no se emiten funciones (ver 'contradicción texto ↔ estructura').
+    expect(byReason['missing:occurrences']?.sort()).toEqual([
+      'camila',
+      'daniela-milagros-0',
+      'invasiones-i',
+      'la-verdadera-historia-de-ricardo-iii',
+    ]);
+    expect(byReason['missing:occurrences,missing:discipline']?.sort()).toEqual([
+      'mundial-de-powerchair-football',
+      'saucony-baires-15-y-5k',
+    ]);
+    // Solo etiquetas no culturales (Tecweek y Deporte).
+    expect(byReason['missing:discipline']).toHaveLength(26);
     for (const slug of byReason['missing:discipline'] ?? []) {
       const tags = eventOf(slug).tags;
       expect(tags.every((t) => t === 'Tecweek' || t === 'Deporte')).toBe(true);
@@ -249,7 +279,6 @@ describe('agenda-ba · parse de TODOS los ítems', () => {
   it('nunca inventa: horas, fechas, direcciones, precios, gratuidad e imágenes salen del JSON', () => {
     let timed = 0;
     let ranges = 0;
-    let exhibitionInstants = 0;
     let totalInstants = 0;
     for (const p of all.values()) {
       const e = p.event;
@@ -264,8 +293,10 @@ describe('agenda-ba · parse de TODOS los ítems', () => {
       if (!SEED_INSTITUTIONS.has(e.institutionSlug)) expect(e.institutionName).toBeTruthy();
       if (e.imageUrl)
         expect(e.imageUrl).toMatch(/^https:\/\/buenosaires\.gob\.ar\/sites\/default\/files\//);
-      // Gratuidad = acceso; monto solo en eventos pagos y con "$".
-      expect(e.isFree).toBe(p.api.acceso === 'sin_costo');
+      // Gratuidad = acceso, salvo que las entradas se vendan en una ticketera comercial.
+      const commercial = p.warnings.some((w) => w.includes('se venden en una ticketera'));
+      if (commercial) expect(e.isFree).toBeUndefined();
+      else expect(e.isFree).toBe(p.api.acceso === 'sin_costo');
       if (e.priceVerified) {
         expect(e.priceText).toEqual(
           e.isFree ? 'Libre y gratuita' : expect.stringMatching(/\$\s?\d/),
@@ -286,34 +317,53 @@ describe('agenda-ba · parse de TODOS los ítems', () => {
           // Mismo instante que publica la API, expresado en -03:00.
           expect(Date.parse(o.startsAt)).toBe(Date.parse(o.sourceDateText ?? ''));
           expect(o.startsAt).not.toMatch(/T00:00:00-03:00$/);
-          expect(o.externalId).toBe(`${e.externalId}|${o.sourceDateText}`);
+          const utc = DateTime.fromISO(o.sourceDateText ?? '', { zone: 'utc' });
+          expect(o.externalId).toBe(`${e.externalId}|${utc.toISO({ suppressMilliseconds: true })}`);
         } else {
           ranges += 1;
-          exhibitionInstants += p.api.fechasDelEvento.length;
-          const sorted = [...p.api.fechasDelEvento].sort();
-          const local = (iso: string) =>
-            DateTime.fromISO(iso).setZone('America/Argentina/Buenos_Aires').toISODate();
-          expect(o.startDate).toBe(local(sorted[0] ?? ''));
-          expect(o.endDate).toBe(local(sorted.at(-1) ?? ''));
+          const published = new Set(
+            p.api.fechasDelEvento.map((iso) =>
+              DateTime.fromISO(iso).setZone('America/Argentina/Buenos_Aires').toISODate(),
+            ),
+          );
+          // Cada día dentro del rango es un día que Linda publica: no se afirman días cerrados.
+          for (
+            let d = DateTime.fromISO(o.startDate);
+            d.toISODate() <= o.endDate;
+            d = d.plus({ days: 1 })
+          ) {
+            expect(published.has(d.toISODate())).toBe(true);
+          }
           expect(o.endsAt).toMatch(/T23:59:59-03:00$/);
-          expect(o.externalId).toBe(`${e.externalId}|muestra`);
+          expect(o.externalId).toBe(`${e.externalId}|tramo|${o.endDate}`);
         }
       }
     }
-    expect(ranges).toBe(9);
-    expect(timed).toBe(742);
-    // Ningún instante se pierde: los que no van como función están dentro de un rango de muestra.
+    expect(ranges).toBe(81);
+    expect(timed).toBe(684);
+    // Los instantes que no van como función están en un rango de muestra o en un ítem cuyo
+    // texto los contradice (o son a medianoche, que no se emiten).
     expect(totalInstants).toBe(1179);
-    expect(timed).toBe(totalInstants - exhibitionInstants);
+    let accounted = 0;
+    for (const p of all.values()) {
+      const e = p.event;
+      if (!e) continue;
+      const dropped = p.warnings.some((w) => w.includes('no se emiten funciones'));
+      const exhibition = e.occurrences.some((o) => o.kind === 'range');
+      if (dropped || exhibition) accounted += p.api.fechasDelEvento.length;
+    }
+    expect(timed).toBeLessThanOrEqual(totalInstants - accounted);
   });
 
-  it('muestras detectadas (una ocurrencia range cada una)', () => {
+  it('muestras detectadas (tramos range de días publicados)', () => {
     const exhibitions = [...all.entries()]
       .filter(([, p]) => p.event?.occurrences.some((o) => o.kind === 'range'))
       .map(([slug]) => slug)
       .sort();
     expect(exhibitions).toEqual([
       'casa-foa-2026-buenos-aires-edicion-palacio-molina',
+      // Tecweek "Exposición y conferencia": muestra por E1; queda candidato por disciplina.
+      'crossing-over-biotech',
       'el-otro-perotta-en-el-museo-de-la-ciudad',
       'exposicion-fotografica-entre-retratos',
       'jorge-lavelli-el-gesto-incoformista',
@@ -346,8 +396,10 @@ describe('agenda-ba · parse de TODOS los ítems', () => {
     expect(bySlug('complejo-teatral')).toHaveLength(23);
     expect(bySlug('mnba')).toEqual([]);
     expect(bySlug('palacio-libertad')).toEqual([]);
+    // Ballets y obras coreográficas del Colón (el resumen lo dice) son danza; el resto, ópera/clásica.
+    const dance = new Set(['manon', 'las-ruinas-delirios-sobre-la-argentina']);
     for (const slug of bySlug('teatro-colon')) {
-      expect(eventOf(slug).disciplines).toEqual(['opera_clasica']);
+      expect(eventOf(slug).disciplines).toEqual([dance.has(slug) ? 'danza' : 'opera_clasica']);
     }
   });
 });
@@ -414,7 +466,7 @@ describe('agenda-ba · eventos verificados a mano contra el JSON (fixture 021)',
     // ["2026-10-17T00:00:00.000Z","2026-10-18T00:00:00.000Z"] = vie 16 y sáb 17, 21:00 BA.
     expect(e.occurrences).toEqual([
       expect.objectContaining({
-        externalId: 'f2272184-c107-40fb-8d23-b8e8c3bd8346|2026-10-17T00:00:00.000Z',
+        externalId: 'f2272184-c107-40fb-8d23-b8e8c3bd8346|2026-10-17T00:00:00Z',
         kind: 'timed',
         startsAt: '2026-10-16T21:00:00-03:00',
         startDate: '2026-10-16',
@@ -439,30 +491,31 @@ describe('agenda-ba · eventos verificados a mano contra el JSON (fixture 021)',
     expect(e.institutionUrl).toBeUndefined();
     expect(e.disciplines).toEqual(['museos_exposiciones']);
     expect(e.isFree).toBe(false);
-    expect(e.occurrences).toEqual([
-      {
-        externalId: 'b2c37d40-a4a7-4044-b8fa-2fdbf86c4272|muestra',
-        kind: 'range',
-        startsAt: '2026-10-09T00:00:00-03:00',
-        endsAt: '2027-02-01T23:59:59-03:00',
-        startDate: '2026-10-09',
-        endDate: '2027-02-01',
-        timezone: 'America/Argentina/Buenos_Aires',
-        scheduleText:
-          'Horario: lunes, miércoles, jueves y viernes de 11 a 19 h. Sábados, domingos y feriados de 11 a 20 h.',
-        recurrenceRule: null,
-        sourceDateText:
-          '2026-10-09T14:00:00.000Z … 2027-02-01T14:00:00.000Z (97 fechas publicadas)',
-        venue: {
-          name: 'Museo de Arte Popular José Hernández',
-          address: 'Av. del Libertador 2373',
-          addressSourceUrl: LINDA('la-riqueza-del-monte-museo-de-arte-popular'),
-        },
-        status: 'scheduled',
-        ticketsUrl: null,
-        price: null,
+    // Cerrado los martes: Linda no publica esos días, así que salen 19 tramos continuos.
+    expect(e.occurrences).toHaveLength(19);
+    expect(e.occurrences[0]).toEqual({
+      externalId: 'b2c37d40-a4a7-4044-b8fa-2fdbf86c4272|tramo|2026-10-12',
+      kind: 'range',
+      startsAt: '2026-10-09T00:00:00-03:00',
+      endsAt: '2026-10-12T23:59:59-03:00',
+      startDate: '2026-10-09',
+      endDate: '2026-10-12',
+      timezone: 'America/Argentina/Buenos_Aires',
+      scheduleText:
+        'Horario: lunes, miércoles, jueves y viernes de 11 a 19 h. Sábados, domingos y feriados de 11 a 20 h.',
+      recurrenceRule: null,
+      sourceDateText: '2026-10-09T14:00:00.000Z … 2026-10-12T14:00:00.000Z (4 fechas publicadas)',
+      venue: {
+        name: 'Museo de Arte Popular José Hernández',
+        address: 'Av. del Libertador 2373',
+        addressSourceUrl: LINDA('la-riqueza-del-monte-museo-de-arte-popular'),
       },
-    ]);
+      status: 'scheduled',
+      ticketsUrl: null,
+      price: null,
+    });
+    expect(e.occurrences[1]).toMatchObject({ startDate: '2026-10-14', endDate: '2026-10-18' });
+    expect(e.occurrences.at(-1)).toMatchObject({ startDate: '2027-01-27', endDate: '2027-02-01' });
   });
 
   it('JORGE LAVELLI: muestra gratuita del Complejo Teatral por sala (sin enlace)', () => {
@@ -473,11 +526,17 @@ describe('agenda-ba · eventos verificados a mano contra el JSON (fixture 021)',
     expect(e.priceVerified).toBe(true);
     expect(e.ticketsUrl).toBeUndefined();
     expect(e.disciplines).toEqual(['museos_exposiciones']);
-    expect(e.occurrences).toHaveLength(1);
+    // Cerrado los lunes: cuatro tramos de días publicados, del 9/10 al 1/11.
+    expect(e.occurrences.map((o) => `${o.startDate}..${o.endDate}`)).toEqual([
+      '2026-10-09..2026-10-11',
+      '2026-10-13..2026-10-18',
+      '2026-10-20..2026-10-25',
+      '2026-10-27..2026-11-01',
+    ]);
     expect(e.occurrences[0]).toMatchObject({
       kind: 'range',
       startDate: '2026-10-09',
-      endDate: '2026-11-01',
+      endDate: '2026-10-11',
       scheduleText:
         'La muestra estará abierta al público de martes a viernes, de 14 a 21 horas, y los sábados y domingos de 13 a 20 horas, con entrada sin costo.',
       price: { text: 'Libre y gratuita', isFree: true, verified: true },
@@ -537,15 +596,25 @@ describe('agenda-ba · eventos verificados a mano contra el JSON (fixture 021)',
     });
   });
 
-  it('VIVA FRIDA: 132 instantes con horas mezcladas (12, 11, 23 y 00 h) → un solo rango sin horario', () => {
+  it('VIVA FRIDA: 132 instantes con horas mezcladas (12, 11, 23 y 00 h) → tramos sin horario, sin los martes', () => {
     const e = eventOf('viva-frida');
     expect(e.institutionSlug).toBe('malba');
     expect(e.institutionName).toBe('MALBA');
-    expect(e.occurrences).toHaveLength(1);
+    expect(e.occurrences).toHaveLength(25);
+    for (const o of e.occurrences) {
+      for (
+        let d = DateTime.fromISO(o.startDate);
+        d.toISODate() <= o.endDate;
+        d = d.plus({ days: 1 })
+      ) {
+        expect(d.weekday).not.toBe(2); // martes: cerrado (Linda no los publica)
+      }
+    }
+    expect(e.occurrences.at(-1)).toMatchObject({ endDate: '2027-03-15' });
     expect(e.occurrences[0]).toMatchObject({
       kind: 'range',
       startDate: '2026-10-09',
-      endDate: '2027-03-15',
+      endDate: '2026-10-12',
       scheduleText: null,
       ticketsUrl: 'https://malba.liit.com.ar/decidir/',
     });
@@ -636,28 +705,47 @@ describe('agenda-ba · fechas (puro)', () => {
     ]);
   });
 
-  it('muestra: un rango primera→última fecha (incluye días a medianoche) con horario literal', () => {
+  it('muestra: tramos de días publicados consecutivos (incluye días a medianoche) con horario literal', () => {
     const { instants } = parseInstants([
-      '2026-10-17T03:00:00.000Z',
-      '2026-10-20T14:00:00.000Z',
-      '2026-11-30T15:00:00.000Z',
+      '2026-10-17T03:00:00.000Z', // sáb 17 a medianoche: cuenta como día publicado
+      '2026-10-18T14:00:00.000Z',
+      '2026-10-20T14:00:00.000Z', // lun 19 sin fecha: corta el tramo
+      '2026-10-21T15:00:00.000Z',
     ]);
     const r = buildOccurrences(instants, { ...ctx, exhibition: true });
     expect(r.occurrences).toEqual([
       expect.objectContaining({
-        externalId: 'x|muestra',
+        externalId: 'x|tramo|2026-10-18',
         kind: 'range',
         startDate: '2026-10-17',
-        endDate: '2026-11-30',
+        endDate: '2026-10-18',
         startsAt: '2026-10-17T00:00:00-03:00',
-        endsAt: '2026-11-30T23:59:59-03:00',
+        endsAt: '2026-10-18T23:59:59-03:00',
         scheduleText: 'Abierta de martes a domingos de 11 a 20 h.',
       }),
+      expect.objectContaining({
+        externalId: 'x|tramo|2026-10-21',
+        startDate: '2026-10-20',
+        endDate: '2026-10-21',
+      }),
+    ]);
+    // El id del tramo es su FIN: cuando Linda recorta el pasado, el tramo conserva su id.
+    const trimmed = buildOccurrences(
+      parseInstants([
+        '2026-10-18T14:00:00.000Z',
+        '2026-10-21T15:00:00.000Z',
+        '2026-10-20T14:00:00.000Z',
+      ]).instants,
+      { ...ctx, exhibition: true },
+    );
+    expect(trimmed.occurrences.map((o) => o.externalId)).toEqual([
+      'x|tramo|2026-10-18',
+      'x|tramo|2026-10-21',
     ]);
     expect(buildOccurrences([], { ...ctx, exhibition: false }).occurrences).toEqual([]);
   });
 
-  it('regla de muestra: E1 (se nombra así) + E2 (≥ 7 días) + E3 (no artes en vivo)', () => {
+  it('regla de muestra: E1 (se nombra así) + E2 (≥ 2 días) + E3 (no artes en vivo)', () => {
     const base = {
       title: 'La riqueza del monte',
       summary: 'Una muestra celebra 25 años de trabajo.',
@@ -667,7 +755,9 @@ describe('agenda-ba · fechas (puro)', () => {
       performingEtiquetas: PERFORMING_ETIQUETAS,
     };
     expect(isExhibition(base)).toBe(true);
-    expect(isExhibition({ ...base, distinctDays: 6 })).toBe(false);
+    // Linda recorta el pasado: una muestra en su última semana puede tener pocos días.
+    expect(isExhibition({ ...base, distinctDays: 2 })).toBe(true);
+    expect(isExhibition({ ...base, distinctDays: 1 })).toBe(false);
     expect(isExhibition({ ...base, etiquetaKeys: ['teatro y artes escenicas'] })).toBe(false);
     expect(
       isExhibition({
@@ -932,5 +1022,88 @@ describe('agenda-ba · sameAsUrls para deduplicar con la fuente institucional', 
         { uri: 'https://complejoteatral.gob.ar/ver/El-tren-fluvial', title: 'Más info' },
       ]),
     ).toEqual(['https://complejoteatral.gob.ar/ver/El-tren-fluvial']);
+  });
+});
+
+describe('agenda-ba · contradicción texto ↔ estructura (no se emiten funciones)', () => {
+  it('RICARDO III: el texto dice 20 y 19 h, la API 20:30 y 19:30 → candidato sin funciones', () => {
+    const p = all.get('la-verdadera-historia-de-ricardo-iii');
+    expect(p?.event?.occurrences).toEqual([]);
+    expect(p?.reasons).toEqual(['missing:occurrences']);
+    expect(p?.warnings).toContain(
+      'el texto publica horarios (20:00, 19:00) que no coinciden con ninguno de fechasDelEvento: no se emiten funciones',
+    );
+  });
+
+  it('CAMILA: el texto dice "jueves 15 de octubre", la API 30/03/2027 → candidato sin funciones', () => {
+    expect(eventOf('camila').occurrences).toEqual([]);
+  });
+
+  it('no contradicen: fechas pasadas (estreno, temporada), franjas "de 19 a 20.30 h", "ingreso hasta 20 h", ventas', () => {
+    // Hoffmann menciona "a partir del viernes 9 de octubre" (pasado): sus 3 funciones quedan.
+    expect(eventOf('los-cuentos-de-hoffmann').occurrences).toHaveLength(3);
+    // Babasónicos habla de funciones de junio sin día de semana: las de octubre quedan.
+    expect(eventOf('babasonicos').occurrences).toHaveLength(2);
+    // "Viernes 15 de octubre" (día de semana mal escrito) coincide por día y mes.
+    expect(eventOf('teatros-de-ayer-y-hoy-recorrido-tematico').occurrences).toHaveLength(1);
+    const instants = [{ localDate: '2026-10-16', localTime: '19:00' }];
+    expect(
+      textContradiction('Viernes 16 de octubre, de 19 a 20.30 h.', instants, '2026-10-14'),
+    ).toBeNull();
+    expect(textContradiction('Ingreso hasta 20:00 hs.', instants, '2026-10-14')).toBeNull();
+    expect(
+      textContradiction(
+        'Entradas en venta a partir del jueves 25 de junio a las 12 h.',
+        instants,
+        '2026-10-14',
+      ),
+    ).toBeNull();
+    expect(
+      textContradiction(
+        'Lunes 26 a miércoles 28 de octubre.',
+        [{ localDate: '2026-10-26', localTime: '08:30' }],
+        '2026-10-14',
+      ),
+    ).toBeNull();
+    expect(textContradiction('El sábado 17 de octubre a las 21 h.', instants, '2026-10-14')).toBe(
+      'el texto publica fechas (2026-10-17) que no coinciden con ninguna de fechasDelEvento',
+    );
+  });
+});
+
+describe('agenda-ba · señales que no se afirman', () => {
+  it('"sin_costo" con entradas en una ticketera comercial no es gratis (Ricardo III, Ticketek)', () => {
+    const e = eventOf('la-verdadera-historia-de-ricardo-iii');
+    expect(e.isFree).toBeUndefined();
+    expect(e.priceText).toBeUndefined();
+  });
+
+  it('el estado del título solo cuenta separado del nombre', () => {
+    expect(statusFromTitle('Suspendidos en el tiempo')).toBe('scheduled');
+    expect(statusFromTitle('Los agotados de siempre')).toBe('scheduled');
+    expect(statusFromTitle('Recital X – SUSPENDIDO')).toBe('cancelled');
+    expect(statusFromTitle('Obra (agotada)')).toBe('sold_out');
+    expect(statusFromTitle('Concierto AGOTADO')).toBe('sold_out');
+  });
+
+  it('una página de entradasba que Linda usa en dos ítems distintos no se declara como la misma producción', () => {
+    // "Buscando a Shakespeare" y "Encuentro de Cine Europeo | CCR" comparten /evento/0820d3fe-….
+    expect(eventOf('buscando-shakespeare').sameAsUrls).toEqual([]);
+    expect(eventOf('encuentro-de-cine-europeo-ccr').sameAsUrls).toEqual([]);
+    expect(eventOf('buscando-shakespeare').ticketsUrl).toContain('0820d3fe');
+  });
+
+  it('instantes sin zona horaria se descartan con aviso', () => {
+    const r = parseInstants(['2026-10-17T21:00:00', '2026-10-18T00:00:00.000Z']);
+    expect(r.instants.map((i) => i.startsAt)).toEqual(['2026-10-17T21:00:00-03:00']);
+    expect(r.warnings).toEqual([
+      'instante sin zona horaria en fechasDelEvento: "2026-10-17T21:00:00", omitido',
+    ]);
+  });
+
+  it('limpia parámetros de seguimiento adicionales (srsltid, igshid, cp_landing*)', () => {
+    expect(
+      cleanTrackingUrl('https://ejemplo.com/e?id=7&srsltid=AfmB&igshid=x&cp_landing_term=y'),
+    ).toBe('https://ejemplo.com/e?id=7');
   });
 });

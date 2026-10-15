@@ -39,13 +39,17 @@ import { DateTime } from 'luxon';
  *      "exposición(es)", "exhibición(es)", "retrospectiva"; "muestra" solo con artículo
  *      o al inicio de oración para no confundir el verbo "muestra"), o bien etiqueta
  *      "Ferias y exposiciones" + lugar "museos_y";
- *  E2. instantes en ≥ 7 días distintos (descarta "una noche de exhibición", la visita
- *      guiada a una exhibición y la muestra de danza de 6 funciones);
+ *  E2. instantes en ≥ 2 días distintos (descarta "una noche de exhibición"; Linda recorta
+ *      el pasado, así que no puede exigirse más sin perder muestras en su última semana);
  *  E3. sin etiquetas de artes en vivo (Teatro, Música, Cine), salvo que también tenga
  *      "Ferias y exposiciones".
  */
 
-export const EXHIBITION_MIN_DAYS = 7;
+/**
+ * Linda recorta las fechas pasadas (deja ~5 días hacia atrás), así que una muestra en su
+ * última semana puede tener pocos días publicados. Basta con 2 si E1 y E3 se cumplen.
+ */
+export const EXHIBITION_MIN_DAYS = 2;
 
 export interface LocalInstant {
   /** Texto tal como vino en la API. */
@@ -69,6 +73,11 @@ export function parseInstants(values: readonly string[]): {
     const dt = DateTime.fromISO(source, { setZone: true });
     if (!dt.isValid || !/T\d{2}:\d{2}/.test(source)) {
       warnings.push(`instante ilegible en fechasDelEvento: "${source}"`);
+      continue;
+    }
+    if (!/(?:Z|[+-]\d{2}:?\d{2})$/.test(source.trim())) {
+      // Sin zona explícita la hora dependería de la zona del proceso: no se adivina.
+      warnings.push(`instante sin zona horaria en fechasDelEvento: "${source}", omitido`);
       continue;
     }
     const ba = dt.setZone(BA_TZ);
@@ -203,26 +212,28 @@ export function buildOccurrences(
   }
 
   if (ctx.exhibition) {
-    const bounds = rangeBounds(first.localDate, last.localDate);
     const scheduleText = extractOpeningHoursText(ctx.bodyText);
     if (!scheduleText) warnings.push('muestra sin horario de apertura en el texto');
+    const segments = consecutiveDateRuns(instants);
     warnings.push(
-      `muestra: ${instants.length} instantes resumidos en un rango ${first.localDate}…${last.localDate}`,
+      `muestra: ${instants.length} instantes en ${segments.length} tramo(s) continuo(s) ${first.localDate}…${last.localDate}`,
     );
     return {
-      occurrences: [
-        {
+      occurrences: segments.map((seg) => {
+        const bounds = rangeBounds(seg.start.localDate, seg.end.localDate);
+        return {
           ...common,
-          externalId: `${ctx.eventId}|muestra`,
-          kind: 'range',
+          // Clave por el FIN del tramo: estable aunque Linda recorte el pasado (corre el inicio).
+          externalId: `${ctx.eventId}|tramo|${seg.end.localDate}`,
+          kind: 'range' as const,
           startsAt: bounds.startsAt,
           endsAt: bounds.endsAt,
-          startDate: first.localDate,
-          endDate: last.localDate,
+          startDate: seg.start.localDate,
+          endDate: seg.end.localDate,
           scheduleText,
-          sourceDateText: `${first.source} … ${last.source} (${instants.length} fechas publicadas)`,
-        },
-      ],
+          sourceDateText: `${seg.start.source} … ${seg.end.source} (${seg.days} fechas publicadas)`,
+        };
+      }),
       warnings,
     };
   }
@@ -235,7 +246,8 @@ export function buildOccurrences(
     }
     occurrences.push({
       ...common,
-      externalId: `${ctx.eventId}|${instant.source}`,
+      // Del instante normalizado (UTC), no del texto: un cambio de formato no cambia el id.
+      externalId: `${ctx.eventId}|${DateTime.fromMillis(instant.millis, { zone: 'utc' }).toISO({ suppressMilliseconds: true })}`,
       kind: 'timed',
       startsAt: instant.startsAt,
       endsAt: null,
@@ -246,4 +258,32 @@ export function buildOccurrences(
     });
   }
   return { occurrences, warnings };
+}
+
+/**
+ * Tramos de días publicados consecutivos. Una muestra que cierra los martes (Linda no
+ * publica esos días) queda como varios rangos en vez de uno que afirme días cerrados.
+ */
+export function consecutiveDateRuns(
+  instants: readonly LocalInstant[],
+): { start: LocalInstant; end: LocalInstant; days: number }[] {
+  const byDate = new Map<string, LocalInstant>();
+  for (const i of instants) if (!byDate.has(i.localDate)) byDate.set(i.localDate, i);
+  const days = [...byDate.keys()].sort();
+  const runs: { start: LocalInstant; end: LocalInstant; days: number }[] = [];
+  let startIdx = 0;
+  for (let k = 1; k <= days.length; k += 1) {
+    const prev = days[k - 1];
+    const cur = days[k];
+    const contiguous =
+      prev !== undefined &&
+      cur !== undefined &&
+      DateTime.fromISO(prev).plus({ days: 1 }).toISODate() === cur;
+    if (contiguous) continue;
+    const start = byDate.get(days[startIdx] ?? '');
+    const end = byDate.get(prev ?? '');
+    if (start && end) runs.push({ start, end, days: k - startIdx });
+    startIdx = k;
+  }
+  return runs;
 }

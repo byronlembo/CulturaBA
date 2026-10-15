@@ -1,4 +1,5 @@
 import {
+  BA_TZ,
   canonicalUrl,
   detectStatusEs,
   htmlToText,
@@ -9,6 +10,7 @@ import {
   type Price,
   stripDiacriticsLower,
 } from '@culturaba/shared';
+import { DateTime } from 'luxon';
 import { z } from 'zod';
 import {
   fail,
@@ -18,7 +20,7 @@ import {
   type RawRecord,
 } from '../../core/connector';
 import { isSharedTicketKey } from '../../core/matcher';
-import { buildOccurrences, isExhibition, parseInstants } from './dates';
+import { buildOccurrences, isExhibition, parseInstants, splitSentences } from './dates';
 import { cleanEtiqueta, etiquetaKey, mapDisciplines, PERFORMING_ETIQUETAS } from './disciplines';
 import { hostOf, SEED_INSTITUTION_HOSTS } from './institutions';
 import { clean, resolvePlace } from './venues';
@@ -73,7 +75,7 @@ export function eventPageUrl(slug: string): string {
 }
 
 const TRACKING_PARAM_RE =
-  /^(?:utm_|gad_|gclid$|gbraid$|wbraid$|fbclid$|dclid$|mc_cid$|mc_eid$|_gl$|_ga$)/i;
+  /^(?:utm_|gad_|cp_landing|gclid$|gbraid$|wbraid$|fbclid$|dclid$|mc_cid$|mc_eid$|_gl$|_ga$|srsltid$|igshid$|igsh$)/i;
 
 /**
  * URL sin parámetros de campaña (gclid, gad_*, utm_*, fbclid…) ni fragmento. El resto de
@@ -124,7 +126,11 @@ export function pickTicketsUrl(buttons: LindaEvent['botonesSidebar']): string | 
  * sitio de una institución con conector propio (Linda los rotula "Entradas") y la página
  * de la ticketera oficial de la Ciudad con id de evento o visita. Sirven para deduplicar.
  */
-export function sameAsLinks(buttons: LindaEvent['botonesSidebar']): string[] {
+export function sameAsLinks(
+  buttons: LindaEvent['botonesSidebar'],
+  /** Claves de entradasba que Linda reutiliza en otros ítems (ver `sharedTicketUrls`). */
+  reusedTicketKeys: ReadonlySet<string> = new Set(),
+): string[] {
   const out = new Set<string>();
   for (const b of buttons ?? []) {
     const url = cleanTrackingUrl(b.uri);
@@ -132,7 +138,8 @@ export function sameAsLinks(buttons: LindaEvent['botonesSidebar']): string[] {
     const host = hostOf(url);
     const key = canonicalUrl(url);
     const institutional = host !== null && host in SEED_INSTITUTION_HOSTS && isPageKey(key);
-    if (institutional || isSharedTicketKey(key)) out.add(url);
+    const ticketPage = isSharedTicketKey(key) && !reusedTicketKeys.has(key);
+    if (institutional || ticketPage) out.add(url);
   }
   return [...out].slice(0, 20);
 }
@@ -195,11 +202,130 @@ export function extractPriceText(bodyText: string): string | null {
  * de giras pasadas) y "será reprogramada" condicional: no se usan.
  */
 export function statusFromTitle(title: string): ParsedOccurrenceStatus {
-  const s = detectStatusEs(title);
-  return s === 'cancelled' || s === 'postponed' || s === 'sold_out' ? s : 'scheduled';
+  // Solo cuenta si está separado del nombre de la obra: tras " - ", "–", "|", ":" o entre
+  // paréntesis/corchetes, o como palabra final en mayúsculas ("… AGOTADO"). Así un título
+  // como "Suspendidos en el tiempo" no cancela nada.
+  const segments = title.split(/\s[-–—|]\s|:\s|[()[\]]/).slice(1);
+  const trailing =
+    /\b(?:AGOTAD[OA]S?|CANCELAD[OA]S?|SUSPENDID[OA]S?|POSTERGAD[OA]S?|SOLD OUT)\s*[!.]*$/.exec(
+      title,
+    );
+  for (const text of [...segments, ...(trailing ? [trailing[0]] : [])]) {
+    const s = detectStatusEs(text);
+    if (s === 'cancelled' || s === 'postponed' || s === 'sold_out') return s;
+  }
+  return 'scheduled';
 }
 
-export function buildEvent(raw: RawRecord, _ctx: ParseContext): ParseResult {
+/** Ticketeras comerciales: si venden la entrada, "sin_costo" no alcanza para afirmar gratis. */
+const COMMERCIAL_TICKET_HOSTS =
+  /(?:^|\.)(?:ticketek\.com\.ar|tuentrada\.com|allaccess\.com\.ar|passline\.com|venti\.(?:live|com\.ar)|livepass\.com\.ar|plateanet\.com|movistararena\.com\.ar|enigmatickets\.com|evento-simple\.com|wearebombo\.com|alternativateatral\.com)$/;
+
+export function sellsCommercialTickets(ticketsUrl: string | null): boolean {
+  const host = hostOf(ticketsUrl);
+  return host !== null && COMMERCIAL_TICKET_HOSTS.test(host);
+}
+
+const MONTHS: Record<string, number> = {
+  enero: 1,
+  febrero: 2,
+  marzo: 3,
+  abril: 4,
+  mayo: 5,
+  junio: 6,
+  julio: 7,
+  agosto: 8,
+  septiembre: 9,
+  setiembre: 9,
+  octubre: 10,
+  noviembre: 11,
+  diciembre: 12,
+};
+// Solo fechas con día de semana ("jueves 15 de octubre"): las fechas sueltas suelen ser
+// estrenos pasados, cumpleaños o cierres ("hasta el 2 de diciembre"). Un "a"/"al" previo
+// indica el fin de una franja ("lunes 26 a miércoles 28 de octubre") y no cuenta.
+const TEXT_DATE_RE =
+  /(?<!\ba\s|\bal\s)\b(lunes|martes|miercoles|jueves|viernes|sabado|domingo)\s+(\d{1,2})(?:º|°)?\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre)(?:\s+de\s+(\d{4}))?\b/g;
+// Solo "a las HH[.MM]": "de 19 a 20.30 h" es una franja y "ingreso hasta 20 h" un límite.
+const TEXT_TIME_RE = /\ba\s+las\s+(\d{1,2})(?:[:.](\d{2}))?(?!\d)/g;
+// Oraciones sobre venta o inscripción hablan de otra fecha (la de salida a la venta).
+const SALES_SENTENCE_RE = /\b(?:venta|preventa|entradas|inscripci|tickets?)\b/;
+const WEEKDAYS: Record<string, number> = {
+  lunes: 1,
+  martes: 2,
+  miercoles: 3,
+  jueves: 4,
+  viernes: 5,
+  sabado: 6,
+  domingo: 7,
+};
+
+/**
+ * Fechas con día de semana ("MM-DD"; y aparte las FUTURAS, con el año explícito o el que
+ * hace coincidir el día de semana) y horas "a las …" que publica el texto, fuera de
+ * oraciones sobre venta o inscripción.
+ */
+export function publishedDatesAndTimes(
+  bodyText: string,
+  today: string,
+): { dates: Set<string>; futureDates: Set<string>; times: Set<string> } {
+  const dates = new Set<string>();
+  const futureDates = new Set<string>();
+  const times = new Set<string>();
+  const thisYear = Number(today.slice(0, 4));
+  for (const sentence of splitSentences(stripDiacriticsLower(bodyText))) {
+    if (SALES_SENTENCE_RE.test(sentence)) continue;
+    for (const m of sentence.matchAll(TEXT_DATE_RE)) {
+      const weekday = WEEKDAYS[m[1] ?? ''];
+      const day = Number(m[2]);
+      const month = MONTHS[m[3] ?? ''];
+      if (!weekday || !month) continue;
+      dates.add(`${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+      const years = m[4] ? [Number(m[4])] : [thisYear - 1, thisYear, thisYear + 1];
+      const iso = years
+        .map((y) => DateTime.fromObject({ year: y, month, day }))
+        .find((d) => d.isValid && d.weekday === weekday)
+        ?.toISODate();
+      if (iso && iso >= today) futureDates.add(iso);
+    }
+    for (const m of sentence.matchAll(TEXT_TIME_RE)) {
+      const h = Number(m[1]);
+      const min = Number(m[2] ?? '0');
+      if (h <= 23 && min <= 59)
+        times.add(`${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}`);
+    }
+  }
+  return { dates, futureDates, times };
+}
+
+/**
+ * Motivo de contradicción entre el texto y los instantes estructurados, o null. Si el texto
+ * publica fechas futuras y ninguna coincide con un instante (o horas y ninguna coincide),
+ * no se sabe cuál es la verdadera: no se emiten funciones ("ante ambigüedad, no emitir").
+ */
+export function textContradiction(
+  bodyText: string,
+  instants: readonly { localDate: string; localTime: string }[],
+  today: string,
+): string | null {
+  if (instants.length === 0) return null;
+  const { dates, futureDates, times } = publishedDatesAndTimes(bodyText, today);
+  // Se compara por día y mes: un día de semana mal escrito en el texto no es contradicción.
+  if (futureDates.size > 0 && !instants.some((i) => dates.has(i.localDate.slice(5)))) {
+    return `el texto publica fechas (${[...futureDates].join(', ')}) que no coinciden con ninguna de fechasDelEvento`;
+  }
+  if (times.size > 0 && !instants.some((i) => times.has(i.localTime))) {
+    return `el texto publica horarios (${[...times].join(', ')}) que no coinciden con ninguno de fechasDelEvento`;
+  }
+  return null;
+}
+
+function reusedTicketKeysOf(raw: RawRecord): Set<string> {
+  const keys = (raw.listing as { sharedTicketKeys?: unknown } | undefined)?.sharedTicketKeys;
+  return new Set(Array.isArray(keys) ? keys.filter((k): k is string => typeof k === 'string') : []);
+}
+
+export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
   let json: unknown;
   try {
     json = JSON.parse(raw.body);
@@ -248,6 +374,7 @@ export function buildEvent(raw: RawRecord, _ctx: ParseContext): ParseResult {
     tipoEvento: item.tipoEvento,
     lugar: item.lugar,
     title,
+    summary,
     institutionSlug: place.institution.slug,
     isExhibition: exhibition,
   });
@@ -255,9 +382,17 @@ export function buildEvent(raw: RawRecord, _ctx: ParseContext): ParseResult {
 
   // Gratuidad: única señal estructurada es `acceso` (`precio` viene siempre null). Monto
   // solo si el texto publica una línea de precio literal, y solo para eventos pagos.
-  const free = item.acceso === 'sin_costo';
+  const ticketsUrl = pickTicketsUrl(item.botonesSidebar);
+  const commercial = sellsCommercialTickets(ticketsUrl);
+  const free = item.acceso === 'sin_costo' && !commercial;
+  if (item.acceso === 'sin_costo' && commercial) {
+    warnings.push(
+      'acceso "sin_costo" pero las entradas se venden en una ticketera: no se afirma gratis',
+    );
+  }
   const paid = item.acceso === 'con_entrada_paga';
-  if (!free && !paid) warnings.push(`acceso desconocido: ${JSON.stringify(item.acceso ?? null)}`);
+  if (!free && !paid && item.acceso !== 'sin_costo')
+    warnings.push(`acceso desconocido: ${JSON.stringify(item.acceso ?? null)}`);
   const paidPriceText = paid ? extractPriceText(body) : null;
   const price: Price | null = free
     ? { text: FREE_ACCESS_TEXT, isFree: true, verified: true }
@@ -265,18 +400,23 @@ export function buildEvent(raw: RawRecord, _ctx: ParseContext): ParseResult {
       ? { text: paidPriceText, verified: true }
       : null;
 
-  const ticketsUrl = pickTicketsUrl(item.botonesSidebar);
   const status = statusFromTitle(title);
-  const { occurrences, warnings: occurrenceWarnings } = buildOccurrences(instants, {
-    eventId: item.id,
-    exhibition,
-    venue: place.venue,
-    ticketsUrl,
-    price,
-    status,
-    ...(status !== 'scheduled' ? { statusReason: title } : {}),
-    bodyText: body,
-  });
+  const today = ctx.now().setZone(BA_TZ).toISODate() ?? '';
+  const contradiction = exhibition ? null : textContradiction(body, instants, today);
+  if (contradiction) warnings.push(`${contradiction}: no se emiten funciones`);
+  const { occurrences, warnings: occurrenceWarnings } = buildOccurrences(
+    contradiction ? [] : instants,
+    {
+      eventId: item.id,
+      exhibition,
+      venue: place.venue,
+      ticketsUrl,
+      price,
+      status,
+      ...(status !== 'scheduled' ? { statusReason: title } : {}),
+      bodyText: body,
+    },
+  );
   warnings.push(...occurrenceWarnings);
 
   const imageUrl = absoluteHttpUrl(item.imageUrl);
@@ -295,7 +435,7 @@ export function buildEvent(raw: RawRecord, _ctx: ParseContext): ParseResult {
     ...(institution.name ? { institutionName: institution.name } : {}),
     ...(institution.url ? { institutionUrl: institution.url } : {}),
     officialUrl,
-    sameAsUrls: sameAsLinks(item.botonesSidebar),
+    sameAsUrls: sameAsLinks(item.botonesSidebar, reusedTicketKeysOf(raw)),
     ...(ticketsUrl ? { ticketsUrl } : {}),
     ...(imageUrl ? { imageUrl } : {}),
     ...(free ? { priceText: FREE_ACCESS_TEXT, isFree: true, priceVerified: true } : {}),

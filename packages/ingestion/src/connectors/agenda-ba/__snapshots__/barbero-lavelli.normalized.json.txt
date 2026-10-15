@@ -25,7 +25,7 @@
     ],
     "occurrences": [
       {
-        "externalId": "ede41966-e6d9-4f2d-b2fc-98c8e3d9200b|2026-10-11T14:00:00.000Z",
+        "externalId": "ede41966-e6d9-4f2d-b2fc-98c8e3d9200b|2026-10-11T14:00:00Z",
         "kind": "timed",
         "startsAt": "2026-10-11T11:00:00-03:00",
         "endsAt": null,
@@ -44,7 +44,7 @@
         "price": null
       },
       {
-        "externalId": "ede41966-e6d9-4f2d-b2fc-98c8e3d9200b|2026-10-16T18:00:00.000Z",
+        "externalId": "ede41966-e6d9-4f2d-b2fc-98c8e3d9200b|2026-10-16T18:00:00Z",
         "kind": "timed",
         "startsAt": "2026-10-16T15:00:00-03:00",
         "endsAt": null,
@@ -87,16 +87,88 @@
     ],
     "occurrences": [
       {
-        "externalId": "9a565d18-ebb5-4de1-b5a5-b84048921540|muestra",
+        "externalId": "9a565d18-ebb5-4de1-b5a5-b84048921540|tramo|2026-10-11",
         "kind": "range",
         "startsAt": "2026-10-09T00:00:00-03:00",
-        "endsAt": "2026-11-01T23:59:59-03:00",
+        "endsAt": "2026-10-11T23:59:59-03:00",
         "startDate": "2026-10-09",
+        "endDate": "2026-10-11",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": "La muestra estará abierta al público de martes a viernes, de 14 a 21 horas, y los sábados y domingos de 13 a 20 horas, con entrada sin costo.",
+        "recurrenceRule": null,
+        "sourceDateText": "2026-10-09T17:00:00.000Z … 2026-10-11T16:00:00.000Z (3 fechas publicadas)",
+        "venue": {
+          "name": "Teatro San Martín",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://linda.buenosaires.gob.ar/eventos/jorge-lavelli-el-gesto-incoformista"
+        },
+        "status": "scheduled",
+        "ticketsUrl": null,
+        "price": {
+          "text": "Libre y gratuita",
+          "isFree": true,
+          "verified": true
+        }
+      },
+      {
+        "externalId": "9a565d18-ebb5-4de1-b5a5-b84048921540|tramo|2026-10-18",
+        "kind": "range",
+        "startsAt": "2026-10-13T00:00:00-03:00",
+        "endsAt": "2026-10-18T23:59:59-03:00",
+        "startDate": "2026-10-13",
+        "endDate": "2026-10-18",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": "La muestra estará abierta al público de martes a viernes, de 14 a 21 horas, y los sábados y domingos de 13 a 20 horas, con entrada sin costo.",
+        "recurrenceRule": null,
+        "sourceDateText": "2026-10-13T17:00:00.000Z … 2026-10-18T16:00:00.000Z (6 fechas publicadas)",
+        "venue": {
+          "name": "Teatro San Martín",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://linda.buenosaires.gob.ar/eventos/jorge-lavelli-el-gesto-incoformista"
+        },
+        "status": "scheduled",
+        "ticketsUrl": null,
+        "price": {
+          "text": "Libre y gratuita",
+          "isFree": true,
+          "verified": true
+        }
+      },
+      {
+        "externalId": "9a565d18-ebb5-4de1-b5a5-b84048921540|tramo|2026-10-25",
+        "kind": "range",
+        "startsAt": "2026-10-20T00:00:00-03:00",
+        "endsAt": "2026-10-25T23:59:59-03:00",
+        "startDate": "2026-10-20",
+        "endDate": "2026-10-25",
+        "timezone": "America/Argentina/Buenos_Aires",
+        "scheduleText": "La muestra estará abierta al público de martes a viernes, de 14 a 21 horas, y los sábados y domingos de 13 a 20 horas, con entrada sin costo.",
+        "recurrenceRule": null,
+        "sourceDateText": "2026-10-20T17:00:00.000Z … 2026-10-25T16:00:00.000Z (6 fechas publicadas)",
+        "venue": {
+          "name": "Teatro San Martín",
+          "address": "Av. Corrientes 1530",
+          "addressSourceUrl": "https://linda.buenosaires.gob.ar/eventos/jorge-lavelli-el-gesto-incoformista"
+        },
+        "status": "scheduled",
+        "ticketsUrl": null,
+        "price": {
+          "text": "Libre y gratuita",
+          "isFree": true,
+          "verified": true
+        }
+      },
+      {
+        "externalId": "9a565d18-ebb5-4de1-b5a5-b84048921540|tramo|2026-11-01",
+        "kind": "range",
+        "startsAt": "2026-10-27T00:00:00-03:00",
+        "endsAt": "2026-11-01T23:59:59-03:00",
+        "startDate": "2026-10-27",
         "endDate": "2026-11-01",
         "timezone": "America/Argentina/Buenos_Aires",
         "scheduleText": "La muestra estará abierta al público de martes a viernes, de 14 a 21 horas, y los sábados y domingos de 13 a 20 horas, con entrada sin costo.",
         "recurrenceRule": null,
-        "sourceDateText": "2026-10-09T17:00:00.000Z … 2026-11-01T16:00:00.000Z (21 fechas publicadas)",
+        "sourceDateText": "2026-10-27T17:00:00.000Z … 2026-11-01T16:00:00.000Z (6 fechas publicadas)",
         "venue": {
           "name": "Teatro San Martín",
           "address": "Av. Corrientes 1530",

@@ -25,7 +25,8 @@ import { type DisciplineSlug, stripDiacriticsLower } from '@culturaba/shared';
  *
  * Ajustes explícitos (en este orden):
  *  1. Muestra/exposición (dates.ts isExhibition) → + museos_exposiciones.
- *  2. Institución teatro-colon: musica_vivo_jazz y teatro_escenicas → opera_clasica
+ *  2. Institución teatro-colon: musica_vivo_jazz y teatro_escenicas → opera_clasica, o → danza
+ *     si el título o el resumen hablan de ballet/coreógrafo/danza (Manon, Las ruinas)
  *     (Linda etiqueta las óperas del Colón como "Teatro" y sus conciertos como "Música").
  *  3. Título con "filarmónica", "philharmoni…", "recital de piano", "conservatorio" u
  *     "ópera" (no "Teatro Ópera") → musica_vivo_jazz pasa a opera_clasica (o se agrega).
@@ -71,6 +72,7 @@ export const PERFORMING_ETIQUETAS = new Set(['teatro y artes escenicas', 'musica
 const CLASSICAL_TITLE_RE =
   /\b(?:filarmonica|philharmoni[a-z]*|recital de piano|conservatorio)\b|(?<!teatro )\bopera\b/;
 const DANCE_TITLE_RE = /\b(?:danza|ballet|coreografic[oa]s?)\b/;
+const DANCE_TEXT_RE = /\b(?:danza|ballet|coreograf[a-z]*|bailarin[a-z]*)\b/;
 const PHOTO_TITLE_RE = /\bfotograf(?:ic[oa]s?|ia)\b/;
 
 /** "Teatro\u200B y artes escénicas" (con U+200B) → "teatro y artes escenicas". */
@@ -93,6 +95,8 @@ export interface DisciplineInput {
   tipoEvento?: string | null;
   lugar?: string | null;
   title: string;
+  /** Descripción corta (texto plano), para señales inequívocas como "coreógrafo". */
+  summary?: string;
   institutionSlug: string;
   isExhibition: boolean;
 }
@@ -142,8 +146,13 @@ export function mapDisciplines(input: DisciplineInput): DisciplineMapping {
     for (let i = 0; i < out.length; i += 1) if (out[i] === from) out[i] = to;
   };
   if (input.institutionSlug === 'teatro-colon') {
-    replace('musica_vivo_jazz', 'opera_clasica');
-    replace('teatro_escenicas', 'opera_clasica');
+    // Linda rotula "Teatro" o "Música y Shows" a óperas, conciertos y ballets del Colón: es
+    // danza si el título o el resumen lo dicen (ballet, coreógrafo…); si no, ópera/clásica.
+    const danceText = DANCE_TEXT_RE.test(
+      stripDiacriticsLower(`${input.title} ${input.summary ?? ''}`),
+    );
+    replace('musica_vivo_jazz', danceText ? 'danza' : 'opera_clasica');
+    replace('teatro_escenicas', danceText ? 'danza' : 'opera_clasica');
   }
   // 3–5. Título (solo palabras inequívocas).
   const title = stripDiacriticsLower(input.title);

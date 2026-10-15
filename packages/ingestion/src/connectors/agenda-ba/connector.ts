@@ -1,3 +1,4 @@
+import { canonicalUrl } from '@culturaba/shared';
 import { z } from 'zod';
 import {
   type FetchContext,
@@ -7,6 +8,7 @@ import {
   type RawRecord,
   type SourceConnector,
 } from '../../core/connector';
+import { isSharedTicketKey } from '../../core/matcher';
 import { buildEvent, eventPageUrl, LINDA_BASE_URL, SOURCE_SLUG } from './parse';
 
 /**
@@ -69,6 +71,31 @@ export function looksTruncated(list: z.infer<typeof ListResponseSchema>): boolea
     : false;
 }
 
+/** Claves canónicas de las páginas de entradasba (con id) que enlaza un ítem. */
+function ticketKeysOf(event: ListedEvent): string[] {
+  const buttons = (event as { botonesSidebar?: unknown }).botonesSidebar;
+  if (!Array.isArray(buttons)) return [];
+  const keys = new Set<string>();
+  for (const b of buttons) {
+    const uri = (b as { uri?: unknown } | null)?.uri;
+    if (typeof uri !== 'string') continue;
+    const key = canonicalUrl(uri);
+    if (isSharedTicketKey(key)) keys.add(key);
+  }
+  return [...keys];
+}
+
+/**
+ * Páginas de entradasba que Linda usa en DOS O MÁS ítems distintos de la misma respuesta
+ * (pasa: "Buscando a Shakespeare" y "Encuentro de Cine Europeo" comparten un id). Esas no
+ * identifican una producción y no se declaran como `sameAsUrls`.
+ */
+export function sharedTicketUrls(events: readonly ListedEvent[]): Set<string> {
+  const count = new Map<string, number>();
+  for (const e of events) for (const k of ticketKeysOf(e)) count.set(k, (count.get(k) ?? 0) + 1);
+  return new Set([...count].filter(([, n]) => n > 1).map(([k]) => k));
+}
+
 export const agendaBaConnector: SourceConnector = {
   slug: SOURCE_SLUG,
   meta: {
@@ -108,16 +135,28 @@ export const agendaBaConnector: SourceConnector = {
     }
     if (skipped > 0) ctx.logger.warn({ skipped }, 'eventos sin id/slug en la API: omitidos');
     if (byId.size === 0) throw new Error('la API de eventos no devolvió ningún evento');
+    const total = first.pagination?.total;
+    if (typeof total === 'number' && byId.size < total) {
+      // Un descubrimiento parcial no puede pasar por completo: marcaría ausencias falsas.
+      throw new Error(
+        `la API anuncia ${total} eventos y se obtuvieron ${byId.size} en ${pages.length} petición(es)`,
+      );
+    }
     ctx.logger.info({ events: byId.size, requests: pages.length }, 'eventos en la API de Linda');
 
     const fetchedAt = ctx.now().toISO() ?? new Date().toISOString();
-    const records: RawRecord[] = [...byId.values()].map((event) => ({
-      externalId: event.id,
-      url: eventPageUrl(event.slug),
-      fetchedAt,
-      contentType: 'json' as const,
-      body: JSON.stringify(event),
-    }));
+    const shared = sharedTicketUrls([...byId.values()]);
+    const records: RawRecord[] = [...byId.values()].map((event) => {
+      const mine = ticketKeysOf(event).filter((k) => shared.has(k));
+      return {
+        externalId: event.id,
+        url: eventPageUrl(event.slug),
+        fetchedAt,
+        contentType: 'json' as const,
+        body: JSON.stringify(event),
+        ...(mine.length ? { listing: { sharedTicketKeys: mine } } : {}),
+      };
+    });
     return ctx.limit ? records.slice(0, ctx.limit) : records;
   },
 
