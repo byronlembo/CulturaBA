@@ -12,6 +12,7 @@ import {
   presetRange,
 } from '@/features/explore/filters';
 import { useEventsInfinite } from '@/features/hooks';
+import { MapView } from '@/features/map/MapView';
 import { disciplineIcon } from '@/lib/disciplineIcons';
 import { radius, spacing, useColors } from '@/theme/tokens';
 
@@ -40,7 +41,8 @@ export default function Explore() {
     };
   }, [q, filters.disciplines, filters.datePreset, filters.freeOnly]);
 
-  const query = useEventsInfinite(catalogFilters);
+  const [mode, setMode] = useState<'map' | 'list'>('map');
+  const query = useEventsInfinite(catalogFilters, mode === 'list');
 
   const header = (
     <View style={{ paddingBottom: spacing.sm }}>
@@ -70,6 +72,20 @@ export default function Explore() {
             <Ionicons name="close-circle" size={18} color={c.muted} />
           </Pressable>
         ) : null}
+      </View>
+      <View style={[styles.chips, { flexDirection: 'row' }]}>
+        <Chip
+          label="Mapa"
+          icon="map-outline"
+          selected={mode === 'map'}
+          onPress={() => setMode('map')}
+        />
+        <Chip
+          label="Lista"
+          icon="list-outline"
+          selected={mode === 'list'}
+          onPress={() => setMode('list')}
+        />
       </View>
       <ScrollView
         horizontal
@@ -119,6 +135,13 @@ export default function Explore() {
       ) : null}
     </View>
   );
+
+  if (mode === 'map')
+    return (
+      <Screen>
+        <MapView header={header} filters={catalogFilters} />
+      </Screen>
+    );
 
   return (
     <Screen>

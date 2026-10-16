@@ -146,6 +146,11 @@ const shot = async (page, name) => {
 
   // 5. Explorar con búsqueda: el primer resultado sin filtro desaparece al buscar.
   await page.goto(`${base}/explorar`, { waitUntil: 'networkidle' });
+  // Explorar abre en el mapa: salas con coordenadas publicadas por las fuentes.
+  await page.locator('path.leaflet-interactive').first().waitFor({ timeout: 20000 });
+  await page.waitForTimeout(2000); // teselas
+  await shot(page, '07a-explore-map');
+  await page.getByText('Lista', { exact: true }).click();
   await page.getByText(all[0].title).first().waitFor({ timeout: 15000 });
   await page.getByPlaceholder('Título, institución, artista…').fill(search.word);
   // Tras el debounce, la búsqueda refetchea: esperar a que termine antes de afirmar.

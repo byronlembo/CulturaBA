@@ -44,7 +44,7 @@ export function currentPosition(): Promise<Position> {
   const geo = (globalThis as { navigator?: Navigator }).navigator?.geolocation;
   // shortcut: solo en la web; en la app nativa sumar expo-location con los builds nativos.
   if (Platform.OS !== 'web' || !geo)
-    return Promise.reject(new Error('Por ahora el check-in se hace desde la web de CulturaBA.'));
+    return Promise.reject(new Error('Por ahora la ubicación funciona desde la web de CulturaBA.'));
   return new Promise((resolve, reject) =>
     geo.getCurrentPosition(
       (p) =>

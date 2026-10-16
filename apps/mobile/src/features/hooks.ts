@@ -45,6 +45,16 @@ export function useEventsInfinite(filters: CatalogFilters, enabled = true) {
   });
 }
 
+/** Todos los eventos del filtro de una vez (el mapa no pagina). */
+export function useEventsForMap(filters: CatalogFilters, enabled: boolean) {
+  const catalog = useCatalog();
+  return useQuery({
+    queryKey: ['events-map', filters],
+    queryFn: async () => (await catalog.listEvents(filters, { offset: 0, limit: 500 })).items,
+    enabled,
+  });
+}
+
 export function useEvent(slug: string) {
   const catalog = useCatalog();
   return useQuery({

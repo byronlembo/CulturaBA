@@ -19,6 +19,9 @@ export interface EventSummary {
   imageSource: 'source' | 'fallback';
   institutionName: string;
   venueName: string | null;
+  /** Coordenadas de la sala publicadas por la fuente (mapa y cercanía). */
+  venueLat: number | null;
+  venueLng: number | null;
   nextStartsAt: string | null;
   /** Tipo de la ocurrencia que aporta nextStartsAt: un rango se muestra "Del … al …". */
   nextKind: OccurrenceKind | null;
@@ -43,8 +46,6 @@ export interface EventDetail extends EventSummary {
   ticketsUrl: string | null;
   venueAddress: string | null;
   venueNeighborhood: string | null;
-  venueLat: number | null;
-  venueLng: number | null;
   lastVerifiedAt: string | null;
   language: string | null;
   durationMinutes: number | null;
@@ -231,6 +232,8 @@ export function mapEventSummary(r: EventPublicRow): EventSummary {
     imageSource: (r.image_source ?? 'fallback') as 'source' | 'fallback',
     institutionName: r.institution_name ?? '',
     venueName: r.venue_name,
+    venueLat: r.venue_lat,
+    venueLng: r.venue_lng,
     nextStartsAt: r.next_starts_at,
     nextKind: (r.next_kind ?? null) as OccurrenceKind | null,
     nextEndsAt: r.next_ends_at,
@@ -257,8 +260,6 @@ export function mapEventDetail(r: EventPublicRow): EventDetail {
     ticketsUrl: r.tickets_url,
     venueAddress: r.venue_address,
     venueNeighborhood: r.venue_neighborhood,
-    venueLat: r.venue_lat,
-    venueLng: r.venue_lng,
     lastVerifiedAt: r.last_verified_at,
     language: r.language,
     durationMinutes: r.duration_minutes,

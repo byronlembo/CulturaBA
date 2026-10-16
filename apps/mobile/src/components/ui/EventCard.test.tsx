@@ -17,6 +17,8 @@ const base: EventSummary = {
   imageSource: 'fallback',
   institutionName: 'Teatro Colón',
   venueName: 'Teatro Colón',
+  venueLat: null,
+  venueLng: null,
   nextStartsAt: '2026-10-18T20:00:00-03:00',
   nextKind: 'timed',
   nextEndsAt: null,
