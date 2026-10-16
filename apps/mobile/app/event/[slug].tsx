@@ -338,7 +338,7 @@ export default function EventScreen() {
 }
 
 const styles = StyleSheet.create({
-  hero: { width: '100%', aspectRatio: 16 / 10, backgroundColor: '#2A2540' },
+  hero: { width: '100%', aspectRatio: 16 / 10 },
   row: { flexDirection: 'row', alignItems: 'center' },
   actions: { flexDirection: 'row', gap: spacing.sm },
   action: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: radius.md },

@@ -1,6 +1,7 @@
 import { Image, type ImageProps } from 'expo-image';
 import { useState } from 'react';
 import { eventImageSource, fallbackImage } from '@/lib/images';
+import { useColors } from '@/theme/tokens';
 
 /** Imagen de evento con respaldo por disciplina si la fuente no carga. */
 export function EventImage({
@@ -14,6 +15,7 @@ export function EventImage({
   discipline: string | null | undefined;
 }) {
   // Se recuerda qué URL falló; si cambia la URL, se vuelve a intentar sola.
+  const c = useColors();
   const [failedUrl, setFailedUrl] = useState<string | null>(null);
   const failed = imageUrl !== null && imageUrl !== undefined && failedUrl === imageUrl;
   const source = failed
@@ -22,6 +24,8 @@ export function EventImage({
   return (
     <Image
       {...props}
+      // Fondo del tema mientras carga (antes, un bloque oscuro fijo también en modo claro).
+      style={[{ backgroundColor: c.surfaceAlt }, props.style]}
       source={source}
       onError={() => setFailedUrl(imageUrl ?? null)}
       contentFit="cover"

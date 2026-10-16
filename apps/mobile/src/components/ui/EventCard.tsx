@@ -99,12 +99,11 @@ export function EventCard({ event, compact }: { event: EventSummary; compact?: b
 const styles = StyleSheet.create({
   card: { marginHorizontal: spacing.lg, marginBottom: spacing.lg },
   compact: { flexDirection: 'row' },
-  image: { width: '100%', aspectRatio: 16 / 9, backgroundColor: '#2A2540' },
+  image: { width: '100%', aspectRatio: 16 / 9 },
   imageCompact: {
     width: 110,
     height: '100%',
     minHeight: 110,
-    backgroundColor: '#2A2540',
     borderRadius: radius.md,
   },
   body: { padding: spacing.md, flex: 1 },
