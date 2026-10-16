@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   assessPublishability,
   type NormalizedEvent,
@@ -12,6 +14,7 @@ import { silentLogger } from '../../logger';
 import { AGENDA_DAYS, complejoTeatralConnector as connector } from './connector';
 import { parseSchedule } from './dates';
 import { mapCategories } from './disciplines';
+import { parseDetail } from './parse';
 import { buildVenueRef, canonicalTheatreName, splitPlace } from './venues';
 
 const FIXTURES = fixtureSetDir('complejo-teatral', '2026-10-14');
@@ -386,7 +389,7 @@ describe('complejo-teatral · eventos verificados a mano contra el HTML', () => 
     expect(e.description).toContain('es una muestra sobre el Teatro San Martín');
     expect(e.occurrences).toEqual([
       expect.objectContaining({
-        externalId: 'la-isla-el-teatro-san-martin-en-dictaduras|2026-09-15|2026-11-28',
+        externalId: 'la-isla-el-teatro-san-martin-en-dictaduras|range|2026-09-15',
         kind: 'range',
         startsAt: '2026-09-15T00:00:00-03:00',
         endsAt: '2026-11-28T23:59:59-03:00',
@@ -639,6 +642,59 @@ describe('complejo-teatral · parseSchedule (puro)', () => {
       ],
     });
     expect(partial.specs).toEqual([]);
+  });
+});
+
+describe('complejo-teatral · casos límite del detalle', () => {
+  const fixture = (file: string) => readFileSync(join(FIXTURES, file), 'utf8');
+  const detailRecord = (slug: string, body: string): RawRecord => ({
+    externalId: slug,
+    url: DETAIL(slug),
+    fetchedAt: NOW.toISO() ?? '',
+    contentType: 'html',
+    body,
+  });
+  const ctx = { logger: silentLogger, now: () => NOW };
+
+  it('gratuidad parcial con importes no marca isFree', () => {
+    const body = fixture('016-produccion-oxitocina.html').replace(
+      'Platea $26.000 Jueves $15.000',
+      'Platea $26.000. Menores de 12 años: entrada gratuita',
+    );
+    const res = connector.parse(detailRecord('oxitocina', body), ctx);
+    if (!res.ok) throw new Error(res.errors.join('; '));
+    expect(res.event.priceText).toBe('Platea $26.000. Menores de 12 años: entrada gratuita');
+    expect(res.event.isFree).toBeUndefined();
+  });
+
+  it('precio sin separador colgante al final', () => {
+    const res = connector.parse(
+      detailRecord('melissa-aldana', fixture('024-produccion-melissa-aldana.html')),
+      ctx,
+    );
+    if (!res.ok) throw new Error(res.errors.join('; '));
+    expect(res.event.priceText).toBe(
+      'Platea fila 1 a 5 $ 85.000 · Platea fila 6 a 21 $ 65.000 · Pulman fila 1 a 8 $ 40.000 · Pulman fila 9 $ 20.000. · Venta presencial: Viamonte 560; en el teatro, únicamente en días de función.',
+    );
+  });
+
+  it('avisos en rojo con #FF0000 o rgb(255, 0, 0) también se leen', () => {
+    const original = fixture('027-produccion-a-cielo-abierto.html');
+    for (const color of ['#FF0000', 'rgb(255, 0, 0)']) {
+      const body = original.replaceAll('color: #ff0000', `color: ${color}`);
+      expect(parseDetail(body).notes).toEqual([
+        'Viernes 16, sábado 17 y domingo 18 de octubre no habrá funciones',
+      ]);
+    }
+  });
+
+  it('listado inválido sin detalle: el fallo incluye el problema de validación', () => {
+    const res = connector.parse(
+      { ...detailRecord('x', ''), listing: { slug: 'x', detailUrl: DETAIL('x'), dateText: null } },
+      ctx,
+    );
+    expect(res.ok).toBe(false);
+    if (!res.ok) expect(res.errors.join('\n')).toMatch(/dateText/);
   });
 });
 

@@ -220,7 +220,7 @@ export function parseDetail(html: string): DetailData {
   const description = post.find('.description').first().clone();
   description.find('button').remove();
   const notes = description
-    .find('span[style*="ff0000"]')
+    .find('span[style*="ff0000" i], span[style*="255, 0, 0"], span[style*="255,0,0"]')
     .map((_, el) =>
       htmlToText($(el).html() ?? '')
         .replace(/\s+/g, ' ')
@@ -249,6 +249,7 @@ export function parseDetail(html: string): DetailData {
   const priceText = priceLi
     ? nullable(
         (priceLi.find('span.bold').first().text() ?? '')
+          .trim()
           .replace(/\s*\n+\s*/g, ' · ')
           .replace(/[ \t]+/g, ' '),
       )
@@ -317,7 +318,13 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
   const listing = listingParsed.success ? listingParsed.data : null;
   const detail =
     raw.contentType === 'html' && isDetailPage(raw.body) ? parseDetail(raw.body) : null;
-  if (!listing && !detail) return fail(['sin datos de listado ni página de detalle reconocible']);
+  if (!listing && !detail) {
+    const issues =
+      raw.listing !== undefined && !listingParsed.success
+        ? listingParsed.error.issues.map((i) => `listado: ${i.path.join('.')}: ${i.message}`)
+        : [];
+    return fail(['sin datos de listado ni página de detalle reconocible', ...issues]);
+  }
 
   const warnings: string[] = [];
   if (!detail) warnings.push('sin página de detalle: se usa solo la tarjeta del listado');
@@ -340,9 +347,11 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
   if (!description && detail?.detailsLeadHtml) description = htmlToText(detail.detailsLeadHtml);
 
   // Precio: solo el texto literal de "Valor de las localidades:" (verified) o
-  // gratuidad explícita en el subtítulo/bajada ("ENTRADA GRATUITA").
+  // gratuidad explícita en el subtítulo/bajada ("ENTRADA GRATUITA"). Con importes
+  // ("Platea $26.000. Menores de 12 años: entrada gratuita") la gratuidad es parcial.
   let priceText = detail?.priceText ?? null;
-  let isFree: boolean | undefined = priceText ? detectFreeEs(priceText) : undefined;
+  let isFree: boolean | undefined =
+    priceText && !/\$\s*\d/.test(priceText) ? detectFreeEs(priceText) : undefined;
   if (!priceText) {
     const freeIn = [detail?.subtitle ?? listing?.subtitle ?? '', listing?.bajadaHtml ?? '']
       .map((t) => htmlToText(t))
@@ -421,7 +430,8 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
     } else {
       const bounds = rangeBounds(spec.start, spec.end);
       occurrences.push({
-        externalId: `${slug}|${spec.start}|${spec.end}`,
+        // Sin el fin: una prórroga de la muestra actualiza la ocurrencia en vez de reemplazarla.
+        externalId: `${slug}|range|${spec.start}`,
         kind: 'range',
         startsAt: bounds.startsAt,
         endsAt: bounds.endsAt,
