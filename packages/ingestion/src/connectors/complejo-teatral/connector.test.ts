@@ -174,7 +174,8 @@ describe('complejo-teatral · discover (fixtures 2026-10-14)', () => {
       logger: silentLogger,
       now: () => NOW,
     });
-    expect((twoDays[0]?.listing as { agendaWindow: unknown }).agendaWindow).toMatchObject({
+    const listing = twoDays[0]?.listing as { agendaWindow: unknown } | undefined;
+    expect(listing?.agendaWindow).toMatchObject({
       fetchedDays: 26,
       failedDays: 2,
     });
