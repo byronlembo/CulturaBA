@@ -10,7 +10,7 @@
 | Worker de ingestión: HTTP cortés, fixtures, pipeline, dedup entre fuentes, cambios, ausencias, CLI | ✅ 157 tests (27 de integración sobre Postgres real) |
 | Conector Teatro Colón | ✅ en producción |
 | Conector agenda de la Ciudad (Linda) | ✅ en producción (agregador, prioridad 10) |
-| Conector Complejo Teatral | ✅ en producción desde el 16-oct |
+| Conector Complejo Teatral | ⏸ corregido el 16-oct; fuera del cron porque el sitio responde 403 a los runners de GitHub |
 | Conectores MNBA y Palacio Libertad | ⛔ bloqueados por desafío de Cloudflare (no se elude) |
 | Catálogo real en Supabase | ✅ 266 eventos publicados, 736 funciones futuras (15-oct) |
 | App: onboarding, Para vos, Explorar, Calendario, Guardados, Perfil, ficha, acciones sociales, compartir, deep links | ✅ 21 tests Jest + recorrido Playwright contra Supabase |
@@ -18,7 +18,10 @@
 
 ### Siguientes pasos inmediatos
 1. ~~Cargar `DATABASE_URL` como secreto~~ (hecho; el cron corre cada 6 h).
-2. ~~Corregir el conector del Complejo Teatral~~ (hecho el 16-oct; en el cron).
+2. ~~Corregir el conector del Complejo Teatral~~ (hecho el 16-oct). Falta dónde correrlo:
+   el sitio responde 403 a los runners de GitHub Actions. Opciones: un equipo propio con
+   IP residencial (`pnpm ingest run --source complejo-teatral`) o pedirle al Complejo que
+   habilite el user agent. Mientras tanto, sus producciones llegan por Linda.
 3. Decidir el camino para MNBA y Palacio Libertad (fixtures manuales, equipo propio o
    cobertura vía Linda).
 4. Probar en Expo Go: deep link en frío, compartir, acciones con sesión anónima.

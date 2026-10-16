@@ -116,7 +116,8 @@ Detrás de un proxy, el `fetch` de Node necesita `NODE_USE_ENV_PROXY=1`; el CLI 
 ## 8. Limitaciones conocidas
 
 - **Complejo Teatral** *(actualizado el 16-oct)*: los defectos de lectura de horarios
-  se corrigieron y el conector entró al cron. Es conservador: sin temporada publicada no
+  se corrigieron, pero el sitio responde 403 a los runners de GitHub Actions, así que
+  queda fuera del cron hasta correrlo desde otra IP (desde este entorno funciona). Es conservador: sin temporada publicada no
   emite funciones semanales (Invasiones I, Godot y otras quedan candidatas en su fuente,
   pero llegan por Linda). Cuando Linda y el Complejo publican distinta sala para la misma
   función, se muestran las dos (pasa con "Todos los ángeles alzaron el vuelo").

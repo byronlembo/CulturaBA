@@ -50,7 +50,12 @@ export const complejoTeatralConnector: SourceConnector = {
     baseUrl: BASE_URL,
     institutionSlug: INSTITUTION_SLUG,
     kind: 'html',
-    ready: true,
+    // El parser está listo; lo que falla es la red: el sitio responde 403 a los runners de
+    // GitHub Actions (IPs de datacenter) y no se elude. Fuera de `--all` hasta correrlo desde
+    // otra IP (`pnpm ingest run --source complejo-teatral`), que sí funciona.
+    ready: false,
+    blockedReason:
+      'complejoteatral.gob.ar responde 403 a los runners de GitHub Actions; correr con --source desde un equipo con IP no de datacenter.',
     politeness: { concurrency: 1, minDelayMs: 1500, timeoutMs: 30_000 },
   },
 

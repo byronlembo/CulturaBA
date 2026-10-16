@@ -5,8 +5,9 @@ que se actualiza solo desde las agendas oficiales, con intereses, fichas verific
 acciones sociales y compartir. Monorepo con el worker de ingestión, el esquema de
 base de datos (Supabase/Postgres) y la app móvil (Expo).
 
-**Estado (16-oct-2026):** fuentes en producción: Teatro Colón, Complejo Teatral y la
-agenda oficial de la Ciudad (Linda); MNBA y Palacio Libertad bloqueados por Cloudflare.
+**Estado (16-oct-2026):** fuentes en producción: Teatro Colón y la agenda oficial de la
+Ciudad (Linda). Complejo Teatral corregido pero fuera del cron (su sitio responde 403 a los
+runners de GitHub); MNBA y Palacio Libertad bloqueados por Cloudflare.
 La app suma cuenta con email, calendario, diario de funciones y puntos por asistencia
 (check-in en la sala). Detalle en [`docs/informe-etapa-1.md`](docs/informe-etapa-1.md) y
 [`docs/roadmap.md`](docs/roadmap.md).
