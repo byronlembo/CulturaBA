@@ -276,3 +276,71 @@ describe('avisos en rojo', () => {
     expect(r.warnings.join('\n')).toMatch(/varios rangos/);
   });
 });
+
+describe('grilla de ciclos de cine (.details en orden)', () => {
+  const FURIAS = [
+    'TODAS LAS FUNCIONES COMIENZAN PUNTUALMENTE EN EL HORARIO ANUNCIADO',
+    'Miércoles 28',
+    'A las 18 horas',
+    'Las furias',
+    '(Argentina, 1960)',
+    '(80’; DCP).',
+    'A las 21 horas',
+    'Lo que le pasó a Reynoso',
+  ];
+  const TREN = [
+    'El tren fluvial (2026)',
+    'Jueves 8, viernes 9 y domingo 11, 21 horas',
+    'Sábado 10, 18 horas',
+    'Martes 13, 21 horas',
+    'Miércoles 14, 18 horas',
+    'Jueves 15, 17.30 horas',
+  ];
+
+  it('"Miércoles 28" + "A las 18 horas": el mes sale de "Funciones:"', () => {
+    const r = run('Miércoles 28 de octubre', { gridLines: FURIAS });
+    expect(r.form).toBe('grid');
+    expect(starts(r)).toEqual(['2026-10-28 18:00', '2026-10-28 21:00']);
+  });
+
+  it('"Jueves 15, 17.30 horas": día con mes de "A partir del 8 de octubre", verificado', () => {
+    expect(starts(run('A partir del 8 de octubre', { gridLines: TREN }))).toEqual([
+      '2026-10-08 21:00',
+      '2026-10-09 21:00',
+      '2026-10-10 18:00',
+      '2026-10-11 21:00',
+      '2026-10-13 21:00',
+      '2026-10-14 18:00',
+      '2026-10-15 17:30',
+    ]);
+  });
+
+  it('sin referencia de mes, o con una fecha fuera de lo publicado, no hay grilla', () => {
+    expect(run('', { gridLines: TREN }).specs).toEqual([]);
+    expect(run('Jueves 29 de octubre', { gridLines: FURIAS }).specs).toEqual([]);
+    // Página vieja: "A partir del 8 de octubre" ya no ubica el mes con certeza.
+    for (const now of NOWS.slice(1)) {
+      const r = parseSchedule({ functionsText: 'A partir del 8 de octubre', gridLines: TREN, now });
+      expect(r.specs).toEqual([]);
+    }
+  });
+
+  it('un día que no coincide con su día de semana, un aviso o una hora suelta anulan la grilla', () => {
+    const wrongDay = ['Martes 28', 'A las 18 horas'];
+    expect(run('Miércoles 28 de octubre', { gridLines: wrongDay }).specs).toEqual([]);
+    const suspended = [...FURIAS, 'Función de las 21 horas suspendida'];
+    expect(run('Miércoles 28 de octubre', { gridLines: suspended }).specs).toEqual([]);
+    const stray = [...FURIAS, 'Trasnoche especial: 23.30 horas'];
+    expect(run('Miércoles 28 de octubre', { gridLines: stray }).specs).toEqual([]);
+    const timeBeforeDay = ['A las 18 horas', 'Miércoles 28'];
+    expect(run('Miércoles 28 de octubre', { gridLines: timeBeforeDay }).specs).toEqual([]);
+  });
+
+  it('la prosa con "horas" sin número no anula la grilla', () => {
+    const prose = [...FURIAS, 'Se pasa las horas en la cantina, a la hora de las apuestas.'];
+    expect(starts(run('Miércoles 28 de octubre', { gridLines: prose }))).toEqual([
+      '2026-10-28 18:00',
+      '2026-10-28 21:00',
+    ]);
+  });
+});

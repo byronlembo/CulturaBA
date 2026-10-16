@@ -157,7 +157,7 @@ export interface DetailData {
   ticketsUrl: string | null;
   imageUrl: string | null;
   imageCredit: string | null;
-  /** Grilla de ciclos de cine (.details h4), una línea por función. */
+  /** Líneas de .details en orden (párrafos y títulos, cortados en <br>): grilla de ciclos de cine. */
   gridLines: string[];
   infoText: string;
 }
@@ -268,8 +268,11 @@ export function parseDetail(html: string): DetailData {
     absoluteImage(coverUrl) ?? absoluteImage($('meta[property="og:image"]').attr('content'));
   const imageCredit = nullable(text(post.find('.cover .cover_credits').first()));
 
+  // "<p><strong>Miércoles 28</strong></p><p>A las 18 horas</p>", "<h4>Sábado 31 de octubre, 21 horas<br>…".
   const gridLines = post
-    .find('.details h4')
+    .find('.details')
+    .first()
+    .find('p, h2, h3, h4, h5, h6')
     .map((_, el) => htmlToText($(el).html() ?? ''))
     .get()
     .flatMap((block) => block.split('\n'))
@@ -369,11 +372,12 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
 
   // Funciones.
   const functionsText = detail?.functionsText ?? listing?.dateText ?? '';
+  const gridLines = mapping.disciplines.includes('cine') ? (detail?.gridLines ?? []) : [];
   const schedule = parseSchedule({
     functionsText,
     notes: detail?.notes ?? [],
     agendaDays: listing?.agendaDays ?? [],
-    ...(mapping.disciplines.includes('cine') && detail ? { gridLines: detail.gridLines } : {}),
+    gridLines,
     now: ctx.now(),
   });
   warnings.push(...schedule.warnings);
@@ -437,7 +441,7 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
     listing: listing ? { ...listing, bajadaHtml: undefined } : null,
     info: detail?.infoText ?? null,
     notes: detail?.notes ?? [],
-    gridLines: detail?.gridLines.slice(0, 40) ?? [],
+    gridLines: gridLines.slice(0, 40),
   }).slice(0, 20_000);
 
   const event: NormalizedEventInput = {

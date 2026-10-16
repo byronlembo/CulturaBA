@@ -149,10 +149,10 @@ describe('complejo-teatral · discover (fixtures 2026-10-14)', () => {
 });
 
 describe('complejo-teatral · parse de TODOS los ítems', () => {
-  it('ninguno inválido; 20 publicables y 13 candidatos con motivo', () => {
+  it('ninguno inválido; 22 publicables y 11 candidatos con motivo', () => {
     const counts = { ok: 0, incomplete: 0, invalid: 0 };
     for (const p of all.values()) counts[p.status] += 1;
-    expect(counts).toEqual({ ok: 20, incomplete: 13, invalid: 0 });
+    expect(counts).toEqual({ ok: 22, incomplete: 11, invalid: 0 });
 
     const candidates = Object.fromEntries(
       [...all.entries()]
@@ -180,10 +180,6 @@ describe('complejo-teatral · parse de TODOS los ítems', () => {
       'los-espiritus-del-museo': ['missing:occurrences'],
       // Casa de la Cultura: "Dirección:" vacío → venue sin dirección.
       'la-isla-el-teatro-san-martin-en-dictaduras': ['missing:venue'],
-      // "A partir del 8 de octubre": sin fin publicado.
-      'el-tren-fluvial': ['missing:occurrences'],
-      // "Miércoles 28 de octubre": fecha sin hora.
-      'las-furias-y-lo-que-le-paso-a-reynoso': ['missing:occurrences'],
     });
   });
 
@@ -354,6 +350,54 @@ describe('complejo-teatral · eventos verificados a mano contra el HTML', () => 
     expect(all.get('la-isla-el-teatro-san-martin-en-dictaduras')?.reasons).toEqual([
       'missing:venue',
     ]);
+  });
+
+  it('LAS FURIAS: "Miércoles 28" + "A las 18 horas" / "A las 21 horas" de la grilla en <p>', () => {
+    // Funciones: "Miércoles 28 de octubre" (sin hora); .details: <p><strong>Miércoles 28</strong></p>
+    // <p>A las 18 horas</p> … <p>A las 21 horas</p>.
+    const e = eventOf('las-furias-y-lo-que-le-paso-a-reynoso');
+    expect(e.occurrences.map((o) => o.startsAt)).toEqual([
+      '2026-10-28T18:00:00-03:00',
+      '2026-10-28T21:00:00-03:00',
+    ]);
+    expect(e.occurrences[0]).toMatchObject({
+      kind: 'timed',
+      sourceDateText: 'Miércoles 28 · A las 18 horas',
+      venue: {
+        name: 'Teatro San Martín',
+        room: 'Sala Leopoldo Lugones',
+        address: 'Av. Corrientes 1530',
+      },
+    });
+  });
+
+  it('SEIS TARDES CON MAE WEST: la grilla completa reemplaza al rango "Del 15 al 22 de octubre"', () => {
+    const e = eventOf('seis-tardes-con-mae-west');
+    expect(e.occurrences.map((o) => o.startsAt)).toEqual([
+      '2026-10-15T15:00:00-03:00',
+      '2026-10-16T15:00:00-03:00',
+      '2026-10-18T15:00:00-03:00',
+      '2026-10-20T15:00:00-03:00',
+      '2026-10-21T15:00:00-03:00',
+      '2026-10-22T15:00:00-03:00',
+    ]);
+    // "Viernes 16" … película … "A las 15 horas (66’; DM).": la hora sigue al día en la grilla.
+    expect(e.occurrences[1]?.sourceDateText).toBe('Viernes 16 · A las 15 horas (66’; DM).');
+  });
+
+  it('EL TREN FLUVIAL: líneas "Jueves 15, 17.30 horas" con el mes de "A partir del 8 de octubre"', () => {
+    const e = eventOf('el-tren-fluvial');
+    expect(e.occurrences.map((o) => o.startsAt)).toEqual([
+      '2026-10-08T21:00:00-03:00',
+      '2026-10-09T21:00:00-03:00',
+      '2026-10-10T18:00:00-03:00',
+      '2026-10-11T21:00:00-03:00',
+      '2026-10-13T21:00:00-03:00',
+      '2026-10-14T18:00:00-03:00',
+      '2026-10-15T17:30:00-03:00',
+    ]);
+    // La agenda también lo lista el 16-10, que la grilla no publica: no se emite.
+    expect(e.occurrences.map((o) => o.startDate)).not.toContain('2026-10-16');
   });
 
   it('MELISSA ALDANA: entradas sin tracking, Cinema Kabuki gratis, Frankenstein desde la grilla', () => {
