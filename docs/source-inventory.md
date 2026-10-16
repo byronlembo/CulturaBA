@@ -12,7 +12,7 @@
 | Fuente (`slug`) | Institución | URL oficial | Acceso | Método | Peticiones/corrida | Prioridad | Conector |
 |---|---|---|---|---|---|---|---|
 | `teatro-colon` | Teatro Colón | https://teatrocolon.org.ar/calendario/ | 200 (Cloudflare CDN, sin challenge) | HTML server-side (`cheerio`) | ~3 listados mensuales + ~30 detalles | 100 | **en producción** |
-| `complejo-teatral` | Complejo Teatral de Buenos Aires | https://complejoteatral.gob.ar/ | 200 (Cloudflare CDN, sin challenge) | HTML server-side + agenda diaria `/agenda/?fecha=` | 1 home + 28 días + ~33 detalles ≈ 62 | 100 | implementado, fuera del cron (`ready: false`) |
+| `complejo-teatral` | Complejo Teatral de Buenos Aires | https://complejoteatral.gob.ar/ | 200 (Cloudflare CDN, sin challenge) | HTML server-side + agenda diaria `/agenda/?fecha=` | 1 home + 28 días + ~33 detalles ≈ 62 | 100 | ✅ en producción desde el 16-oct (corregido tras la revisión adversarial) |
 | `agenda-ba` | Agregador oficial de la Ciudad (**Linda**) | https://linda.buenosaires.gob.ar/ | 200 (sin Cloudflare) | **API JSON** `/api/frontend/events/filter?limit=200` | 1–2 | 10 | **en producción** |
 | `mnba` | Museo Nacional de Bellas Artes | https://bellasartes.gob.ar/agenda/ | **403 Cloudflare managed challenge (Turnstile interactivo) en toda la zona** | — | — | 100 | **bloqueado** |
 | `palacio-libertad` | Palacio Libertad | https://palaciolibertad.gob.ar/agenda/ | **403 challenge en toda la zona (incluso robots.txt)** | — | — | 100 | **bloqueado** |
@@ -63,9 +63,14 @@ institución (100) sobrescribe; agregador (10) solo rellena vacíos y aporta fun
   enumeradas ("Viernes 16, sábado 17 y domingo 18 de octubre, 20 horas", "Jueves 29 de
   octubre, 16.30 y 20.30 horas") y rangos de muestras/ciclos ("Del 15 de septiembre al
   28 de noviembre, de lunes a sábados de 11 a 20 horas", "Marzo a noviembre").
-- Regla del conector: **los días salen de la agenda diaria del sitio; la hora, del
-  texto para ese día de semana; sin hora para ese día ⇒ no se emite la función.**
-  Muestras ⇒ `range`. Sin dirección publicada ⇒ queda candidato (correcto).
+- Regla del conector: **fechas enumeradas ⇒ funciones con la hora que las sigue; patrón
+  semanal ⇒ solo dentro de una temporada publicada (inicio y fin, o "Hasta el X" como fin)
+  y en los días que confirma la agenda diaria; sin temporada o sin hora para ese día ⇒ no
+  se emite la función.** Grillas de cine en `.details` (día en negrita + "A las HH horas")
+  ⇒ una función por línea. Avisos en rojo con fecha anulan solo las funciones de ese día
+  (si dan otra hora, se retira la función por posible cambio de horario). Muestras ⇒
+  `range`. Si fallan más de 2 días de la agenda, la corrida falla (no marca ausencias).
+  Sin dirección publicada ⇒ queda candidato (correcto).
 
 ### Agenda oficial de la Ciudad (Linda) — `agenda-ba` (`docs/research/agenda-ba.md`)
 - `buenosaires.gob.ar/agenda` redirige a **Linda** (Next.js sobre Drupal), sin Cloudflare,

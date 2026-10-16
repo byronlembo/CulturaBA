@@ -115,10 +115,11 @@ Detrás de un proxy, el `fetch` de Node necesita `NODE_USE_ENV_PROXY=1`; el CLI 
 
 ## 8. Limitaciones conocidas
 
-- **Complejo Teatral fuera del cron.** Su lectura de horarios en texto libre puede
-  inventar horas o años en algunos patrones: listas de horas que absorben números de
-  día, año de rangos tomado del inicio, avisos con día sin mes y "Hasta el X" con inicio
-  inventado. Los defectos están documentados con evidencia y es lo primero de la Etapa 2.
+- **Complejo Teatral** *(actualizado el 16-oct)*: los defectos de lectura de horarios
+  se corrigieron y el conector entró al cron. Es conservador: sin temporada publicada no
+  emite funciones semanales (Invasiones I, Godot y otras quedan candidatas en su fuente,
+  pero llegan por Linda). Cuando Linda y el Complejo publican distinta sala para la misma
+  función, se muestran las dos (pasa con "Todos los ángeles alzaron el vuelo").
 - **Linda es un agregador con errores propios.** Cuando su texto y sus fechas
   estructuradas se contradicen, no se publican funciones. Invasiones I queda así aunque
   sus fechas estructuradas sean las correctas, y "Más de 100 piezas inéditas…" no se

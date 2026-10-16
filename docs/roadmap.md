@@ -10,7 +10,7 @@
 | Worker de ingestión: HTTP cortés, fixtures, pipeline, dedup entre fuentes, cambios, ausencias, CLI | ✅ 157 tests (27 de integración sobre Postgres real) |
 | Conector Teatro Colón | ✅ en producción |
 | Conector agenda de la Ciudad (Linda) | ✅ en producción (agregador, prioridad 10) |
-| Conector Complejo Teatral | ⏸ implementado, fuera del cron hasta corregir la lectura de horarios |
+| Conector Complejo Teatral | ✅ en producción desde el 16-oct |
 | Conectores MNBA y Palacio Libertad | ⛔ bloqueados por desafío de Cloudflare (no se elude) |
 | Catálogo real en Supabase | ✅ 266 eventos publicados, 736 funciones futuras (15-oct) |
 | App: onboarding, Para vos, Explorar, Calendario, Guardados, Perfil, ficha, acciones sociales, compartir, deep links | ✅ 21 tests Jest + recorrido Playwright contra Supabase |
@@ -18,8 +18,7 @@
 
 ### Siguientes pasos inmediatos
 1. ~~Cargar `DATABASE_URL` como secreto~~ (hecho; el cron corre cada 6 h).
-2. Corregir el conector del Complejo Teatral con los defectos documentados y volver a
-   activarlo (`ready: true`).
+2. ~~Corregir el conector del Complejo Teatral~~ (hecho el 16-oct; en el cron).
 3. Decidir el camino para MNBA y Palacio Libertad (fixtures manuales, equipo propio o
    cobertura vía Linda).
 4. Probar en Expo Go: deep link en frío, compartir, acciones con sesión anónima.
@@ -66,6 +65,8 @@ cuando una función próxima se cancela, se posterga o se reprograma.
 - Herramienta para que una institución valide un código (hoy: SQL, ver README).
 - Diario público opcional, perfiles, seguir a amigos, listas propias.
 - Revisar salas cuyas coordenadas difieren entre publicaciones de Linda (gana la primera).
+- Conflicto de sala entre fuentes para la misma función: hoy se muestran ambas; que gane
+  la institución.
 
 ## Etapa 3 — Operación y expansión
 - Panel mínimo de revisión: fuentes y última corrida, errores, candidatos
