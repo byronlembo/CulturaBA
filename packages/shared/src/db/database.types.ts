@@ -5,7 +5,51 @@ export type Database = {
   
   "public": {
           Tables: {
-            "disciplines": {
+            "diary_entries": {
+                  Row: {
+                    "attended_on": string,"created_at": string,"discipline": string | null,"event_id": string,"event_slug": string,"event_title": string,"id": string,"occurrence_id": string | null,"rating": number | null,"review": string | null,"updated_at": string,"user_id": string,"venue_name": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "attended_on": string,"created_at"?: string,"discipline"?: string | null,"event_id": string,"event_slug": string,"event_title": string,"id"?: string,"occurrence_id"?: string | null,"rating"?: number | null,"review"?: string | null,"updated_at"?: string,"user_id": string,"venue_name"?: string | null
+                  }
+                  Update: {
+                    "attended_on"?: string,"created_at"?: string,"discipline"?: string | null,"event_id"?: string,"event_slug"?: string,"event_title"?: string,"id"?: string,"occurrence_id"?: string | null,"rating"?: number | null,"review"?: string | null,"updated_at"?: string,"user_id"?: string,"venue_name"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "diary_entries_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "diary_entries_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "v_events_public"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "diary_entries_occurrence_id_fkey"
+      columns: ["occurrence_id"]
+isOneToOne: false
+      referencedRelation: "occurrences"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "diary_entries_occurrence_id_fkey"
+      columns: ["occurrence_id"]
+isOneToOne: false
+      referencedRelation: "v_occurrences_public"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "diary_entries_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"disciplines": {
                   Row: {
                     "fallback_image_key": string,"label_es": string,"selectable": boolean,"short_label_es": string,"slug": string,"sort_order": number
                   }

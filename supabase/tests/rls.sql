@@ -103,6 +103,12 @@ begin
   exception when insufficient_privilege then null;
   end;
 
+  begin
+    perform 1 from public.diary_entries;
+    raise exception 'anon must not read diary_entries';
+  exception when insufficient_privilege then null;
+  end;
+
   execute 'reset role';
   raise notice 'anon checks passed';
 end
@@ -168,6 +174,34 @@ begin
   if n <> 0 then raise exception 'save_count should be 0 after delete, is %', n; end if;
   select count(*) into n from public.user_interests;
   if n <> 0 then raise exception 'user A must not see user B interests, saw %', n; end if;
+
+  -- diary: private, snapshot written by the trigger, only public events
+  insert into public.diary_entries (user_id, event_id, attended_on, rating, review)
+  values (auth.uid(), e1, current_date, 5, 'Hermosa');
+  select count(*) into n from public.diary_entries
+  where event_title = 'Evento publicado de prueba' and event_slug = 'rls-published-0000e1';
+  if n <> 1 then raise exception 'diary snapshot should copy the event title and slug'; end if;
+  begin
+    insert into public.diary_entries (user_id, event_id, attended_on)
+    values (auth.uid(), '00000000-0000-4000-8000-0000000000e2', current_date);
+    raise exception 'a candidate event must not enter the diary';
+  exception when foreign_key_violation then null;
+  end;
+  begin
+    update public.diary_entries set event_title = 'otro' where event_id = e1;
+    raise exception 'snapshot columns must not be writable by users';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    insert into public.diary_entries (user_id, event_id, attended_on, rating)
+    values (auth.uid(), e1, current_date - 1, 6);
+    raise exception 'rating must be 1 to 5';
+  exception when check_violation then null;
+  end;
+  perform set_config('request.jwt.claims', user_b, true);
+  select count(*) into n from public.diary_entries;
+  if n <> 0 then raise exception 'user B must not see user A diary, saw %', n; end if;
+  perform set_config('request.jwt.claims', user_a, true);
 
   execute 'reset role';
   raise notice 'authenticated checks passed';
