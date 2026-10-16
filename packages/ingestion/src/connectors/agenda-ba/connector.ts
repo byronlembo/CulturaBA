@@ -1,4 +1,3 @@
-import { canonicalUrl } from '@culturaba/shared';
 import { z } from 'zod';
 import {
   type FetchContext,
@@ -8,8 +7,7 @@ import {
   type RawRecord,
   type SourceConnector,
 } from '../../core/connector';
-import { isSharedTicketKey } from '../../core/matcher';
-import { buildEvent, eventPageUrl, LINDA_BASE_URL, SOURCE_SLUG } from './parse';
+import { buildEvent, eventPageUrl, LINDA_BASE_URL, SOURCE_SLUG, sameAsKey } from './parse';
 
 /**
  * Conector agenda-ba: Linda, agenda oficial de la Ciudad de Buenos Aires (agregador
@@ -71,28 +69,29 @@ export function looksTruncated(list: z.infer<typeof ListResponseSchema>): boolea
     : false;
 }
 
-/** Claves canónicas de las páginas de entradasba (con id) que enlaza un ítem. */
-function ticketKeysOf(event: ListedEvent): string[] {
+/** Claves de los enlaces de un ítem que podrían identificar la producción (ver `sameAsKey`). */
+function sameAsKeysOf(event: ListedEvent): string[] {
   const buttons = (event as { botonesSidebar?: unknown }).botonesSidebar;
   if (!Array.isArray(buttons)) return [];
   const keys = new Set<string>();
   for (const b of buttons) {
     const uri = (b as { uri?: unknown } | null)?.uri;
     if (typeof uri !== 'string') continue;
-    const key = canonicalUrl(uri);
-    if (isSharedTicketKey(key)) keys.add(key);
+    const key = sameAsKey(uri);
+    if (key) keys.add(key);
   }
   return [...keys];
 }
 
 /**
- * Páginas de entradasba que Linda usa en DOS O MÁS ítems distintos de la misma respuesta
- * (pasa: "Buscando a Shakespeare" y "Encuentro de Cine Europeo" comparten un id). Esas no
+ * Enlaces que Linda usa en DOS O MÁS ítems distintos de la misma respuesta. Pasa con
+ * entradasba ("Buscando a Shakespeare" y "Encuentro de Cine Europeo" comparten un id) y con
+ * fichas institucionales ("Shohei Imamura bis" enlaza la de "Las furias…"). Esos no
  * identifican una producción y no se declaran como `sameAsUrls`.
  */
-export function sharedTicketUrls(events: readonly ListedEvent[]): Set<string> {
+export function sharedSameAsKeys(events: readonly ListedEvent[]): Set<string> {
   const count = new Map<string, number>();
-  for (const e of events) for (const k of ticketKeysOf(e)) count.set(k, (count.get(k) ?? 0) + 1);
+  for (const e of events) for (const k of sameAsKeysOf(e)) count.set(k, (count.get(k) ?? 0) + 1);
   return new Set([...count].filter(([, n]) => n > 1).map(([k]) => k));
 }
 
@@ -145,16 +144,16 @@ export const agendaBaConnector: SourceConnector = {
     ctx.logger.info({ events: byId.size, requests: pages.length }, 'eventos en la API de Linda');
 
     const fetchedAt = ctx.now().toISO() ?? new Date().toISOString();
-    const shared = sharedTicketUrls([...byId.values()]);
+    const shared = sharedSameAsKeys([...byId.values()]);
     const records: RawRecord[] = [...byId.values()].map((event) => {
-      const mine = ticketKeysOf(event).filter((k) => shared.has(k));
+      const mine = sameAsKeysOf(event).filter((k) => shared.has(k));
       return {
         externalId: event.id,
         url: eventPageUrl(event.slug),
         fetchedAt,
         contentType: 'json' as const,
         body: JSON.stringify(event),
-        ...(mine.length ? { listing: { sharedTicketKeys: mine } } : {}),
+        ...(mine.length ? { listing: { sharedSameAsKeys: mine } } : {}),
       };
     });
     return ctx.limit ? records.slice(0, ctx.limit) : records;

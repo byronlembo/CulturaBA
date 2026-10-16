@@ -513,6 +513,24 @@ describe('deduplication', () => {
       expect(ev.title).toBe("Les Contes d'Hoffmann");
     });
 
+    it('falls back to the title when two aggregator events claim the same institution page', async () => {
+      // Linda: "Shohei Imamura bis" lleva como entradas la ficha de "Las furias…".
+      await runAggregator([
+        aggregatorItem({ title: "Les Contes d'Hoffmann" }),
+        aggregatorItem({
+          id: 'agg-ciclo',
+          title: 'Ciclo de cine',
+          url: 'https://agenda.sample.test/eventos/ciclo',
+          sameAs: undefined,
+          tickets: 'https://sample.culturaba.test/produccion/hoffmann/',
+        }),
+      ]);
+      await run([institutionItem()]);
+      const inst = await q.event('hoffmann');
+      expect((await q.event('agg-hoffmann')).id).toBe(inst.id);
+      expect((await q.event('agg-ciclo')).id).not.toBe(inst.id);
+    });
+
     it('does not merge without the declared page (titles alone are too different)', async () => {
       await run([institutionItem()]);
       await runAggregator([aggregatorItem({ sameAs: undefined })]);

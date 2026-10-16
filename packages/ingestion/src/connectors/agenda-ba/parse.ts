@@ -122,24 +122,30 @@ export function pickTicketsUrl(buttons: LindaEvent['botonesSidebar']): string | 
 }
 
 /**
- * Enlaces del evento que identifican la misma producción en otra fuente: la ficha en el
- * sitio de una institución con conector propio (Linda los rotula "Entradas") y la página
- * de la ticketera oficial de la Ciudad con id de evento o visita. Sirven para deduplicar.
+ * Clave canónica de un enlace que identifica la producción en otra fuente: la ficha en el
+ * sitio de una institución con conector propio (Linda la rotula "Entradas") o la página de
+ * la ticketera oficial de la Ciudad con id de evento o visita. Null para el resto.
  */
+export function sameAsKey(uri: string): string | null {
+  const url = cleanTrackingUrl(uri);
+  if (!url) return null;
+  const host = hostOf(url);
+  const key = canonicalUrl(url);
+  const institutional = host !== null && host in SEED_INSTITUTION_HOSTS && isPageKey(key);
+  return institutional || isSharedTicketKey(key) ? key : null;
+}
+
+/** Enlaces del evento que sirven para deduplicar con otra fuente (ver `sameAsKey`). */
 export function sameAsLinks(
   buttons: LindaEvent['botonesSidebar'],
-  /** Claves de entradasba que Linda reutiliza en otros ítems (ver `sharedTicketUrls`). */
-  reusedTicketKeys: ReadonlySet<string> = new Set(),
+  /** Claves que Linda reutiliza en otros ítems (ver `sharedSameAsKeys`): no identifican uno. */
+  reusedKeys: ReadonlySet<string> = new Set(),
 ): string[] {
   const out = new Set<string>();
   for (const b of buttons ?? []) {
     const url = cleanTrackingUrl(b.uri);
-    if (!url) continue;
-    const host = hostOf(url);
-    const key = canonicalUrl(url);
-    const institutional = host !== null && host in SEED_INSTITUTION_HOSTS && isPageKey(key);
-    const ticketPage = isSharedTicketKey(key) && !reusedTicketKeys.has(key);
-    if (institutional || ticketPage) out.add(url);
+    const key = url ? sameAsKey(url) : null;
+    if (url && key && !reusedKeys.has(key)) out.add(url);
   }
   return [...out].slice(0, 20);
 }
@@ -320,8 +326,8 @@ export function textContradiction(
   return null;
 }
 
-function reusedTicketKeysOf(raw: RawRecord): Set<string> {
-  const keys = (raw.listing as { sharedTicketKeys?: unknown } | undefined)?.sharedTicketKeys;
+function reusedKeysOf(raw: RawRecord): Set<string> {
+  const keys = (raw.listing as { sharedSameAsKeys?: unknown } | undefined)?.sharedSameAsKeys;
   return new Set(Array.isArray(keys) ? keys.filter((k): k is string => typeof k === 'string') : []);
 }
 
@@ -437,7 +443,7 @@ export function buildEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
     ...(institution.name ? { institutionName: institution.name } : {}),
     ...(institution.url ? { institutionUrl: institution.url } : {}),
     officialUrl,
-    sameAsUrls: sameAsLinks(item.botonesSidebar, reusedTicketKeysOf(raw)),
+    sameAsUrls: sameAsLinks(item.botonesSidebar, reusedKeysOf(raw)),
     ...(ticketsUrl ? { ticketsUrl } : {}),
     ...(imageUrl ? { imageUrl } : {}),
     ...(free ? { priceText: FREE_ACCESS_TEXT, isFree: true, priceVerified: true } : {}),

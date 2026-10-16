@@ -12,7 +12,12 @@ import { type HttpClient, type HttpResponse, newStats } from '../../http/client'
 import { FixtureHttpClient } from '../../http/fixtureClient';
 import { fixtureSetDir } from '../../http/fixtures';
 import { silentLogger } from '../../logger';
-import { agendaBaConnector as connector, LIST_URL, looksTruncated } from './connector';
+import {
+  agendaBaConnector as connector,
+  LIST_URL,
+  looksTruncated,
+  sharedSameAsKeys,
+} from './connector';
 import {
   buildOccurrences,
   extractOpeningHoursText,
@@ -1122,6 +1127,17 @@ describe('agenda-ba · señales que no se afirman', () => {
     expect(eventOf('buscando-shakespeare').sameAsUrls).toEqual([]);
     expect(eventOf('encuentro-de-cine-europeo-ccr').sameAsUrls).toEqual([]);
     expect(eventOf('buscando-shakespeare').ticketsUrl).toContain('0820d3fe');
+  });
+
+  it('una ficha institucional que Linda enlaza desde dos ítems tampoco identifica a ninguno', () => {
+    // "Shohei Imamura bis" enlaza la ficha de "Las furias y Lo que le pasó a Reynoso".
+    const furias =
+      'https://complejoteatral.gob.ar/produccion/las-furias-y-lo-que-le-paso-a-reynoso/';
+    const item = (id: string) =>
+      ({ id, slug: id, botonesSidebar: [{ uri: furias, title: 'Entradas' }] }) as never;
+    const shared = sharedSameAsKeys([item('las-furias'), item('shohei-imamura-bis')]);
+    expect(sameAsLinks([{ uri: furias, title: 'Entradas' }], shared)).toEqual([]);
+    expect(sameAsLinks([{ uri: furias, title: 'Entradas' }])).toEqual([furias]);
   });
 
   it('instantes sin zona horaria se descartan con aviso', () => {

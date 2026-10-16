@@ -29,7 +29,7 @@ export interface MatchResult {
 /**
  * Encuentra el evento existente al que pertenece un registro normalizado.
  *  0. misma página: la URL oficial, la del registro o una `sameAsUrls` coincide con la
- *     de un evento de la misma institución (en cualquier sentido) + fechas compatibles;
+ *     de UN solo evento de la misma institución (en cualquier sentido) + fechas compatibles;
  *  1. dedup_key (título normalizado | institución) + compatibilidad de fechas;
  *  2. fuzzy (Dice) entre eventos de la misma institución con fechas en común:
  *     ≥ 0.85 fusiona, 0.70–0.85 crea nuevo y marca para revisión.
@@ -47,12 +47,12 @@ export async function findMatchingEvent(
   }));
 
   const urlKeys = sameAsKeys(normalized);
-  const byUrl = await findEventsBySameAsUrls(db, institutionId, sourceId, urlKeys);
-  for (const candidate of byUrl) {
-    if (await datesCompatible(db, candidate.id, incomingRanges)) {
-      return { event: candidate, matchedBy: 'same_as_url' };
-    }
+  const byUrl: EventRow[] = [];
+  for (const candidate of await findEventsBySameAsUrls(db, institutionId, sourceId, urlKeys)) {
+    if (await datesCompatible(db, candidate.id, incomingRanges)) byUrl.push(candidate);
   }
+  // Una página que reclaman dos eventos no identifica a ninguno: se sigue por título.
+  if (byUrl.length === 1 && byUrl[0]) return { event: byUrl[0], matchedBy: 'same_as_url' };
 
   const key = dedupKey(normalized.title, normalized.institutionSlug);
   const byKey = await findEventsByDedupKey(db, key, institutionId);
