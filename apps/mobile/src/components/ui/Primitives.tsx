@@ -16,7 +16,7 @@ import { radius, spacing, type as typeScale, useColors } from '@/theme/tokens';
 
 export function Screen({ style, ...props }: ViewProps) {
   const c = useColors();
-  return <View style={[styles.screen, { backgroundColor: c.bg }, style]} {...props} />;
+  return <View role="main" style={[styles.screen, { backgroundColor: c.bg }, style]} {...props} />;
 }
 
 export function Txt({
@@ -114,7 +114,9 @@ export function Section({
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Txt variant="heading">{title}</Txt>
+        <Txt variant="heading" role="heading">
+          {title}
+        </Txt>
         {right}
       </View>
       {children}
@@ -141,6 +143,7 @@ export function Chip({
       style={[
         styles.chip,
         small && styles.chipSmall,
+        onPress && { minHeight: 44 },
         {
           backgroundColor: selected ? c.accent : c.surfaceAlt,
           borderColor: selected ? c.accent : c.border,
@@ -223,9 +226,9 @@ export function EmptyState({
 }) {
   const c = useColors();
   return (
-    <View style={styles.state} accessibilityRole="summary">
+    <View style={styles.state}>
       <Ionicons name={icon} size={40} color={c.muted} />
-      <Txt variant="heading" style={{ marginTop: spacing.md, textAlign: 'center' }}>
+      <Txt variant="heading" role="heading" style={{ marginTop: spacing.md, textAlign: 'center' }}>
         {title}
       </Txt>
       {body ? (
@@ -238,12 +241,13 @@ export function EmptyState({
   );
 }
 
-export function ErrorState({ message, onRetry }: { message?: string; onRetry?: () => void }) {
+/** El mensaje técnico no se muestra: suele venir del servidor y en inglés. */
+export function ErrorState({ title, onRetry }: { title: string; onRetry?: () => void }) {
   return (
     <EmptyState
       icon="cloud-offline-outline"
-      title="No pudimos cargar la agenda"
-      body={message ?? 'Revisá tu conexión e intentá de nuevo.'}
+      title={title}
+      body="Revisá tu conexión e intentá de nuevo."
       action={
         onRetry ? <Button label="Reintentar" variant="secondary" onPress={onRetry} /> : undefined
       }

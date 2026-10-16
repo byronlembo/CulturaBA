@@ -1,0 +1,7 @@
+/* Botones de zoom de Leaflet de 44 px (área táctil mínima). */
+.leaflet-container .leaflet-bar a {
+  width: 44px;
+  height: 44px;
+  line-height: 44px;
+  font-size: 22px;
+}

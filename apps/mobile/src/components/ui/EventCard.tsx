@@ -32,13 +32,22 @@ export function EventCard({ event, compact }: { event: EventSummary; compact?: b
     <Link href={`/event/${event.slug}`} asChild>
       <Pressable
         accessibilityRole="link"
-        accessibilityLabel={`${event.title}, ${eventWhen(event)}`}
+        accessibilityLabel={[
+          event.title,
+          eventWhen(event),
+          event.venueName,
+          discipline ? disciplineLabel(discipline) : null,
+          event.isFree === true ? 'Gratis' : null,
+        ]
+          .filter(Boolean)
+          .join(', ')}
       >
         <Card style={[styles.card, compact && styles.compact]}>
           <EventImage
             imageUrl={event.imageUrl}
             imageSource={event.imageSource}
             discipline={event.primaryDiscipline}
+            accessibilityLabel={event.title}
             style={compact ? styles.imageCompact : styles.image}
           />
           <View style={styles.body}>

@@ -74,7 +74,7 @@ export function OccurrenceRow({
           accessibilityRole="button"
           accessibilityLabel={`Agregar al calendario: ${whenText(occurrence)}`}
           onPress={onAddToCalendar}
-          hitSlop={8}
+          style={styles.iconButton}
         >
           <Ionicons name="calendar-outline" size={22} color={c.accent} />
         </Pressable>
@@ -92,4 +92,5 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   dim: { textDecorationLine: 'line-through', opacity: 0.6 },
+  iconButton: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
 });

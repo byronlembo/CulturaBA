@@ -1,4 +1,5 @@
 import 'leaflet/dist/leaflet.css';
+import './map.css';
 import { useEffect } from 'react';
 import { CircleMarker, MapContainer, TileLayer, Tooltip, useMap } from 'react-leaflet';
 import { useColors } from '@/theme/tokens';
@@ -31,6 +32,7 @@ export function EventMap({
   const c = useColors();
   return (
     <MapContainer
+      aria-label="Mapa de salas con eventos. La lista de abajo tiene la misma información."
       center={[BA_CENTER.lat, BA_CENTER.lng]}
       zoom={12}
       style={{ height, width: '100%' }}

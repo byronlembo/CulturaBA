@@ -103,7 +103,7 @@ export default function Saved() {
         <>
           {header}
           <ErrorState
-            message={error.message}
+            title="No pudimos cargar tus guardados"
             onRetry={() => {
               void actions.refetch();
               void events.refetch();

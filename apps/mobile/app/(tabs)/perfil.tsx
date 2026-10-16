@@ -27,6 +27,7 @@ export default function Profile() {
 
   return (
     <ScrollView
+      role="main"
       contentContainerStyle={{ paddingBottom: spacing.xxl }}
       style={{ backgroundColor: c.bg }}
     >
@@ -104,7 +105,7 @@ export default function Profile() {
             resetOnboarding();
             router.replace('/(onboarding)/welcome');
           }}
-          style={{ marginTop: spacing.md }}
+          style={{ marginTop: spacing.md, minHeight: 44, justifyContent: 'center' }}
         >
           <Txt variant="small" tone="accent">
             Volver a ver la bienvenida

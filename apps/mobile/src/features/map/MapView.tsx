@@ -61,7 +61,7 @@ export function MapView({ header, filters }: { header: React.ReactNode; filters:
         {events.isPending ? (
           <Loading />
         ) : events.error ? (
-          <ErrorState message={events.error.message} onRetry={() => void events.refetch()} />
+          <ErrorState title="No pudimos cargar el mapa" onRetry={() => void events.refetch()} />
         ) : ordered.length === 0 ? (
           <EmptyState
             icon="map-outline"
@@ -71,7 +71,11 @@ export function MapView({ header, filters }: { header: React.ReactNode; filters:
         ) : (
           ordered.slice(0, 40).map((p) => (
             <Card key={p.key} style={{ padding: spacing.md, gap: spacing.sm }}>
-              <Pressable accessibilityRole="button" onPress={() => setSelected(p.key)}>
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => setSelected(p.key)}
+                style={{ minHeight: 44, justifyContent: 'center' }}
+              >
                 <Txt variant="heading">{p.name}</Txt>
                 <Txt variant="small" tone="muted">
                   {p.distance !== null ? `${formatDistance(p.distance)} · ` : ''}
@@ -81,12 +85,15 @@ export function MapView({ header, filters }: { header: React.ReactNode; filters:
               {p.events.slice(0, p.key === selected ? 10 : 3).map((e) => (
                 <Link key={e.id} href={`/event/${e.slug}`} asChild>
                   <Pressable accessibilityRole="link">
-                    <Txt>{e.title}</Txt>
-                    {e.nextStartsAt ? (
-                      <Txt variant="caption" tone="muted">
-                        {formatBaDateTimeShort(e.nextStartsAt)}
-                      </Txt>
-                    ) : null}
+                    {/* Sin style en el Pressable: Link asChild lo pasa al <a> (ver roadmap). */}
+                    <View style={{ minHeight: 44, justifyContent: 'center' }}>
+                      <Txt>{e.title}</Txt>
+                      {e.nextStartsAt ? (
+                        <Txt variant="caption" tone="muted">
+                          {formatBaDateTimeShort(e.nextStartsAt)}
+                        </Txt>
+                      ) : null}
+                    </View>
                   </Pressable>
                 </Link>
               ))}

@@ -71,7 +71,7 @@ export default function Ranking() {
           board.isPending ? (
             <Loading />
           ) : board.error ? (
-            <ErrorState message={board.error.message} onRetry={() => void board.refetch()} />
+            <ErrorState title="No pudimos cargar el ranking" onRetry={() => void board.refetch()} />
           ) : (
             <EmptyState
               icon="trophy-outline"

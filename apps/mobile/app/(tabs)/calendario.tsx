@@ -65,8 +65,7 @@ export default function Calendar() {
           accessibilityLabel="Mes anterior"
           disabled={monthOffset === 0}
           onPress={() => setMonthOffset((m) => m - 1)}
-          hitSlop={8}
-          style={{ opacity: monthOffset === 0 ? 0.3 : 1 }}
+          style={[styles.chevron, { opacity: monthOffset === 0 ? 0.3 : 1 }]}
         >
           <Ionicons name="chevron-back" size={22} color={c.text} />
         </Pressable>
@@ -78,8 +77,7 @@ export default function Calendar() {
           accessibilityLabel="Mes siguiente"
           disabled={monthOffset === MAX_MONTHS_AHEAD}
           onPress={() => setMonthOffset((m) => m + 1)}
-          hitSlop={8}
-          style={{ opacity: monthOffset === MAX_MONTHS_AHEAD ? 0.3 : 1 }}
+          style={[styles.chevron, { opacity: monthOffset === MAX_MONTHS_AHEAD ? 0.3 : 1 }]}
         >
           <Ionicons name="chevron-forward" size={22} color={c.text} />
         </Pressable>
@@ -118,7 +116,7 @@ export default function Calendar() {
     return (
       <Screen>
         {header}
-        <ErrorState message={query.error.message} onRetry={() => void query.refetch()} />
+        <ErrorState title="No pudimos cargar el calendario" onRetry={() => void query.refetch()} />
       </Screen>
     );
 
@@ -156,6 +154,7 @@ export default function Calendar() {
 }
 
 const styles = StyleSheet.create({
+  chevron: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   sectionHeader: { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
   monthRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   item: {

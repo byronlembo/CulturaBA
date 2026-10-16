@@ -171,6 +171,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     height: 44,
   },
-  input: { flex: 1, fontSize: 15, paddingVertical: 0 },
+  input: { flex: 1, alignSelf: 'stretch', fontSize: 15, paddingVertical: 0 },
   chips: { gap: spacing.sm, paddingHorizontal: spacing.lg, paddingTop: spacing.md },
 });

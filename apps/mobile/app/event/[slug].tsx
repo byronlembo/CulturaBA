@@ -118,6 +118,7 @@ function Body({ event }: { event: EventDetail }) {
         imageUrl={event.imageUrl}
         imageSource={event.imageSource}
         discipline={event.primaryDiscipline}
+        accessibilityLabel={event.title}
         style={styles.hero}
       />
       <View style={{ paddingHorizontal: spacing.lg, paddingTop: spacing.lg }}>
@@ -321,7 +322,7 @@ export default function EventScreen() {
         {query.isPending ? (
           <Loading />
         ) : query.isError ? (
-          <ErrorState message={query.error.message} onRetry={() => void query.refetch()} />
+          <ErrorState title="No pudimos cargar el evento" onRetry={() => void query.refetch()} />
         ) : !query.data ? (
           <EmptyState
             icon="help-circle-outline"

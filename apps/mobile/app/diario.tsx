@@ -14,7 +14,7 @@ export default function Diary() {
   const [open, setOpen] = useState<string | null>(null);
   if (diary.isPending) return <Loading />;
   if (diary.error)
-    return <ErrorState message={diary.error.message} onRetry={() => void diary.refetch()} />;
+    return <ErrorState title="No pudimos cargar tu diario" onRetry={() => void diary.refetch()} />;
   const entries = diary.data ?? [];
   const year = new Date().getFullYear();
   const stats = diaryStats(entries, year);

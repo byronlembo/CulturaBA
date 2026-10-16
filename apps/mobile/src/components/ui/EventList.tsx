@@ -50,7 +50,7 @@ export function EventList({
     return (
       <View style={{ flex: 1 }}>
         {header}
-        <ErrorState message={query.error.message} onRetry={() => void query.refetch()} />
+        <ErrorState title="No pudimos cargar los eventos" onRetry={() => void query.refetch()} />
       </View>
     );
   }
