@@ -25,8 +25,10 @@ import {
  *
  *  · discover: GET home (33 producciones vigentes con texto de funciones, sala/teatro y
  *    URL de detalle) + GET /agenda/?fecha=DD-MM-YYYY para los próximos AGENDA_DAYS días,
- *    que es la única forma estructurada de saber QUÉ DÍAS tiene función cada producción
- *    (los patrones semanales no se expanden a ciegas). ~29 peticiones.
+ *    que es la única forma estructurada de saber QUÉ DÍAS tiene función cada producción.
+ *    La agenda lista días fuera de temporada, así que un patrón semanal solo usa sus días
+ *    dentro de una temporada publicada (inicio y fin); ver dates.ts. Si fallan más de
+ *    MAX_FAILED_AGENDA_DAYS días, discover falla. ~29 peticiones.
  *  · enrich: GET /produccion/<slug>/ → dirección publicada, "Funciones:", precio,
  *    duración, avisos en rojo, crédito de foto. ~33 peticiones.
  *  · parse: puro (ver parse.ts / dates.ts). Presupuesto total ≈ 62 peticiones por corrida.
@@ -35,6 +37,11 @@ import {
 export const BASE_URL = 'https://complejoteatral.gob.ar/';
 /** Ventana de la agenda por día (acotada: 28 peticiones espaciadas ≥ 1,5 s). */
 export const AGENDA_DAYS = 28;
+/**
+ * Más días de agenda caídos (o con otro markup) que esto abortan la corrida: sin agenda los
+ * patrones semanales pierden sus funciones y la conciliación las marcaría ausentes.
+ */
+export const MAX_FAILED_AGENDA_DAYS = 2;
 
 export const complejoTeatralConnector: SourceConnector = {
   slug: SOURCE_SLUG,
@@ -72,7 +79,9 @@ export const complejoTeatralConnector: SourceConnector = {
       const url = `${BASE_URL}agenda/?fecha=${day.toFormat('dd-MM-yyyy')}`;
       try {
         const res = await ctx.http.get(url);
-        for (const card of parseAgendaPage(res.body)) {
+        const cards = parseAgendaPage(res.body);
+        if (!cards) throw new Error('sin div.search_results: ¿cambió el markup de la agenda?');
+        for (const card of cards) {
           const key = agendaKey(card.detailUrl, card.title);
           const set = daysByKey.get(key) ?? new Set<string>();
           set.add(localDate);
@@ -84,8 +93,10 @@ export const complejoTeatralConnector: SourceConnector = {
         ctx.logger.warn({ url, err: (err as Error).message }, 'agenda del día no disponible');
       }
     }
-    if (fetchedDays === 0) {
-      ctx.logger.warn('agenda por día no disponible: los patrones semanales no tendrán funciones');
+    if (failedDays > MAX_FAILED_AGENDA_DAYS) {
+      throw new Error(
+        `agenda por día no disponible: ${failedDays} de ${AGENDA_DAYS} días con error (se aborta para no marcar funciones como ausentes)`,
+      );
     }
     const agendaWindow = {
       from: today.toISODate() ?? '',

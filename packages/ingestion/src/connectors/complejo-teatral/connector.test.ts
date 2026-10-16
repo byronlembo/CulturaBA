@@ -5,6 +5,7 @@ import {
 } from '@culturaba/shared';
 import { DateTime } from 'luxon';
 import type { FetchContext, RawRecord } from '../../core/connector';
+import type { HttpClient } from '../../http/client';
 import { FixtureHttpClient } from '../../http/fixtureClient';
 import { fixtureSetDir } from '../../http/fixtures';
 import { silentLogger } from '../../logger';
@@ -124,6 +125,55 @@ describe('complejo-teatral · discover (fixtures 2026-10-14)', () => {
       to: '2026-11-10',
       fetchedDays: 28,
       failedDays: 0,
+    });
+  });
+
+  it('agenda por día caída o con otro markup: discover falla y no se concilia nada', async () => {
+    // Sin agenda, los patrones semanales perderían sus funciones y la corrida siguiente las
+    // marcaría ausentes. Marzo de 2027: ninguna agenda está en los fixtures (28 fallos).
+    const later = DateTime.fromISO('2027-03-01T12:00:00', {
+      zone: 'America/Argentina/Buenos_Aires',
+    });
+    await expect(
+      connector.discover({
+        http: new FixtureHttpClient(FIXTURES),
+        logger: silentLogger,
+        now: () => later,
+      }),
+    ).rejects.toThrow(/agenda por día no disponible/);
+
+    const blankAgenda = (failing: (url: string) => boolean): HttpClient => {
+      const fixtures = new FixtureHttpClient(FIXTURES);
+      return {
+        stats: fixtures.stats,
+        get: (url, options) =>
+          failing(url)
+            ? Promise.resolve({
+                status: 200,
+                url,
+                body: '<html><body><main></main></body></html>',
+                headers: {},
+              })
+            : fixtures.get(url, options),
+      };
+    };
+    await expect(
+      connector.discover({
+        http: blankAgenda((url) => url.includes('/agenda/')),
+        logger: silentLogger,
+        now: () => NOW,
+      }),
+    ).rejects.toThrow(/agenda por día no disponible/);
+
+    // Dos días sin agenda se toleran (esos días simplemente no confirman funciones).
+    const twoDays = await connector.discover({
+      http: blankAgenda((url) => /fecha=(15|16)-10-2026/.test(url)),
+      logger: silentLogger,
+      now: () => NOW,
+    });
+    expect((twoDays[0]?.listing as { agendaWindow: unknown }).agendaWindow).toMatchObject({
+      fetchedDays: 26,
+      failedDays: 2,
     });
   });
 

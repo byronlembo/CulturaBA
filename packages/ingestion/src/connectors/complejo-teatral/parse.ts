@@ -109,9 +109,15 @@ export function parseListing(html: string): Array<ListingItem & { cardHtml: stri
   return items;
 }
 
-/** div.search_results > div.small_item de /agenda/?fecha=DD-MM-YYYY. */
-export function parseAgendaPage(html: string): Array<{ detailUrl: string | null; title: string }> {
+/**
+ * div.search_results > div.small_item de /agenda/?fecha=DD-MM-YYYY. null si la página no
+ * tiene el contenedor de resultados (ni el aviso "no-results"): el markup cambió.
+ */
+export function parseAgendaPage(
+  html: string,
+): Array<{ detailUrl: string | null; title: string }> | null {
   const $ = load(html);
+  if ($('div.search_results, .no-results').length === 0) return null;
   const cards: Array<{ detailUrl: string | null; title: string }> = [];
   $('div.search_results > div.small_item').each((_, el) => {
     const card = $(el);
