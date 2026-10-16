@@ -522,6 +522,8 @@ interface Clause {
   ranges: Bounds[];
   start: string | null;
   end: string | null;
+  /** Texto que queda sin rangos ni límites. */
+  rest: string;
 }
 
 interface Segment {
@@ -555,6 +557,7 @@ function analyzeClause(text: string, times: LocalTimeParts[], now: DateTime, war
     ranges: ranges.flatMap((r) => (r.value ? [r.value] : [])),
     start: start?.value ?? null,
     end: end?.value ?? null,
+    rest,
   };
 }
 
@@ -612,6 +615,9 @@ const NO_FUNCTION_RE =
   /no habra funcion|no hay funcion|sin funcion|no se realizara|no habra actividad|\bse suspenden?\b/;
 /** Avisos de temporada: "Desde el 24 de octubre", "Hasta el 1 de noviembre". */
 const BOUND_NOTE_RE = /^(?:ultimas? funciones?:?\s*)?(?:desde|del|a partir|hasta)\b/;
+/** Lo único que puede acompañar a las fechas en un aviso de temporada (no "…, 2x1 en entradas"). */
+const BOUND_NOTE_REST_RE =
+  /^(?:[\s.,;:()]|\b(?:ultimas?|funciones?|desde|del?|el|a partir|hasta)\b)*$/;
 
 /** Suspensión o reprogramación: esas fechas no se publican. */
 function isCancellation(cleaned: string): boolean {
@@ -674,12 +680,27 @@ function applyNotes(
     const reason = condense(note);
     const cancellation = isCancellation(cleaned);
     const status = cancellation ? null : parsedStatus(cleaned);
-    if (!cancellation && !status) continue;
+    const warn: Warn = (m) => warnings.push(`aviso "${reason}": ${m}`);
+    const candidates = [...new Set(out.map((s) => s.date))].sort();
+    // El año de las fechas del aviso se lee respecto de las funciones que anota, no de hoy.
+    const anchor = candidates[0] ? DateTime.fromISO(candidates[0], { zone: BA_TZ }) : now;
+    if (!cancellation && !status) {
+      // Fecha + hora sin estado ("El sábado 17 la función será a las 22 horas"): puede ser un
+      // cambio de horario, así que esa función no se publica. Cuesta funciones con avisos
+      // informativos ("…al término de la función (aproximadamente a las 20.30 horas)").
+      if (findTimeLists(cleaned, () => {}).length === 0) continue;
+      const refs = noteRefs(cleaned, candidates, anchor, () => {});
+      out = out.filter((s) => {
+        if (!refs.dates.has(s.date) && !refs.ambiguous.has(s.date)) return true;
+        warnings.push(`función ${s.date} ${timeKey(s.time)} no se publica: aviso con fecha y hora`);
+        return false;
+      });
+      continue;
+    }
     if (cleaned.includes('reprogramad')) {
       warnings.push(`aviso de reprogramación: "${reason}" (no se publican las fechas que nombra)`);
     }
-    const warn: Warn = (m) => warnings.push(`aviso "${reason}": ${m}`);
-    const refs = noteRefs(cleaned, [...new Set(out.map((s) => s.date))], now, warn);
+    const refs = noteRefs(cleaned, candidates, anchor, warn);
 
     if (cancellation || ((status === 'cancelled' || status === 'postponed') && refs.unclear)) {
       if (!refs.mentions || refs.unclear) {
@@ -854,9 +875,10 @@ function seasonBounds(clauses: Clause[], notes: string[], now: DateTime, warning
   for (const note of notes) {
     const cleaned = cleanText(note).replace(/\s+/g, ' ');
     if (!BOUND_NOTE_RE.test(cleaned) || isCancellation(cleaned) || parsedStatus(cleaned)) continue;
-    collect(
-      analyzeClause(cleaned, [], now, (m) => warnings.push(`aviso "${condense(note)}": ${m}`)),
-    );
+    const warn: Warn = (m) => warnings.push(`aviso "${condense(note)}": ${m}`);
+    const clause = analyzeClause(cleaned, [], now, warn);
+    if (BOUND_NOTE_REST_RE.test(clause.rest)) collect(clause);
+    else warn('menciona fechas pero no es solo una temporada: no se usa como límite');
   }
   return { start: starts.sort().at(-1) ?? null, end: ends.sort()[0] ?? null };
 }

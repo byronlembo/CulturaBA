@@ -236,6 +236,33 @@ describe('complejo-teatral · parse de TODOS los ítems', () => {
     });
   });
 
+  it('mismas páginas leídas más tarde: ninguna función cambia de año; sin certeza, nada', () => {
+    // Los fixtures son del 14-10-2026 y no publican años: todo lo emitido debe caer en 2026.
+    const counts: Record<string, number> = {};
+    for (const iso of ['2026-11-20', '2026-12-28', '2027-02-15']) {
+      const later = DateTime.fromISO(`${iso}T12:00:00`, { zone: 'America/Argentina/Buenos_Aires' });
+      counts[iso] = 0;
+      for (const p of all.values()) {
+        const res = connector.parse(p.raw, { logger: silentLogger, now: () => later });
+        if (!res.ok) continue;
+        for (const o of res.event.occurrences) {
+          expect(o.startsAt.slice(0, 4)).toBe('2026');
+          expect((o.endsAt ?? o.startsAt).slice(0, 4)).toBe('2026');
+          counts[iso] += 1;
+        }
+      }
+    }
+    expect(counts).toEqual({ '2026-11-20': 160, '2026-12-28': 68, '2027-02-15': 0 });
+  });
+
+  it('parse es idempotente: dos corridas sobre el mismo crudo dan el mismo evento', () => {
+    for (const p of all.values()) {
+      const copy = JSON.parse(JSON.stringify(p.raw)) as RawRecord;
+      const ctx = { logger: silentLogger, now: () => NOW };
+      expect(connector.parse(copy, ctx)).toEqual(connector.parse(p.raw, ctx));
+    }
+  });
+
   it('nunca inventa: sin hora no hay función timed, sin dirección no hay address', () => {
     for (const p of all.values()) {
       const e = p.event;
@@ -273,8 +300,10 @@ describe('complejo-teatral · eventos verificados a mano contra el HTML', () => 
       'https://complejoteatral.gob.ar/wp-content/uploads/2026/09/OO0tN1AVg6mVIqFLsMoJ.png',
     );
     expect(e.description).toContain('Cuando su hija de tres años desaparece');
-    // 10 funciones: jue–dom del 17/10 al 1/11 (los días 5-8/11 de la agenda quedan fuera del rango).
-    expect(e.occurrences).toHaveLength(10);
+    // Jue–dom del 17/10 al 1/11 (los días 5-8/11 de la agenda quedan fuera del rango), menos
+    // el viernes 23: su aviso en rojo trae fecha y hora ("…aproximadamente a las 20.30 horas")
+    // y un aviso así puede ser un cambio de horario, así que esa función no se publica.
+    expect(e.occurrences).toHaveLength(9);
     expect(e.occurrences[0]).toMatchObject({
       externalId: 'oxitocina|2026-10-17|19:30',
       kind: 'timed',
@@ -296,7 +325,6 @@ describe('complejo-teatral · eventos verificados a mano contra el HTML', () => 
       '2026-10-17',
       '2026-10-18',
       '2026-10-22',
-      '2026-10-23',
       '2026-10-24',
       '2026-10-25',
       '2026-10-29',
@@ -304,7 +332,9 @@ describe('complejo-teatral · eventos verificados a mano contra el HTML', () => 
       '2026-10-31',
       '2026-11-01',
     ]);
-    expect(all.get('oxitocina')?.warnings.join('\n')).toMatch(/fuera del rango publicado/);
+    const warnings = all.get('oxitocina')?.warnings.join('\n');
+    expect(warnings).toMatch(/fuera del rango publicado/);
+    expect(warnings).toMatch(/2026-10-23 19:30 no se publica: aviso con fecha y hora/);
   });
 
   it('PAISAJES COREOGRÁFICOS: fechas enumeradas con dos horarios, gratis, crédito de foto', () => {

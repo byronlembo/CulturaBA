@@ -96,30 +96,6 @@
         }
       },
       {
-        "externalId": "oxitocina|2026-10-23|19:30",
-        "kind": "timed",
-        "startsAt": "2026-10-23T19:30:00-03:00",
-        "endsAt": null,
-        "startDate": "2026-10-23",
-        "endDate": "2026-10-23",
-        "timezone": "America/Argentina/Buenos_Aires",
-        "scheduleText": null,
-        "recurrenceRule": null,
-        "sourceDateText": "Desde el 17/10 hasta el 1°/11 · Jueves a domingos, 19.30 horas",
-        "venue": {
-          "name": "Teatro San Martín",
-          "room": "Sala Cunill Cabanellas",
-          "address": "Av. Corrientes 1530",
-          "addressSourceUrl": "https://complejoteatral.gob.ar/produccion/oxitocina/"
-        },
-        "status": "scheduled",
-        "ticketsUrl": "https://entradasba.buenosaires.gob.ar/evento/d76b3de0-492d-48d3-b051-c811d098be6f",
-        "price": {
-          "text": "Platea $26.000 Jueves $15.000",
-          "verified": true
-        }
-      },
-      {
         "externalId": "oxitocina|2026-10-24|19:30",
         "kind": "timed",
         "startsAt": "2026-10-24T19:30:00-03:00",

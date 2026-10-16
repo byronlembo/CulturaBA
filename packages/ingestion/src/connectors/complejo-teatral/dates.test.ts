@@ -187,6 +187,19 @@ describe('patrón semanal: solo con temporada publicada (inicio y fin) + agenda'
     ).toEqual([]);
   });
 
+  it('un aviso que menciona fechas por otro motivo no es la temporada', () => {
+    const r = run('Jueves a domingos, 20 horas', {
+      agendaDays: ['2026-10-15', '2026-10-16', '2026-10-17', '2026-10-18'],
+      notes: ['Del 16 al 18 de octubre, 2x1 en entradas con tarjeta'],
+    });
+    expect(r.specs).toEqual([]);
+    const season = run('Jueves a domingos, 20 horas', {
+      agendaDays: ['2026-10-15', '2026-10-16'],
+      notes: ['Últimas funciones: desde el 16 hasta el 18 de octubre.'],
+    });
+    expect(starts(season)).toEqual(['2026-10-16 20:00']);
+  });
+
   it('"Hasta el …" en un aviso es el fin de la temporada', () => {
     const r = run('Desde el 15 de octubre\nJueves a domingos, 20 horas', {
       agendaDays: ['2026-10-15', '2026-10-18', '2026-11-26'],
@@ -253,6 +266,34 @@ describe('avisos en rojo', () => {
         }),
       ),
     ).toEqual(['2026-10-15 20:00']);
+  });
+
+  it('aviso con fecha y hora (posible cambio de horario) → esa función no se publica', () => {
+    const r = run(BOUNDED, {
+      agendaDays: AGENDA,
+      notes: ['El sábado 17 la función será a las 22 horas'],
+    });
+    expect(starts(r)).toEqual([
+      '2026-10-15 20:00',
+      '2026-10-16 20:00',
+      '2026-10-18 20:00',
+      '2026-10-22 20:00',
+    ]);
+    // Sin hora, un aviso informativo con fecha no toca nada.
+    const info = run(BOUNDED, {
+      agendaDays: AGENDA,
+      notes: ['El cupo para la función accesible del viernes 16 de octubre ya está cubierto'],
+    });
+    expect(info.specs).toHaveLength(5);
+  });
+
+  it('las fechas del aviso se leen respecto de las funciones, no de la fecha de la corrida', () => {
+    const r = run('Desde el 17/10 hasta el 1°/11\nJueves a domingos, 19.30 horas', {
+      now: at('2026-12-28T12:00:00'),
+      agendaDays: ['2026-10-17', '2026-10-18'],
+      notes: ['Función del sábado 17 de octubre agotada'],
+    });
+    expect(starts(r)).toEqual(['2026-10-17 19:30 sold_out', '2026-10-18 19:30']);
   });
 
   it('aviso de suspensión sin fechas legibles → no se publica ninguna función', () => {
