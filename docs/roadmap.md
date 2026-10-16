@@ -59,7 +59,20 @@ cuando una función próxima se cancela, se posterga o se reprograma.
 - **Coordenadas de salas:** las publica Linda (103 de 106 salas); se descartan las que caen
   fuera de CABA.
 
+**Hecho (16-oct, tarde):**
+- **Mapa:** Explorar abre en un mapa de la ciudad (Leaflet + teselas de OpenStreetMap) con
+  los mismos filtros; un punto por sala; "Ver lo que está cerca" pide la ubicación solo al
+  tocarlo, centra el mapa y ordena las salas por distancia (no se guarda). La lista de salas
+  debajo es la versión accesible del mapa. En el teléfono, la lista hasta tener mapa nativo.
+- **Amigos:** @usuario público y único; solicitudes por @usuario (aceptar, rechazar,
+  cancelar, quitar). Solo cuentas con email; la tabla no tiene permisos directos: todo pasa
+  por funciones de la base.
+- **Ranking:** global o entre amigos, del mes o histórico, con los puntos de check-in (canjear
+  no resta).
+
 **Pendiente:**
+- Mapa nativo (`react-native-maps`) y proveedor de teselas con plan si crece el tráfico.
+- Link de invitación para sumar amigos; bloquear o denunciar usuarios.
 - SMTP propio en Supabase (hoy los emails solo llegan al equipo) y plantillas con código
   (`scripts/push-auth-emails.sh`); entrar con Google (requiere credenciales de Google Cloud).
 - Check-in en la app nativa (`expo-location`); hoy, desde la web.
