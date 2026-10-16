@@ -5,7 +5,69 @@ export type Database = {
   
   "public": {
           Tables: {
-            "diary_entries": {
+            "check_ins": {
+                  Row: {
+                    "accuracy_m": number,"created_at": string,"distance_m": number,"event_id": string,"id": string,"lat": number,"lng": number,"occurrence_id": string,"user_id": string,"venue_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "accuracy_m": number,"created_at"?: string,"distance_m": number,"event_id": string,"id"?: string,"lat": number,"lng": number,"occurrence_id": string,"user_id": string,"venue_id": string
+                  }
+                  Update: {
+                    "accuracy_m"?: number,"created_at"?: string,"distance_m"?: number,"event_id"?: string,"id"?: string,"lat"?: number,"lng"?: number,"occurrence_id"?: string,"user_id"?: string,"venue_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "check_ins_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "events"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "check_ins_event_id_fkey"
+      columns: ["event_id"]
+isOneToOne: false
+      referencedRelation: "v_events_public"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "check_ins_occurrence_id_fkey"
+      columns: ["occurrence_id"]
+isOneToOne: false
+      referencedRelation: "occurrences"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "check_ins_occurrence_id_fkey"
+      columns: ["occurrence_id"]
+isOneToOne: false
+      referencedRelation: "v_occurrences_public"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "check_ins_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "check_ins_venue_id_fkey"
+      columns: ["venue_id"]
+isOneToOne: false
+      referencedRelation: "v_events_public"
+      referencedColumns: ["venue_id"]
+    },{
+      foreignKeyName: "check_ins_venue_id_fkey"
+      columns: ["venue_id"]
+isOneToOne: false
+      referencedRelation: "v_occurrences_public"
+      referencedColumns: ["venue_id"]
+    },{
+      foreignKeyName: "check_ins_venue_id_fkey"
+      columns: ["venue_id"]
+isOneToOne: false
+      referencedRelation: "venues"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"diary_entries": {
                   Row: {
                     "attended_on": string,"created_at": string,"discipline": string | null,"event_id": string,"event_slug": string,"event_title": string,"id": string,"occurrence_id": string | null,"rating": number | null,"review": string | null,"updated_at": string,"user_id": string,"venue_name": string | null
                   }
@@ -411,6 +473,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"points_ledger": {
+                  Row: {
+                    "check_in_id": string | null,"created_at": string,"delta": number,"id": number,"note": string | null,"reason": string,"redemption_id": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "check_in_id"?: string | null,"created_at"?: string,"delta": number,"id"?: never,"note"?: string | null,"reason": string,"redemption_id"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "check_in_id"?: string | null,"created_at"?: string,"delta"?: number,"id"?: never,"note"?: string | null,"reason"?: string,"redemption_id"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "points_ledger_check_in_id_fkey"
+      columns: ["check_in_id"]
+isOneToOne: false
+      referencedRelation: "check_ins"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "points_ledger_redemption_id_fkey"
+      columns: ["redemption_id"]
+isOneToOne: false
+      referencedRelation: "redemptions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "points_ledger_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"profiles": {
                   Row: {
                     "created_at": string,"display_name": string | null,"id": string,"is_anonymous": boolean,"locale": string,"onboarding_completed_at": string | null,"updated_at": string
@@ -424,6 +518,32 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"redemptions": {
+                  Row: {
+                    "code": string,"cost": number,"created_at": string,"id": string,"reward_id": string,"used_at": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "code": string,"cost": number,"created_at"?: string,"id"?: string,"reward_id": string,"used_at"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "code"?: string,"cost"?: number,"created_at"?: string,"id"?: string,"reward_id"?: string,"used_at"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "redemptions_reward_id_fkey"
+      columns: ["reward_id"]
+isOneToOne: false
+      referencedRelation: "rewards"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "redemptions_user_id_fkey"
+      columns: ["user_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"reminders": {
                   Row: {
@@ -461,6 +581,32 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "profiles"
       referencedColumns: ["id"]
+    }
+                  ]
+                },"rewards": {
+                  Row: {
+                    "active": boolean,"cost": number,"created_at": string,"description": string | null,"id": string,"institution_id": string | null,"stock": number | null,"terms": string | null,"title": string,"valid_until": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "active"?: boolean,"cost": number,"created_at"?: string,"description"?: string | null,"id"?: string,"institution_id"?: string | null,"stock"?: number | null,"terms"?: string | null,"title": string,"valid_until"?: string | null
+                  }
+                  Update: {
+                    "active"?: boolean,"cost"?: number,"created_at"?: string,"description"?: string | null,"id"?: string,"institution_id"?: string | null,"stock"?: number | null,"terms"?: string | null,"title"?: string,"valid_until"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "rewards_institution_id_fkey"
+      columns: ["institution_id"]
+isOneToOne: false
+      referencedRelation: "institutions"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "rewards_institution_id_fkey"
+      columns: ["institution_id"]
+isOneToOne: false
+      referencedRelation: "v_events_public"
+      referencedColumns: ["institution_id"]
     }
                   ]
                 },"source_records": {
@@ -732,8 +878,20 @@ isOneToOne: false
             "bump_event_stat":
 { Args: { "p_action": Database["public"]['Enums']["user_action"],"p_delta": number,"p_event_id": string }; Returns: undefined
                            },
+"check_in":
+{ Args: { "p_accuracy_m": number,"p_lat": number,"p_lng": number,"p_occurrence_id": string }; Returns: Json
+                           },
+"distance_m":
+{ Args: { "lat1": number,"lat2": number,"lng1": number,"lng2": number }; Returns: number
+                           },
 "immutable_unaccent":
 { Args: { "": string }; Returns: string
+                           },
+"my_points":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
+"redeem_reward":
+{ Args: { "p_reward_id": string }; Returns: Json
                            }
           }
           Enums: {

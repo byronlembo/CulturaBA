@@ -33,6 +33,15 @@ insert into public.occurrences (event_id, venue_id, kind, starts_at, ends_at, st
   ('00000000-0000-4000-8000-0000000000e2', (select id from public.venues where slug = 'mnba'),
     'range', now() - interval '1 day', now() + interval '30 days', (now() - interval '1 day')::date, (now() + interval '30 days')::date, 'scheduled');
 
+-- Points: a performance happening now at a venue with published coordinates.
+update public.venues set lat = -34.60106, lng = -58.38253 where slug = 'teatro-colon';
+insert into public.occurrences (id, event_id, venue_id, kind, starts_at, ends_at, start_date, end_date, status) values
+  ('00000000-0000-4000-8000-0000000000f1', '00000000-0000-4000-8000-0000000000e1',
+    (select id from public.venues where slug = 'teatro-colon'), 'timed', now() - interval '20 minutes',
+    null, current_date, current_date, 'scheduled');
+insert into public.rewards (id, title, cost, stock) values
+  ('00000000-0000-4000-8000-0000000000a1', 'Recompensa de prueba', 10, 1);
+
 insert into public.source_records (source_id, external_id, url, event_id, parse_status, raw_payload, captured_at) values
   ((select id from public.sources where slug = 'teatro-colon'), 'rls-x1', 'https://example.org/e1', '00000000-0000-4000-8000-0000000000e1', 'ok', '{"secret": true}', now()),
   ((select id from public.sources where slug = 'mnba'), 'rls-x2', 'https://example.org/e2', '00000000-0000-4000-8000-0000000000e2', 'incomplete', '{}', now());
@@ -52,7 +61,7 @@ begin
   if n <> 1 then raise exception 'anon should see exactly 1 published event, saw %', n; end if;
 
   select count(*) into n from public.occurrences;
-  if n <> 1 then raise exception 'anon should see 1 visible occurrence (not missing, published event), saw %', n; end if;
+  if n <> 2 then raise exception 'anon should see 2 visible occurrences (not missing, published event), saw %', n; end if;
 
   select count(*) into n from public.event_disciplines;
   if n <> 2 then raise exception 'anon should see 2 discipline rows of the published event, saw %', n; end if;
@@ -64,7 +73,7 @@ begin
   if v.next_starts_at is null then raise exception 'v_events_public next_starts_at is null'; end if;
 
   select count(*) into n from public.v_occurrences_public;
-  if n <> 1 then raise exception 'v_occurrences_public should expose 1 row, saw %', n; end if;
+  if n <> 2 then raise exception 'v_occurrences_public should expose 2 rows, saw %', n; end if;
 
   select count(*) into n from public.v_event_sources_public;
   if n <> 1 then raise exception 'v_event_sources_public should expose 1 row, saw %', n; end if;
@@ -106,6 +115,19 @@ begin
   begin
     perform 1 from public.diary_entries;
     raise exception 'anon must not read diary_entries';
+  exception when insufficient_privilege then null;
+  end;
+
+  select count(*) into n from public.rewards;
+  if n <> 1 then raise exception 'anon should see the active reward, saw %', n; end if;
+  begin
+    perform public.check_in('00000000-0000-4000-8000-0000000000f1', -34.6011, -58.3826, 20);
+    raise exception 'anon must not check in';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    perform 1 from public.points_ledger;
+    raise exception 'anon must not read points_ledger';
   exception when insufficient_privilege then null;
   end;
 
@@ -203,10 +225,72 @@ begin
   if n <> 0 then raise exception 'user B must not see user A diary, saw %', n; end if;
   perform set_config('request.jwt.claims', user_a, true);
 
+  -- points: guests cannot earn; accounts earn once per performance, at the venue
+  begin
+    perform public.check_in('00000000-0000-4000-8000-0000000000f1', -34.6011, -58.3826, 20);
+    raise exception 'a guest must not earn points';
+  exception when raise_exception then
+    if sqlerrm <> 'account_required' then raise; end if;
+  end;
+  perform set_config('request.jwt.claims', user_b, true);
+  begin
+    perform public.check_in('00000000-0000-4000-8000-0000000000f1', -34.6200, -58.3826, 20);
+    raise exception '2 km away must not count';
+  exception when raise_exception then
+    if sqlerrm <> 'too_far' then raise; end if;
+  end;
+  begin
+    perform public.check_in('00000000-0000-4000-8000-0000000000f1', -34.6011, -58.3826, 500);
+    raise exception 'a 500 m fix must not count';
+  exception when raise_exception then
+    if sqlerrm <> 'low_accuracy' then raise; end if;
+  end;
+  begin
+    perform public.check_in((select id from public.occurrences where event_id = e1 and status = 'scheduled'
+      and starts_at > now() + interval '1 day'), -34.6011, -58.3826, 20);
+    raise exception 'a performance in two days must not count';
+  exception when raise_exception then
+    if sqlerrm <> 'outside_window' then raise; end if;
+  end;
+  if (public.check_in('00000000-0000-4000-8000-0000000000f1', -34.6011, -58.3826, 20) ->> 'balance')::int <> 10 then
+    raise exception 'first check-in should give 10 points';
+  end if;
+  begin
+    perform public.check_in('00000000-0000-4000-8000-0000000000f1', -34.6011, -58.3826, 20);
+    raise exception 'second check-in to the same performance must not count';
+  exception when raise_exception then
+    if sqlerrm <> 'already_checked_in' then raise; end if;
+  end;
+  if public.my_points() <> 10 then raise exception 'balance should be 10'; end if;
+  begin
+    insert into public.points_ledger (user_id, delta, reason) values (auth.uid(), 1000, 'adjust');
+    raise exception 'users must not write the ledger';
+  exception when insufficient_privilege then null;
+  end;
+  -- rewards: redeem debits the ledger once, stock runs out
+  if length(public.redeem_reward('00000000-0000-4000-8000-0000000000a1') ->> 'code') <> 12 then
+    raise exception 'redeem should return a 12-character code';
+  end if;
+  if public.my_points() <> 0 then raise exception 'balance should be 0 after redeeming'; end if;
+  begin
+    perform public.redeem_reward('00000000-0000-4000-8000-0000000000a1');
+    raise exception 'a reward out of stock must not be redeemed';
+  exception when raise_exception then
+    if sqlerrm <> 'reward_unavailable' then raise; end if;
+  end;
+  select count(*) into n from public.redemptions;
+  if n <> 1 then raise exception 'user B should see its redemption'; end if;
+  perform set_config('request.jwt.claims', user_a, true);
+  select count(*) into n from public.points_ledger;
+  if n <> 0 then raise exception 'user A must not see user B points, saw %', n; end if;
+
   execute 'reset role';
   raise notice 'authenticated checks passed';
 end
 $$;
+
+-- Deleting an account removes its points, check-ins and redemptions.
+delete from auth.users where id = '00000000-0000-4000-8000-00000000000b';
 
 rollback;
 \echo 'RLS smoke test: OK'
