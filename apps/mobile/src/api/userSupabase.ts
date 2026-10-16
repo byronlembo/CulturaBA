@@ -1,7 +1,7 @@
 import type { Database } from '@culturaba/shared';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { pointsErrorMessage } from '@/features/points/points';
-import type { DiaryEntry, PointsMove, UserAction, UserApi } from './types';
+import type { DiaryEntry, Friend, PointsMove, UserAction, UserApi } from './types';
 
 type DiaryInsert = Database['public']['Tables']['diary_entries']['Insert'];
 
@@ -206,6 +206,66 @@ export function createSupabaseUserApi(supabase: SupabaseClient<Database>, userId
         cost: r.cost,
         createdAt: r.created_at,
         usedAt: r.used_at,
+      }));
+    },
+
+    async getUsername() {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('id', userId)
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      return data?.username ?? null;
+    },
+
+    async setUsername(username) {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ username: username.trim().replace(/^@/, '').toLowerCase() })
+        .eq('id', userId);
+      if (error?.code === '23505') throw new Error('Ese @usuario ya está tomado.');
+      if (error?.code === '23514')
+        throw new Error('Usá de 3 a 20 letras minúsculas, números o guion bajo.');
+      if (error) throw new Error(error.message);
+    },
+
+    async listFriends() {
+      const { data, error } = await supabase.rpc('my_friends');
+      if (error) throw new Error(pointsErrorMessage(error.message));
+      return (data ?? []) as Friend[];
+    },
+
+    async sendFriendRequest(username) {
+      const { data, error } = await supabase.rpc('send_friend_request', { p_username: username });
+      if (error) throw new Error(pointsErrorMessage(error.message));
+      return data as 'sent' | 'accepted' | 'pending' | 'already_friends';
+    },
+
+    async respondFriendRequest(username, accept) {
+      const { error } = await supabase.rpc('respond_friend_request', {
+        p_username: username,
+        p_accept: accept,
+      });
+      if (error) throw new Error(pointsErrorMessage(error.message));
+    },
+
+    async removeFriend(username) {
+      const { error } = await supabase.rpc('remove_friend', { p_username: username });
+      if (error) throw new Error(pointsErrorMessage(error.message));
+    },
+
+    async leaderboard(scope, since) {
+      const { data, error } = await supabase.rpc('leaderboard', {
+        p_scope: scope,
+        ...(since ? { p_since: since } : {}),
+      });
+      if (error) throw new Error(pointsErrorMessage(error.message));
+      return (data ?? []).map((r) => ({
+        rank: r.rank,
+        username: r.username,
+        points: r.points,
+        isMe: r.is_me,
       }));
     },
   };

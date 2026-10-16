@@ -16,6 +16,11 @@ const MESSAGES: Record<string, string> = {
   already_checked_in: 'Ya hiciste check-in en esta función.',
   reward_unavailable: 'Esta recompensa ya no está disponible.',
   not_enough_points: 'Todavía no te alcanzan los puntos.',
+  username_required: 'Elegí tu @usuario en Perfil para sumar amigos.',
+  user_not_found: 'No encontramos ese @usuario.',
+  self: 'Ese @usuario sos vos.',
+  too_many_requests: 'Tenés demasiadas solicitudes pendientes.',
+  no_request: 'Esa solicitud ya no existe.',
 };
 
 export function pointsErrorMessage(key: string): string {

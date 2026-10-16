@@ -31,6 +31,7 @@ export const keys = {
   diary: ['my-diary'] as const,
   points: ['my-points'] as const,
   rewards: ['rewards'] as const,
+  social: ['social'] as const,
   catalogSources: ['catalog-sources'] as const,
 };
 
@@ -278,5 +279,41 @@ export function usePointsMutation<T>() {
       void qc.invalidateQueries({ queryKey: keys.points });
       void qc.invalidateQueries({ queryKey: keys.rewards });
     },
+  });
+}
+
+// ── Amigos y ranking ────────────────────────────────────────────────────────
+
+export function useUsername() {
+  const { user } = useApi();
+  return useQuery({
+    queryKey: [...keys.social, 'username', user.id],
+    queryFn: () => user.getUsername(),
+  });
+}
+
+export function useFriends() {
+  const { user } = useApi();
+  return useQuery({
+    queryKey: [...keys.social, 'friends', user.id],
+    queryFn: () => user.listFriends(),
+  });
+}
+
+export function useLeaderboard(scope: 'global' | 'friends', since: string | null) {
+  const { user } = useApi();
+  return useQuery({
+    queryKey: [...keys.social, 'leaderboard', scope, since, user.id],
+    queryFn: () => user.leaderboard(scope, since),
+  });
+}
+
+/** Cualquier cambio social (usuario, solicitudes, amigos) refresca amigos y rankings. */
+export function useSocialMutation<T>() {
+  const { user } = useApi();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (change: (u: UserApi) => Promise<T>) => change(user),
+    onSettled: () => qc.invalidateQueries({ queryKey: keys.social }),
   });
 }

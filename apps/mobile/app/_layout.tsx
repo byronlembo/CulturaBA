@@ -35,6 +35,11 @@ export default function RootLayout() {
               name="diario"
               options={{ title: 'Tu diario', headerBackTitle: 'Volver' }}
             />
+            <Stack.Screen name="amigos" options={{ title: 'Amigos', headerBackTitle: 'Volver' }} />
+            <Stack.Screen
+              name="ranking"
+              options={{ title: 'Ranking', headerBackTitle: 'Volver' }}
+            />
             <Stack.Screen name="+not-found" options={{ title: 'No encontrado' }} />
           </Stack>
         </ApiProvider>

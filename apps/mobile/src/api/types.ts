@@ -192,6 +192,20 @@ export interface Redemption {
   usedAt: string | null;
 }
 
+export interface Friend {
+  username: string;
+  status: 'pending' | 'accepted';
+  /** true si la solicitud la mandó la otra persona. */
+  incoming: boolean;
+}
+
+export interface LeaderboardRow {
+  rank: number;
+  username: string;
+  points: number;
+  isMe: boolean;
+}
+
 export interface Position {
   lat: number;
   lng: number;
@@ -216,6 +230,13 @@ export interface UserApi {
   listRewards(): Promise<Reward[]>;
   redeemReward(rewardId: string): Promise<{ code: string; balance: number }>;
   listRedemptions(): Promise<Redemption[]>;
+  getUsername(): Promise<string | null>;
+  setUsername(username: string): Promise<void>;
+  listFriends(): Promise<Friend[]>;
+  sendFriendRequest(username: string): Promise<'sent' | 'accepted' | 'pending' | 'already_friends'>;
+  respondFriendRequest(username: string, accept: boolean): Promise<void>;
+  removeFriend(username: string): Promise<void>;
+  leaderboard(scope: 'global' | 'friends', since: string | null): Promise<LeaderboardRow[]>;
 }
 
 // ── Mapeo de filas ──────────────────────────────────────────────────────────

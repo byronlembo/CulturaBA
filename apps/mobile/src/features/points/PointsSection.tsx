@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import { View } from 'react-native';
 import { useApi } from '@/api/context';
 import { Button, Card, Section, Txt } from '@/components/ui/Primitives';
@@ -9,6 +10,7 @@ import { POINTS_PER_CHECK_IN } from './points';
 /** Perfil: saldo, últimos movimientos, recompensas disponibles y canjes. */
 export function PointsSection() {
   const c = useColors();
+  const router = useRouter();
   const { account } = useApi();
   const points = usePoints();
   const rewards = useRewards();
@@ -24,6 +26,22 @@ export function PointsSection() {
           ficha del evento, en la sala.
           {account?.isAnonymous ? ' Necesitás una cuenta.' : ''}
         </Txt>
+        <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+          <Button
+            label="Ranking"
+            variant="secondary"
+            icon="trophy-outline"
+            onPress={() => router.push('/ranking')}
+            style={{ flex: 1 }}
+          />
+          <Button
+            label="Amigos"
+            variant="secondary"
+            icon="people-outline"
+            onPress={() => router.push('/amigos')}
+            style={{ flex: 1 }}
+          />
+        </View>
         {(points.data?.moves ?? []).slice(0, 5).map((m) => (
           <View
             key={`${m.createdAt}${m.delta}`}

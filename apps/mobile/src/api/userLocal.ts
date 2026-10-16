@@ -60,5 +60,12 @@ export function createLocalUserApi(): UserApi {
     listRewards: async () => [],
     redeemReward: needsServer,
     listRedemptions: async () => [],
+    getUsername: async () => null,
+    setUsername: needsServer,
+    listFriends: async () => [],
+    sendFriendRequest: needsServer,
+    respondFriendRequest: needsServer,
+    removeFriend: needsServer,
+    leaderboard: async () => [],
   };
 }
