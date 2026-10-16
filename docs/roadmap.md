@@ -14,10 +14,10 @@
 | Conectores MNBA y Palacio Libertad | ⛔ bloqueados por desafío de Cloudflare (no se elude) |
 | Catálogo real en Supabase | ✅ 266 eventos publicados, 736 funciones futuras (15-oct) |
 | App: onboarding, Para vos, Explorar, Calendario, Guardados, Perfil, ficha, acciones sociales, compartir, deep links | ✅ 21 tests Jest + recorrido Playwright contra Supabase |
-| Automatización: `ingest.yml` (cron cada 6 h), `ci.yml` | ✅ el cron espera el secreto `DATABASE_URL` |
+| Automatización: `ingest.yml` (cron cada 6 h), `ci.yml` | ✅ cron activo contra Supabase |
 
 ### Siguientes pasos inmediatos
-1. Cargar `DATABASE_URL` (session pooler) como secreto y lanzar `ingest.yml` a mano una vez.
+1. ~~Cargar `DATABASE_URL` como secreto~~ (hecho; el cron corre cada 6 h).
 2. Corregir el conector del Complejo Teatral con los defectos documentados y volver a
    activarlo (`ready: true`).
 3. Decidir el camino para MNBA y Palacio Libertad (fixtures manuales, equipo propio o
@@ -38,8 +38,34 @@ cuando una función próxima se cancela, se posterga o se reprograma.
   `major`) a quienes guardaron/van; recordatorios (`reminders`) 1 semana / 1 día / 2 h;
   horarios silenciosos y límites; nunca duplicar; abrir la ficha correcta.
 - `expo-calendar` en los builds nativos (hoy el teléfono abre Google Calendar).
-- Cuentas con email convirtiendo la identidad anónima (`updateUser`) sin migrar datos.
 - EAS build/submit; universal links verificados en el dominio definitivo.
+
+## Etapa 2b — Cuenta, diario y puntos
+
+**Hecho (16-oct):**
+- **Cuenta:** el invitado confirma un email y su sesión pasa a ser cuenta (conserva lo
+  guardado); entrar desde otro dispositivo con el email; cerrar sesión.
+- **Diario ("Fui"):** desde la ficha, funciones ya empezadas (o la muestra abierta hoy)
+  con puntaje 1–5 y reseña; pantalla "Tu diario" con estadísticas. Privado. Guarda título,
+  disciplina y sala al anotar, así sobrevive al archivado del evento.
+- **Puntos:** check-in en la sala durante la función (cuenta con email; coordenadas
+  publicadas por la fuente; GPS a menos de 300 m y precisión < 150 m; una vez por función;
+  máximo 3 por día) → 10 puntos en un libro contable que solo escriben las funciones de la
+  base.
+- **Recompensas:** catálogo cargado por el equipo, canje atómico con código de un solo uso.
+  El catálogo arranca vacío: depende de acuerdos con instituciones.
+- **Coordenadas de salas:** las publica Linda (103 de 106 salas); se descartan las que caen
+  fuera de CABA.
+
+**Pendiente:**
+- SMTP propio en Supabase (hoy los emails solo llegan al equipo) y plantillas con código
+  (`scripts/push-auth-emails.sh`); entrar con Google (requiere credenciales de Google Cloud).
+- Check-in en la app nativa (`expo-location`); hoy, desde la web.
+- Fase B de verificación: código QR en la sala con instituciones asociadas (el GPS se
+  puede falsear).
+- Herramienta para que una institución valide un código (hoy: SQL, ver README).
+- Diario público opcional, perfiles, seguir a amigos, listas propias.
+- Revisar salas cuyas coordenadas difieren entre publicaciones de Linda (gana la primera).
 
 ## Etapa 3 — Operación y expansión
 - Panel mínimo de revisión: fuentes y última corrida, errores, candidatos

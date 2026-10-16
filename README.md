@@ -123,6 +123,17 @@ SMTP propio (Auth → SMTP Settings) y subir las plantillas con **código** de
 `supabase/templates/` con `SUPABASE_PROJECT_REF=<ref> bash scripts/push-auth-emails.sh`
 (sirven también en la app nativa, donde el enlace abre la web).
 
+Recompensas (hasta que haya panel): se cargan y validan con SQL desde Supabase.
+
+```sql
+insert into rewards (institution_id, title, description, terms, cost, stock, valid_until)
+values ((select id from institutions where slug = 'teatro-colon'), '…', '…', '…', 100, 20, '2026-12-31');
+update redemptions set used_at = now() where code = 'ABC123DEF456' and used_at is null;
+```
+
+Migraciones nuevas: se aplican con el workflow **DB push (Supabase)** (`db-push.yml`,
+sin seed) antes de publicar la app que las usa.
+
 Secretos del repositorio para `ingest.yml`: `DATABASE_URL` (URI del **session
 pooler**, IPv4). Variable opcional `INGEST_USER_AGENT`.
 

@@ -30,8 +30,7 @@ Detalles por fuente, selectores y ejemplos literales: `docs/source-inventory.md`
 `docs/research/`.
 
 **Cómo se actualizan.** `ingest.yml` corre cada 6 horas en GitHub Actions contra
-Supabase. Hasta que se cargue el secreto `DATABASE_URL`, las corridas programadas se
-saltean con un aviso en vez de fallar.
+Supabase, con el secreto `DATABASE_URL` (session pooler).
 
 ## 3. Catálogo real (15-oct-2026, verificado por la API pública)
 
@@ -106,8 +105,8 @@ Detrás de un proxy, el `fetch` de Node necesita `NODE_USE_ENV_PROXY=1`; el CLI 
 
 ## 7. Configuración pendiente
 
-1. **GitHub:** cargar el secreto `DATABASE_URL` con la URI del session pooler. Con eso
-   el cron empieza a actualizar Supabase cada 6 horas.
+1. **GitHub:** ~~cargar el secreto `DATABASE_URL`~~ (hecho el 15-oct; el cron actualiza
+   Supabase cada 6 horas).
 2. **Seguridad:** revocar el token personal de Supabase (`sbp_…`) y rotar la clave
    `sb_secret_…`, que pasaron por el chat.
 3. **Dominio:** la web está en https://culturaba.xn--lembodiseo-19a.com (Vercel), que
