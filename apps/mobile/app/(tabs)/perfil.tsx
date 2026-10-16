@@ -8,6 +8,7 @@ import { InterestPicker } from '@/components/ui/InterestPicker';
 import { Button, Card, Section, Txt } from '@/components/ui/Primitives';
 import { AccountCard } from '@/features/account/AccountCard';
 import { useCatalogSources, useDiary, useInterests } from '@/features/hooks';
+import { PointsSection } from '@/features/points/PointsSection';
 import { usePreferences } from '@/store/preferences';
 import { spacing, useColors } from '@/theme/tokens';
 
@@ -59,6 +60,8 @@ export default function Profile() {
           </Card>
         </Section>
       ) : null}
+
+      {user.kind === 'supabase' ? <PointsSection /> : null}
 
       <Section title="Tu cuenta">
         <AccountCard />

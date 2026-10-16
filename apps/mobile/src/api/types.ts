@@ -72,6 +72,9 @@ export interface Occurrence {
   room: string | null;
   venueName: string | null;
   venueAddress: string | null;
+  /** Coordenadas publicadas por la fuente; sin ellas no hay check-in. */
+  venueLat: number | null;
+  venueLng: number | null;
 }
 
 export interface CalendarOccurrence extends Occurrence {
@@ -162,6 +165,38 @@ export interface DiaryInput {
   review: string | null;
 }
 
+export interface PointsMove {
+  delta: number;
+  reason: 'check_in' | 'redeem' | 'adjust';
+  note: string | null;
+  createdAt: string;
+}
+
+export interface Reward {
+  id: string;
+  title: string;
+  description: string | null;
+  terms: string | null;
+  cost: number;
+  stock: number | null;
+  validUntil: string | null;
+}
+
+export interface Redemption {
+  id: string;
+  rewardTitle: string;
+  code: string;
+  cost: number;
+  createdAt: string;
+  usedAt: string | null;
+}
+
+export interface Position {
+  lat: number;
+  lng: number;
+  accuracy: number;
+}
+
 export interface UserApi {
   readonly kind: 'supabase' | 'local';
   /** Id del usuario de Supabase, o 'local'. Separa el caché entre cuentas. */
@@ -175,6 +210,11 @@ export interface UserApi {
   addDiaryEntry(eventId: string, input: DiaryInput): Promise<void>;
   updateDiaryEntry(id: string, input: Pick<DiaryInput, 'rating' | 'review'>): Promise<void>;
   deleteDiaryEntry(id: string): Promise<void>;
+  checkIn(occurrenceId: string, at: Position): Promise<{ points: number; balance: number }>;
+  getPoints(): Promise<{ balance: number; moves: PointsMove[] }>;
+  listRewards(): Promise<Reward[]>;
+  redeemReward(rewardId: string): Promise<{ code: string; balance: number }>;
+  listRedemptions(): Promise<Redemption[]>;
 }
 
 // ── Mapeo de filas ──────────────────────────────────────────────────────────
@@ -249,6 +289,8 @@ export function mapOccurrence(r: OccurrencePublicRow): CalendarOccurrence {
     room: r.room,
     venueName: r.venue_name,
     venueAddress: r.venue_address,
+    venueLat: r.venue_lat,
+    venueLng: r.venue_lng,
     eventSlug: r.event_slug ?? '',
     eventTitle: r.event_title ?? '',
     primaryDiscipline: r.primary_discipline,

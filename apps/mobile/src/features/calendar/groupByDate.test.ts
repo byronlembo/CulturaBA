@@ -22,6 +22,8 @@ function occ(partial: Partial<CalendarOccurrence>): CalendarOccurrence {
     room: null,
     venueName: null,
     venueAddress: null,
+    venueLat: null,
+    venueLng: null,
     eventSlug: 's',
     eventTitle: 'T',
     primaryDiscipline: 'cine',

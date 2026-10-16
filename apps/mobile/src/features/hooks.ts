@@ -29,6 +29,8 @@ export const keys = {
   byIds: (ids: string[]) => ['events-by-ids', ids] as const,
   actions: ['my-actions'] as const,
   diary: ['my-diary'] as const,
+  points: ['my-points'] as const,
+  rewards: ['rewards'] as const,
   catalogSources: ['catalog-sources'] as const,
 };
 
@@ -232,5 +234,39 @@ export function useDiaryMutation() {
   return useMutation({
     mutationFn: (change: (u: UserApi) => Promise<void>) => change(user),
     onSettled: () => qc.invalidateQueries({ queryKey: keys.diary }),
+  });
+}
+
+// ── Puntos y recompensas ────────────────────────────────────────────────────
+
+export function usePoints() {
+  const { user } = useApi();
+  return useQuery({ queryKey: [...keys.points, user.id], queryFn: () => user.getPoints() });
+}
+
+export function useRewards() {
+  const { user } = useApi();
+  return useQuery({
+    queryKey: [...keys.rewards, user.id],
+    queryFn: async () => {
+      const [rewards, redemptions] = await Promise.all([
+        user.listRewards(),
+        user.listRedemptions(),
+      ]);
+      return { rewards, redemptions };
+    },
+  });
+}
+
+/** Check-in o canje; refresca saldo, movimientos, recompensas y canjes. */
+export function usePointsMutation<T>() {
+  const { user } = useApi();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (change: (u: UserApi) => Promise<T>) => change(user),
+    onSettled: () => {
+      void qc.invalidateQueries({ queryKey: keys.points });
+      void qc.invalidateQueries({ queryKey: keys.rewards });
+    },
   });
 }

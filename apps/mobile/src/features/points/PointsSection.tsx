@@ -1,0 +1,96 @@
+import { View } from 'react-native';
+import { useApi } from '@/api/context';
+import { Button, Card, Section, Txt } from '@/components/ui/Primitives';
+import { usePoints, usePointsMutation, useRewards } from '@/features/hooks';
+import { relativeTimeEs } from '@/lib/dates';
+import { spacing, useColors } from '@/theme/tokens';
+import { POINTS_PER_CHECK_IN } from './points';
+
+/** Perfil: saldo, últimos movimientos, recompensas disponibles y canjes. */
+export function PointsSection() {
+  const c = useColors();
+  const { account } = useApi();
+  const points = usePoints();
+  const rewards = useRewards();
+  const redeem = usePointsMutation<{ code: string; balance: number }>();
+  const balance = points.data?.balance ?? 0;
+
+  return (
+    <Section title="Tus puntos">
+      <Card style={{ padding: spacing.md, gap: spacing.sm }}>
+        <Txt variant="display">{balance}</Txt>
+        <Txt tone="muted">
+          Sumás {POINTS_PER_CHECK_IN} puntos por cada función a la que vas: hacé check-in desde la
+          ficha del evento, en la sala.
+          {account?.isAnonymous ? ' Necesitás una cuenta.' : ''}
+        </Txt>
+        {(points.data?.moves ?? []).slice(0, 5).map((m) => (
+          <View
+            key={`${m.createdAt}${m.delta}`}
+            style={{ flexDirection: 'row', justifyContent: 'space-between', gap: spacing.md }}
+          >
+            <Txt variant="small" style={{ flex: 1 }} numberOfLines={1}>
+              {m.note ?? (m.reason === 'redeem' ? 'Canje' : 'Ajuste')} ·{' '}
+              {relativeTimeEs(m.createdAt)}
+            </Txt>
+            <Txt variant="small" style={{ color: m.delta > 0 ? c.success : c.text }}>
+              {m.delta > 0 ? `+${m.delta}` : m.delta}
+            </Txt>
+          </View>
+        ))}
+      </Card>
+
+      <Txt variant="heading" style={{ marginTop: spacing.lg, marginBottom: spacing.sm }}>
+        Recompensas
+      </Txt>
+      {(rewards.data?.rewards ?? []).length === 0 ? (
+        <Txt tone="muted">
+          Todavía no hay recompensas. Las vamos sumando a medida que se suman instituciones.
+        </Txt>
+      ) : (
+        (rewards.data?.rewards ?? []).map((r) => (
+          <Card
+            key={r.id}
+            style={{ padding: spacing.md, gap: spacing.sm, marginBottom: spacing.sm }}
+          >
+            <Txt variant="heading">{r.title}</Txt>
+            {r.description ? <Txt tone="muted">{r.description}</Txt> : null}
+            {r.terms ? (
+              <Txt variant="caption" tone="muted">
+                {r.terms}
+              </Txt>
+            ) : null}
+            <Button
+              label={`Canjear por ${r.cost} puntos`}
+              variant="secondary"
+              disabled={balance < r.cost || Boolean(account?.isAnonymous)}
+              loading={redeem.isPending}
+              onPress={() => redeem.mutate((u) => u.redeemReward(r.id))}
+            />
+          </Card>
+        ))
+      )}
+      {redeem.data ? (
+        <Txt style={{ marginTop: spacing.sm }}>
+          Tu código: {redeem.data.code}. Mostralo al retirar la recompensa.
+        </Txt>
+      ) : null}
+      {redeem.error ? (
+        <Txt variant="caption" tone="danger" style={{ marginTop: spacing.sm }}>
+          {redeem.error.message}
+        </Txt>
+      ) : null}
+      {(rewards.data?.redemptions ?? []).length > 0 ? (
+        <Card style={{ padding: spacing.md, gap: spacing.sm, marginTop: spacing.md }}>
+          <Txt variant="heading">Tus canjes</Txt>
+          {(rewards.data?.redemptions ?? []).map((r) => (
+            <Txt key={r.id} variant="small">
+              {r.rewardTitle} · código {r.code}
+              {r.usedAt ? ' · usado' : ''}
+            </Txt>
+          ))}
+        </Card>
+      ) : null}
+    </Section>
+  );
+}

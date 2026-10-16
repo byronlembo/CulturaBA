@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { UserAction, UserActionRecord, UserApi } from './types';
 
 const needsServer = async (): Promise<never> => {
-  throw new Error('El diario necesita conexión con el servidor.');
+  throw new Error('Necesitás conexión con el servidor.');
 };
 
 const INTERESTS_KEY = 'culturaba.local.interests';
@@ -55,5 +55,10 @@ export function createLocalUserApi(): UserApi {
     addDiaryEntry: needsServer,
     updateDiaryEntry: needsServer,
     deleteDiaryEntry: needsServer,
+    checkIn: needsServer,
+    getPoints: async () => ({ balance: 0, moves: [] }),
+    listRewards: async () => [],
+    redeemReward: needsServer,
+    listRedemptions: async () => [],
   };
 }

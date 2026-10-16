@@ -1,6 +1,7 @@
 import type { Database } from '@culturaba/shared';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { DiaryEntry, UserAction, UserApi } from './types';
+import { pointsErrorMessage } from '@/features/points/points';
+import type { DiaryEntry, PointsMove, UserAction, UserApi } from './types';
 
 type DiaryInsert = Database['public']['Tables']['diary_entries']['Insert'];
 
@@ -132,6 +133,80 @@ export function createSupabaseUserApi(supabase: SupabaseClient<Database>, userId
     async deleteDiaryEntry(id) {
       const { error } = await supabase.from('diary_entries').delete().eq('id', id);
       if (error) throw new Error(error.message);
+    },
+
+    async checkIn(occurrenceId, at) {
+      const { data, error } = await supabase.rpc('check_in', {
+        p_occurrence_id: occurrenceId,
+        p_lat: at.lat,
+        p_lng: at.lng,
+        p_accuracy_m: at.accuracy,
+      });
+      if (error) throw new Error(pointsErrorMessage(error.message));
+      return data as { points: number; balance: number };
+    },
+
+    async getPoints() {
+      const [balance, moves] = await Promise.all([
+        supabase.rpc('my_points'),
+        supabase
+          .from('points_ledger')
+          .select('delta, reason, note, created_at')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(20),
+      ]);
+      if (balance.error) throw new Error(balance.error.message);
+      if (moves.error) throw new Error(moves.error.message);
+      return {
+        balance: balance.data ?? 0,
+        moves: (moves.data ?? []).map((m) => ({
+          delta: m.delta,
+          reason: m.reason as PointsMove['reason'],
+          note: m.note,
+          createdAt: m.created_at,
+        })),
+      };
+    },
+
+    async listRewards() {
+      const { data, error } = await supabase
+        .from('rewards')
+        .select('id, title, description, terms, cost, stock, valid_until')
+        .order('cost');
+      if (error) throw new Error(error.message);
+      return (data ?? []).map((r) => ({
+        id: r.id,
+        title: r.title,
+        description: r.description,
+        terms: r.terms,
+        cost: r.cost,
+        stock: r.stock,
+        validUntil: r.valid_until,
+      }));
+    },
+
+    async redeemReward(rewardId) {
+      const { data, error } = await supabase.rpc('redeem_reward', { p_reward_id: rewardId });
+      if (error) throw new Error(pointsErrorMessage(error.message));
+      return data as { code: string; balance: number };
+    },
+
+    async listRedemptions() {
+      const { data, error } = await supabase
+        .from('redemptions')
+        .select('id, code, cost, created_at, used_at, rewards(title)')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+      if (error) throw new Error(error.message);
+      return (data ?? []).map((r) => ({
+        id: r.id,
+        rewardTitle: r.rewards?.title ?? '',
+        code: r.code,
+        cost: r.cost,
+        createdAt: r.created_at,
+        usedAt: r.used_at,
+      }));
     },
   };
 }
