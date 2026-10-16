@@ -149,10 +149,10 @@ describe('complejo-teatral · discover (fixtures 2026-10-14)', () => {
 });
 
 describe('complejo-teatral · parse de TODOS los ítems', () => {
-  it('ninguno inválido; 25 publicables y 8 candidatos con motivo', () => {
+  it('ninguno inválido; 20 publicables y 13 candidatos con motivo', () => {
     const counts = { ok: 0, incomplete: 0, invalid: 0 };
     for (const p of all.values()) counts[p.status] += 1;
-    expect(counts).toEqual({ ok: 25, incomplete: 8, invalid: 0 });
+    expect(counts).toEqual({ ok: 20, incomplete: 13, invalid: 0 });
 
     const candidates = Object.fromEntries(
       [...all.entries()]
@@ -164,6 +164,14 @@ describe('complejo-teatral · parse de TODOS los ítems', () => {
       'todos-los-angeles-alzaron-el-vuelo': ['missing:occurrences'],
       // Patrón semanal; la agenda no lo lista hasta el 15-11 ("Desde el 12 de noviembre").
       'la-verdadera-historia-de-ricardo-iii': ['missing:occurrences'],
+      // Patrones semanales sin temporada publicada (inicio y fin): la agenda sola no alcanza
+      // (lista días fuera de temporada; Invasiones I anuncia "temporada 2027").
+      'invasiones-1': ['missing:occurrences'],
+      la_lluvia_de_fuego: ['missing:occurrences'],
+      'a-cielo-abierto': ['missing:occurrences'],
+      remigio_verdiales_un_carpincho: ['missing:occurrences'],
+      // "Desde el 24 de octubre": sin fin publicado.
+      esperando_a_godot: ['missing:occurrences'],
       // "Marzo a noviembre": ciclo sin fechas concretas.
       jazz_buenos_aires: ['missing:occurrences'],
       // Sin "Funciones:" en el detalle y sin fecha en el listado.
@@ -298,21 +306,15 @@ describe('complejo-teatral · eventos verificados a mano contra el HTML', () => 
     expect(e.occurrences[0]?.price).toEqual({ text: 'Platea $ 32.000', verified: true });
   });
 
-  it('A CIELO ABIERTO: el aviso "no habrá funciones" excluye el 16, 17 y 18 de octubre', () => {
-    const e = eventOf('a-cielo-abierto');
-    const dates = e.occurrences.map((o) => o.startDate);
-    expect(dates).not.toContain('2026-10-16');
-    expect(dates).not.toContain('2026-10-17');
-    expect(dates).not.toContain('2026-10-18');
-    expect(e.occurrences[0]).toMatchObject({
-      startsAt: '2026-10-15T20:00:00-03:00',
-      venue: { name: 'Teatro Regio', address: 'Av. Córdoba 6056' },
-      status: 'scheduled',
-    });
-    expect(e.occurrences).toHaveLength(13);
-    expect(
-      all.get('a-cielo-abierto')?.warnings.filter((w) => /excluida por aviso/.test(w)),
-    ).toHaveLength(3);
+  it('A CIELO ABIERTO / INVASIONES I: patrón semanal sin temporada publicada → candidatos', () => {
+    // "Jueves a domingos, 20 horas" sin inicio ni fin: la agenda lo lista del 15-10 al 08-11,
+    // pero la agenda también lista obras fuera de temporada. Sin funciones, sin inventar.
+    for (const slug of ['a-cielo-abierto', 'invasiones-1', 'la_lluvia_de_fuego']) {
+      const p = all.get(slug);
+      expect(p?.event?.occurrences).toEqual([]);
+      expect(p?.warnings.join('\n')).toMatch(/sin temporada publicada/);
+    }
+    expect(eventOf('a-cielo-abierto').title).toBe('A CIELO ABIERTO');
   });
 
   it('Shohei Imamura bis: "16.30 y 20.30 horas" → dos funciones el mismo día', () => {
@@ -455,15 +457,20 @@ describe('complejo-teatral · parseSchedule (puro)', () => {
   });
 
   it('patrón semanal: solo los días confirmados por la agenda, con la hora de ese día', () => {
-    const r = run('Miércoles a sábados, 20.30 horas. Domingos, 19.30 horas', {
-      agendaDays: ['2026-10-17', '2026-10-18', '2026-10-19'],
-    });
+    const r = run(
+      'Del 14 de octubre al 1 de noviembre\nMiércoles a sábados, 20.30 horas. Domingos, 19.30 horas',
+      { agendaDays: ['2026-10-17', '2026-10-18', '2026-10-19'] },
+    );
     expect(r.form).toBe('weekly');
     expect(starts(r)).toEqual(['2026-10-17 20:30', '2026-10-18 19:30']);
     expect(r.warnings.join('\n')).toMatch(/2026-10-19 pero el patrón no publica hora/);
     expect(run('Jueves a domingos, 20 horas').specs).toEqual([]);
+    const weekend = { agendaDays: ['2026-10-24', '2026-10-25'] };
+    expect(run('Sábados y domingos, 15 horas', weekend).specs).toEqual([]);
     expect(
-      starts(run('Sábados y domingos, 15 horas', { agendaDays: ['2026-10-24', '2026-10-25'] })),
+      starts(
+        run('Sábados y domingos, 15 horas', { ...weekend, notes: ['Del 24 al 25 de octubre'] }),
+      ),
     ).toEqual(['2026-10-24 15:00', '2026-10-25 15:00']);
   });
 
@@ -474,12 +481,15 @@ describe('complejo-teatral · parseSchedule (puro)', () => {
     expect(starts(bounded)).toEqual(['2026-10-17 19:30']);
     const excluded = run('Jueves a domingos, 20 horas', {
       agendaDays: ['2026-10-16', '2026-10-17', '2026-10-18', '2026-10-22'],
-      notes: ['Viernes 16, sábado 17 y domingo 18 de octubre no habrá funciones'],
+      notes: [
+        'Desde el jueves 15 de octubre hasta el domingo 1° de noviembre',
+        'Viernes 16, sábado 17 y domingo 18 de octubre no habrá funciones',
+      ],
     });
     expect(starts(excluded)).toEqual(['2026-10-22 20:00']);
     const fromNote = run('Miércoles a sábados, 20 horas. Domingos, 19 horas', {
-      agendaDays: ['2026-10-22', '2026-10-24', '2026-10-25'],
-      notes: ['Desde el 24 de octubre'],
+      agendaDays: ['2026-10-22', '2026-10-24', '2026-10-25', '2026-11-04'],
+      notes: ['Desde el 24 de octubre', 'Hasta el 1 de noviembre'],
     });
     expect(starts(fromNote)).toEqual(['2026-10-24 20:00', '2026-10-25 19:00']);
   });
@@ -528,7 +538,11 @@ describe('complejo-teatral · parseSchedule (puro)', () => {
     expect(grid.form).toBe('grid');
     expect(starts(grid)).toEqual(['2026-10-31 21:00', '2026-11-01 18:00']);
     const partial = run('A partir del sábado 31 de octubre', {
-      gridLines: ['Sábado 31 de octubre, 21 horas', 'Noche tras noche (1932)'],
+      gridLines: [
+        'Sábado 31 de octubre, 21 horas',
+        'Noche tras noche (1932)',
+        'Trasnoche: 23 horas',
+      ],
     });
     expect(partial.specs).toEqual([]);
   });
