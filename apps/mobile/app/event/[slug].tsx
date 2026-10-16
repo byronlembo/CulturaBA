@@ -23,6 +23,7 @@ import {
   Screen,
   Txt,
 } from '@/components/ui/Primitives';
+import { DiarySection } from '@/features/diary/DiarySection';
 import {
   useEvent,
   useEventSources,
@@ -198,6 +199,8 @@ function Body({ event }: { event: EventDetail }) {
         ) : (
           <Txt tone="muted">No hay funciones próximas publicadas.</Txt>
         )}
+
+        <DiarySection eventId={event.id} occurrences={occurrences.data ?? []} />
 
         {event.venueName ? (
           <Card style={{ marginTop: spacing.xl, padding: spacing.md }}>

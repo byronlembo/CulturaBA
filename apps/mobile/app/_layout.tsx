@@ -31,6 +31,10 @@ export default function RootLayout() {
               name="event/[slug]"
               options={{ title: '', headerTransparent: false, headerBackTitle: 'Volver' }}
             />
+            <Stack.Screen
+              name="diario"
+              options={{ title: 'Tu diario', headerBackTitle: 'Volver' }}
+            />
             <Stack.Screen name="+not-found" options={{ title: 'No encontrado' }} />
           </Stack>
         </ApiProvider>

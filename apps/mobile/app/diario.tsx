@@ -1,0 +1,88 @@
+import { type DisciplineSlug, disciplineLabel } from '@culturaba/shared';
+import { Link } from 'expo-router';
+import { useState } from 'react';
+import { FlatList, Pressable } from 'react-native';
+import { Card, EmptyState, ErrorState, Loading, Screen, Txt } from '@/components/ui/Primitives';
+import { DiaryForm, Stars } from '@/features/diary/DiaryForm';
+import { diaryStats } from '@/features/diary/diary';
+import { useDiary } from '@/features/hooks';
+import { formatBaDateRange } from '@/lib/dates';
+import { spacing } from '@/theme/tokens';
+
+export default function Diary() {
+  const diary = useDiary();
+  const [open, setOpen] = useState<string | null>(null);
+  if (diary.isPending) return <Loading />;
+  if (diary.error)
+    return <ErrorState message={diary.error.message} onRetry={() => void diary.refetch()} />;
+  const entries = diary.data ?? [];
+  const year = new Date().getFullYear();
+  const stats = diaryStats(entries, year);
+
+  return (
+    <Screen>
+      <FlatList
+        data={entries}
+        keyExtractor={(e) => e.id}
+        contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}
+        ListHeaderComponent={
+          entries.length > 0 ? (
+            <Card style={{ padding: spacing.md, gap: 4 }}>
+              <Txt variant="heading">
+                {stats.thisYear} {stats.thisYear === 1 ? 'función' : 'funciones'} en {year}
+              </Txt>
+              <Txt tone="muted">
+                {stats.total} en total
+                {stats.averageRating !== null ? ` · puntaje promedio ${stats.averageRating}` : ''}
+              </Txt>
+              {stats.topDisciplines.length > 0 ? (
+                <Txt tone="muted">
+                  Lo que más viste:{' '}
+                  {stats.topDisciplines
+                    .map((d) => `${disciplineLabel(d.slug as DisciplineSlug)} (${d.count})`)
+                    .join(', ')}
+                </Txt>
+              ) : null}
+            </Card>
+          ) : null
+        }
+        ListEmptyComponent={
+          <EmptyState
+            icon="book-outline"
+            title="Tu diario está vacío"
+            body="En la ficha de un evento al que fuiste, tocá «¿Fuiste? Anotalo en tu diario»."
+          />
+        }
+        renderItem={({ item: e }) => (
+          <Card style={{ padding: spacing.md, gap: spacing.sm }}>
+            <Link href={`/event/${e.eventSlug}`} asChild>
+              <Pressable accessibilityRole="link">
+                <Txt variant="heading">{e.eventTitle}</Txt>
+              </Pressable>
+            </Link>
+            <Txt variant="small" tone="muted">
+              {formatBaDateRange(e.attendedOn, e.attendedOn)}
+              {e.venueName ? ` · ${e.venueName}` : ''}
+            </Txt>
+            {open === e.id ? (
+              <DiaryForm eventId={e.eventId} entry={e} onDone={() => setOpen(null)} />
+            ) : (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityHint="Editar la entrada del diario"
+                onPress={() => setOpen(e.id)}
+                style={{ gap: spacing.sm }}
+              >
+                <Stars value={e.rating} />
+                {e.review ? <Txt>{e.review}</Txt> : null}
+                <Txt variant="small" tone="accent">
+                  Editar
+                </Txt>
+              </Pressable>
+            )}
+          </Card>
+        )}
+      />
+    </Screen>
+  );
+}

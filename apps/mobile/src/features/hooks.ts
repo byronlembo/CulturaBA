@@ -7,7 +7,13 @@ import {
 } from '@tanstack/react-query';
 import { useCallback, useEffect } from 'react';
 import { useApi, useCatalog } from '@/api/context';
-import type { CatalogFilters, Occurrence, UserAction, UserActionRecord } from '@/api/types';
+import type {
+  CatalogFilters,
+  Occurrence,
+  UserAction,
+  UserActionRecord,
+  UserApi,
+} from '@/api/types';
 import { usePreferences } from '@/store/preferences';
 import { isUpcomingChange } from './calendar/planChanges';
 
@@ -22,6 +28,7 @@ export const keys = {
   calendar: (from: string, to: string, d: string[]) => ['calendar', from, to, d] as const,
   byIds: (ids: string[]) => ['events-by-ids', ids] as const,
   actions: ['my-actions'] as const,
+  diary: ['my-diary'] as const,
   catalogSources: ['catalog-sources'] as const,
 };
 
@@ -209,4 +216,21 @@ export function useInterests() {
   );
 
   return { interests, setInterests };
+}
+
+// ── Diario ──────────────────────────────────────────────────────────────────
+
+export function useDiary() {
+  const { user } = useApi();
+  return useQuery({ queryKey: [...keys.diary, user.id], queryFn: () => user.listDiary() });
+}
+
+/** Alta, edición o baja de una entrada; refresca el diario al terminar. */
+export function useDiaryMutation() {
+  const { user } = useApi();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (change: (u: UserApi) => Promise<void>) => change(user),
+    onSettled: () => qc.invalidateQueries({ queryKey: keys.diary }),
+  });
 }

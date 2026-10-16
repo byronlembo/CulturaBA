@@ -7,14 +7,15 @@ import { useApi } from '@/api/context';
 import { InterestPicker } from '@/components/ui/InterestPicker';
 import { Button, Card, Section, Txt } from '@/components/ui/Primitives';
 import { AccountCard } from '@/features/account/AccountCard';
-import { useCatalogSources, useInterests } from '@/features/hooks';
+import { useCatalogSources, useDiary, useInterests } from '@/features/hooks';
 import { usePreferences } from '@/store/preferences';
 import { spacing, useColors } from '@/theme/tokens';
 
 export default function Profile() {
   const c = useColors();
   const router = useRouter();
-  const { mode } = useApi();
+  const { mode, user } = useApi();
+  const diary = useDiary();
   const { interests, setInterests } = useInterests();
   const [draft, setDraft] = useState(interests);
   const sources = useCatalogSources();
@@ -40,6 +41,24 @@ export default function Profile() {
           </View>
         ) : null}
       </Section>
+
+      {user.kind === 'supabase' ? (
+        <Section title="Tu diario">
+          <Card style={{ padding: spacing.md, gap: spacing.sm }}>
+            <Txt tone="muted">
+              {diary.data?.length
+                ? `${diary.data.length} ${diary.data.length === 1 ? 'función anotada' : 'funciones anotadas'}.`
+                : 'Anotá las funciones a las que fuiste, con puntaje y reseña. Solo vos lo ves.'}
+            </Txt>
+            <Button
+              label="Ver tu diario"
+              variant="secondary"
+              icon="book-outline"
+              onPress={() => router.push('/diario')}
+            />
+          </Card>
+        </Section>
+      ) : null}
 
       <Section title="Tu cuenta">
         <AccountCard />

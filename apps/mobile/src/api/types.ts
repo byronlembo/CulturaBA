@@ -141,6 +141,27 @@ export interface UserActionRecord {
   createdAt: string;
 }
 
+/** Una función a la que el usuario fue (diario privado). */
+export interface DiaryEntry {
+  id: string;
+  eventId: string;
+  eventSlug: string;
+  eventTitle: string;
+  discipline: string | null;
+  venueName: string | null;
+  /** Fecha local de Buenos Aires (YYYY-MM-DD). */
+  attendedOn: string;
+  rating: number | null;
+  review: string | null;
+}
+
+export interface DiaryInput {
+  attendedOn: string;
+  occurrenceId: string | null;
+  rating: number | null;
+  review: string | null;
+}
+
 export interface UserApi {
   readonly kind: 'supabase' | 'local';
   /** Id del usuario de Supabase, o 'local'. Separa el caché entre cuentas. */
@@ -150,6 +171,10 @@ export interface UserApi {
   listActions(): Promise<UserActionRecord[]>;
   addAction(eventId: string, action: UserAction): Promise<void>;
   removeAction(eventId: string, action: UserAction): Promise<void>;
+  listDiary(): Promise<DiaryEntry[]>;
+  addDiaryEntry(eventId: string, input: DiaryInput): Promise<void>;
+  updateDiaryEntry(id: string, input: Pick<DiaryInput, 'rating' | 'review'>): Promise<void>;
+  deleteDiaryEntry(id: string): Promise<void>;
 }
 
 // ── Mapeo de filas ──────────────────────────────────────────────────────────

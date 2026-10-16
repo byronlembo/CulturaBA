@@ -182,6 +182,37 @@ const shot = async (page, name) => {
   await page.waitForTimeout(800);
   await shot(page, '09-deeplink');
 
+  // 8. Diario (solo con Supabase: necesita sesión): una muestra en curso ofrece "Hoy".
+  if (supabaseUrl && supabaseKey) {
+    const today = new Date().toLocaleDateString('en-CA', {
+      timeZone: 'America/Argentina/Buenos_Aires',
+    });
+    const p = new URLSearchParams({
+      select: 'event_slug,event_title',
+      kind: 'eq.range',
+      status: 'neq.cancelled',
+      start_date: `lte.${today}`,
+      end_date: `gte.${today}`,
+      limit: '1',
+    });
+    const r = await fetch(`${supabaseUrl}/rest/v1/v_occurrences_public?${p}`, {
+      headers: { apikey: supabaseKey, authorization: `Bearer ${supabaseKey}` },
+    });
+    const [ongoing] = await r.json();
+    if (!ongoing) throw new Error('no hay muestras en curso para probar el diario');
+    await page.goto(`${base}/event/${ongoing.event_slug}`, { waitUntil: 'networkidle' });
+    await page.getByRole('button', { name: '¿Fuiste? Anotalo en tu diario' }).click();
+    await page.getByRole('button', { name: '4 de 5' }).click();
+    await page.getByLabel('Tu reseña').fill('Recorrido de prueba del diario.');
+    await page.getByRole('button', { name: 'Anotar en mi diario' }).click();
+    await page.getByText(/^Fuiste el /).waitFor({ timeout: 15000 });
+    await shot(page, '10-diary-event');
+    await page.goto(`${base}/diario`, { waitUntil: 'networkidle' });
+    await page.getByText(ongoing.event_title).first().waitFor({ timeout: 15000 });
+    await page.getByText('Recorrido de prueba del diario.').waitFor();
+    await shot(page, '11-diary');
+  }
+
   await browser.close();
   console.log('OK');
 })().catch((err) => {
