@@ -5,14 +5,14 @@ import type { Occurrence, Position } from '@/api/types';
 export const POINTS_PER_CHECK_IN = 10;
 
 const MESSAGES: Record<string, string> = {
-  not_signed_in: 'Necesitás una sesión para sumar puntos.',
+  not_signed_in: 'Se cortó tu sesión. Recargá la página e intentá de nuevo.',
   account_required: 'Creá tu cuenta en Perfil para sumar puntos.',
   not_available: 'Esta función ya no está disponible.',
   outside_window: 'El check-in se hace en la sala, desde una hora antes de la función.',
   venue_without_location: 'Todavía no tenemos la ubicación de esta sala.',
   low_accuracy: 'Tu ubicación no es precisa. Probá de nuevo con el GPS activado.',
-  too_far: 'Parece que no estás en la sala.',
-  daily_limit: 'Llegaste al máximo de 3 check-ins por día.',
+  too_far: 'Parece que no estás en la sala: el check-in funciona a menos de 300 m.',
+  daily_limit: 'Ya hiciste 3 check-ins hoy, el máximo por día. Mañana podés sumar más.',
   already_checked_in: 'Ya hiciste check-in en esta función.',
   reward_unavailable: 'Esta recompensa ya no está disponible.',
   not_enough_points: 'Todavía no te alcanzan los puntos.',
@@ -20,7 +20,7 @@ const MESSAGES: Record<string, string> = {
   user_not_found: 'No encontramos ese @usuario.',
   self: 'Ese @usuario sos vos.',
   too_many_requests: 'Tenés demasiadas solicitudes pendientes.',
-  no_request: 'Esa solicitud ya no existe.',
+  no_request: 'Esa solicitud ya no está: puede que la hayan cancelado.',
 };
 
 export function pointsErrorMessage(key: string): string {
@@ -58,8 +58,8 @@ export function currentPosition(): Promise<Position> {
         reject(
           new Error(
             e.code === 1
-              ? 'Necesitamos permiso de ubicación para el check-in.'
-              : 'No pudimos obtener tu ubicación.',
+              ? 'Para usar tu ubicación, permitila en la configuración del navegador.'
+              : 'No pudimos obtener tu ubicación. Revisá que esté activada e intentá de nuevo.',
           ),
         ),
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },

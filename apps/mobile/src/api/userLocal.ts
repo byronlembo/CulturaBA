@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { UserAction, UserActionRecord, UserApi } from './types';
 
 const needsServer = async (): Promise<never> => {
-  throw new Error('Necesitás conexión con el servidor.');
+  throw new Error('Esto necesita conexión. Revisá tu internet e intentá de nuevo.');
 };
 
 const INTERESTS_KEY = 'culturaba.local.interests';

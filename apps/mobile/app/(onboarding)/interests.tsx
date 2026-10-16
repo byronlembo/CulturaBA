@@ -33,7 +33,7 @@ export default function Interests() {
         contentContainerStyle={{ paddingHorizontal: spacing.xl, paddingBottom: spacing.xxl }}
       >
         <Txt variant="caption" tone="accent" style={{ letterSpacing: 2 }}>
-          PASO 1 DE 1
+          TUS INTERESES
         </Txt>
         <Txt variant="display" style={{ marginTop: spacing.sm }}>
           ¿Qué te interesa?

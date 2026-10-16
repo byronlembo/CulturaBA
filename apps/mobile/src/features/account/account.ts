@@ -20,7 +20,7 @@ export function accountErrorMessage(e: { code?: string; message: string }): stri
       return 'Se pidieron demasiados códigos. Probá de nuevo en un rato.';
     case 'email_address_invalid':
     case 'validation_failed':
-      return 'Revisá el email.';
+      return 'Ese email no parece válido. Revisalo e intentá de nuevo.';
     case 'email_address_not_authorized':
       return 'Por ahora no podemos enviar emails a esa dirección. Probá más tarde.';
     default:
@@ -30,7 +30,7 @@ export function accountErrorMessage(e: { code?: string; message: string }): stri
 
 function auth() {
   const sb = getSupabase();
-  if (!sb) throw new Error('La app no está conectada al servidor.');
+  if (!sb) throw new Error('No hay conexión con CulturaBA. Revisá tu internet e intentá de nuevo.');
   return sb.auth;
 }
 

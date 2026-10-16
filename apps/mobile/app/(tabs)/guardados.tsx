@@ -124,9 +124,9 @@ export default function Saved() {
                   ? 'Todavía no guardaste nada'
                   : tab === 'attending'
                     ? 'Sin planes confirmados'
-                    : 'Nada recomendado aún'
+                    : 'Todavía no recomendaste nada'
               }
-              body="Desde la ficha de un evento podés guardarlo, marcar que vas o recomendarlo."
+              body="Desde la ficha de un evento podés guardarlo, marcar «Asistiré» o recomendarlo."
               action={
                 <Button
                   label="Explorar"

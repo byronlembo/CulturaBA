@@ -9,7 +9,7 @@ const POINTS: { icon: keyof typeof Ionicons.glyphMap; title: string; body: strin
   {
     icon: 'sparkles-outline',
     title: 'Una sola agenda',
-    body: 'Teatro Colón, Bellas Artes, Palacio Libertad y más, actualizados automáticamente.',
+    body: 'La agenda oficial de la Ciudad, el Teatro Colón y más, actualizados varias veces por día.',
   },
   {
     icon: 'heart-outline',

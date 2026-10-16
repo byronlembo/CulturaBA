@@ -45,13 +45,18 @@ export function MapView({ header, filters }: { header: React.ReactNode; filters:
             Ordenado por cercanía. Tu ubicación no se guarda.
           </Txt>
         ) : (
-          <Button
-            label="Ver lo que está cerca"
-            variant="secondary"
-            icon="locate-outline"
-            loading={locating}
-            onPress={() => void locate()}
-          />
+          <>
+            <Button
+              label="Ver lo que está cerca"
+              variant="secondary"
+              icon="locate-outline"
+              loading={locating}
+              onPress={() => void locate()}
+            />
+            <Txt variant="small" tone="muted">
+              Usamos tu ubicación solo para ordenar las salas por cercanía. No se guarda.
+            </Txt>
+          </>
         )}
         {locError ? (
           <Txt variant="caption" tone="danger">

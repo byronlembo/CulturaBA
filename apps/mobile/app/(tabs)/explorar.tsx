@@ -154,7 +154,7 @@ export default function Explore() {
             : 'No hay eventos publicados todavía',
           body: hasActiveFilters(filters)
             ? 'Probá con otra búsqueda o quitá algún filtro.'
-            : 'Las fuentes se actualizan automáticamente varias veces por día.',
+            : 'Las agendas se actualizan varias veces por día.',
         }}
       />
     </Screen>

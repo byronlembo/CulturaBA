@@ -96,8 +96,8 @@ export function AccountCard() {
         <>
           <Txt tone="muted">
             {step.flow === 'create'
-              ? 'Te mandamos un email para confirmarlo. Lo que guardaste queda en tu cuenta.'
-              : 'Te mandamos un email para entrar. Lo que guardaste como invitado en este dispositivo no se suma a esa cuenta.'}
+              ? 'Te vamos a mandar un email para confirmarlo. Lo que guardaste queda en tu cuenta.'
+              : 'Te vamos a mandar un email para entrar. Lo que guardaste como invitado en este dispositivo no se suma a esa cuenta.'}
           </Txt>
           <Field
             accessibilityLabel="Email"

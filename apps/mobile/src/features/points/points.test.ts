@@ -35,6 +35,8 @@ describe('checkInCandidate', () => {
 });
 
 it('traduce los errores de la base', () => {
-  expect(pointsErrorMessage('too_far')).toBe('Parece que no estás en la sala.');
+  expect(pointsErrorMessage('too_far')).toBe(
+    'Parece que no estás en la sala: el check-in funciona a menos de 300 m.',
+  );
   expect(pointsErrorMessage('otro')).toBe('No se pudo completar: otro');
 });
