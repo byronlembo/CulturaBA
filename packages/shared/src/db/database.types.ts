@@ -333,6 +333,32 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"friendships": {
+                  Row: {
+                    "accepted_at": string | null,"addressee": string,"created_at": string,"requester": string,"status": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "accepted_at"?: string | null,"addressee": string,"created_at"?: string,"requester": string,"status"?: string
+                  }
+                  Update: {
+                    "accepted_at"?: string | null,"addressee"?: string,"created_at"?: string,"requester"?: string,"status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "friendships_addressee_fkey"
+      columns: ["addressee"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "friendships_requester_fkey"
+      columns: ["requester"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"ingestion_runs": {
                   Row: {
                     "error_message": string | null,"finished_at": string | null,"fixture_set": string | null,"git_sha": string | null,"id": string,"source_id": string,"started_at": string,"stats": NonNullable<Json>,"status": Database["public"]['Enums']["run_status"],"trigger": Database["public"]['Enums']["run_trigger"],"warnings": (string)[]
@@ -507,14 +533,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "created_at": string,"display_name": string | null,"id": string,"is_anonymous": boolean,"locale": string,"onboarding_completed_at": string | null,"updated_at": string
+                    "created_at": string,"display_name": string | null,"id": string,"is_anonymous": boolean,"locale": string,"onboarding_completed_at": string | null,"updated_at": string,"username": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"display_name"?: string | null,"id": string,"is_anonymous"?: boolean,"locale"?: string,"onboarding_completed_at"?: string | null,"updated_at"?: string
+                    "created_at"?: string,"display_name"?: string | null,"id": string,"is_anonymous"?: boolean,"locale"?: string,"onboarding_completed_at"?: string | null,"updated_at"?: string,"username"?: string | null
                   }
                   Update: {
-                    "created_at"?: string,"display_name"?: string | null,"id"?: string,"is_anonymous"?: boolean,"locale"?: string,"onboarding_completed_at"?: string | null,"updated_at"?: string
+                    "created_at"?: string,"display_name"?: string | null,"id"?: string,"is_anonymous"?: boolean,"locale"?: string,"onboarding_completed_at"?: string | null,"updated_at"?: string,"username"?: string | null
                   }
                   Relationships: [
                     
@@ -875,7 +901,10 @@ isOneToOne: false
                 }
           }
           Functions: {
-            "bump_event_stat":
+            "account_by_username":
+{ Args: { "p_username": string }; Returns: string
+                           },
+"bump_event_stat":
 { Args: { "p_action": Database["public"]['Enums']["user_action"],"p_delta": number,"p_event_id": string }; Returns: undefined
                            },
 "check_in":
@@ -887,11 +916,33 @@ isOneToOne: false
 "immutable_unaccent":
 { Args: { "": string }; Returns: string
                            },
+"leaderboard":
+{ Args: { "p_scope": string,"p_since"?: string }; Returns: {
+              "is_me": boolean,"points": number,"rank": number,"username": string
+            }[]
+                           },
+"my_friends":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "incoming": boolean,"status": string,"username": string
+            }[]
+                           },
 "my_points":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
 "redeem_reward":
 { Args: { "p_reward_id": string }; Returns: Json
+                           },
+"remove_friend":
+{ Args: { "p_username": string }; Returns: undefined
+                           },
+"respond_friend_request":
+{ Args: { "p_accept": boolean,"p_username": string }; Returns: undefined
+                           },
+"send_friend_request":
+{ Args: { "p_username": string }; Returns: string
+                           },
+"social_me":
+{ Args: Record<PropertyKey, never>; Returns: string
                            }
           }
           Enums: {

@@ -8,7 +8,8 @@ begin;
 -- ── Fixtures (as the migration owner, bypassing RLS) ────────────────────────
 insert into auth.users (id, email, is_anonymous) values
   ('00000000-0000-4000-8000-00000000000a', null, true),
-  ('00000000-0000-4000-8000-00000000000b', 'b@example.com', false);
+  ('00000000-0000-4000-8000-00000000000b', 'b@example.com', false),
+  ('00000000-0000-4000-8000-00000000000c', 'c@example.com', false);
 
 insert into public.events (id, slug, status, institution_id, default_venue_id, title, dedup_key, official_url, primary_discipline, candidate_reasons)
 values
@@ -128,6 +129,11 @@ begin
   begin
     perform 1 from public.points_ledger;
     raise exception 'anon must not read points_ledger';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    perform public.leaderboard('global');
+    raise exception 'anon must not read leaderboards';
   exception when insufficient_privilege then null;
   end;
 
@@ -280,6 +286,68 @@ begin
   end;
   select count(*) into n from public.redemptions;
   if n <> 1 then raise exception 'user B should see its redemption'; end if;
+
+  -- friends and leaderboards: username required, requests, accept, rankings
+  begin
+    perform public.send_friend_request('carla');
+    raise exception 'friends need a username first';
+  exception when raise_exception then
+    if sqlerrm <> 'username_required' then raise; end if;
+  end;
+  begin
+    update public.profiles set username = 'Bea Bad' where id = auth.uid();
+    raise exception 'usernames are lowercase letters, digits and _';
+  exception when check_violation then null;
+  end;
+  update public.profiles set username = 'bea' where id = auth.uid();
+  begin
+    perform public.send_friend_request('carla');
+    raise exception 'unknown usernames must not match';
+  exception when raise_exception then
+    if sqlerrm <> 'user_not_found' then raise; end if;
+  end;
+  begin
+    perform 1 from public.friendships;
+    raise exception 'friendships are only reachable through functions';
+  exception when insufficient_privilege then null;
+  end;
+  perform set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000c","role":"authenticated"}', true);
+  begin
+    update public.profiles set username = 'bea' where id = auth.uid();
+    raise exception 'usernames are unique';
+  exception when unique_violation then null;
+  end;
+  update public.profiles set username = 'carla' where id = auth.uid();
+  perform set_config('request.jwt.claims', user_b, true);
+  if public.send_friend_request('@Carla') <> 'sent' then raise exception 'request should be sent'; end if;
+  if public.send_friend_request('carla') <> 'pending' then raise exception 'second request should stay pending'; end if;
+  if (select count(*) from public.leaderboard('friends')) <> 1 then
+    raise exception 'a pending request is not a friend yet';
+  end if;
+  perform set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000c","role":"authenticated"}', true);
+  if not (select incoming from public.my_friends() where username = 'bea') then
+    raise exception 'carla should see an incoming request from bea';
+  end if;
+  perform public.respond_friend_request('bea', true);
+  if (select string_agg(username || ':' || points || ':' || rank, ',') from public.leaderboard('friends')) <> 'bea:10:1,carla:0:2' then
+    raise exception 'friends leaderboard = %', (select string_agg(username || ':' || points, ',') from public.leaderboard('friends'));
+  end if;
+  if (select string_agg(username, ',') from public.leaderboard('global')) <> 'bea,carla' then
+    raise exception 'global leaderboard should list bea with points and carla as me';
+  end if;
+  if (select count(*) from public.leaderboard('global', now() + interval '1 day')) <> 1 then
+    raise exception 'a period with no check-ins should only list me';
+  end if;
+  perform public.remove_friend('bea');
+  if exists (select 1 from public.my_friends()) then raise exception 'remove_friend should unfriend'; end if;
+  perform set_config('request.jwt.claims', user_a, true);
+  begin
+    perform public.send_friend_request('bea');
+    raise exception 'guests cannot add friends';
+  exception when raise_exception then
+    if sqlerrm <> 'account_required' then raise; end if;
+  end;
+  perform set_config('request.jwt.claims', user_b, true);
   perform set_config('request.jwt.claims', user_a, true);
   select count(*) into n from public.points_ledger;
   if n <> 0 then raise exception 'user A must not see user B points, saw %', n; end if;
