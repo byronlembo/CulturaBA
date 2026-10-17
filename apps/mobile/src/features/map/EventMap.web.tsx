@@ -43,7 +43,7 @@ function ClearOnMapClick({ onSelect }: { onSelect: (key: string | null) => void 
   return null;
 }
 
-// Área táctil de 44 px; el círculo de adentro crece con la cantidad de eventos. Se reusan
+// Caja de 44 px (centra el círculo, que crece con la cantidad de eventos y es lo único tocable). Se reusan
 // los íconos: cambiar el de un marcador reemplaza su elemento (y le quita el foco).
 const icons = new Map<string, L.DivIcon>();
 function pinIcon(count: number, on: boolean) {

@@ -24,7 +24,7 @@ export function distanceMeters(a: LatLng, b: LatLng): number {
   return 2 * 6_371_000 * Math.asin(Math.sqrt(h));
 }
 
-/** Diámetro del punto de una sala: de 24 px (1 evento) a 40 px (13 o más). El área táctil es de 44. */
+/** Diámetro del punto de una sala: de 24 px (1 evento) a 40 px (13 o más); es su área táctil. */
 // shortcut: en el Microcentro los puntos se pisan a zoom 12; si molesta, agrupar con leaflet.markercluster.
 export function pinSize(count: number): number {
   return Math.round(24 + (Math.min(Math.max(count, 1) - 1, 12) * 4) / 3);

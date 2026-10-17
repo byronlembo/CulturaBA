@@ -137,7 +137,7 @@ familia por peso, porque en nativo `fontWeight` no elige archivo. **Nunca** se c
 | Acción de la ficha (Asistiré, Recomiendo, Guardar) | activa | Fondo y borde dorados, ícono y texto oscuros |
 | Todo control en la web | foco de teclado | Anillo `2px solid accent`, separado 2 px (`:focus-visible` en `index.html`) |
 | Pestaña | activa / inactiva | `accent` / `muted`; etiqueta Schibsted 12 |
-| Pin del mapa | normal / elegido / foco | Círculo dorado de 24–40 px según la cantidad de eventos (con el número si hay más de uno) dentro de un área táctil de 44 px / marfil con anillo dorado / anillo de foco dorado. Se abre con clic, Enter o espacio |
+| Pin del mapa | normal / elegido / foco | Círculo dorado de 24–40 px según la cantidad de eventos (con el número si hay más de uno); el círculo es el área táctil, para que en zonas densas no se abra la sala vecina (WCAG 2.5.8 pide 24) / marfil con anillo dorado / anillo de foco dorado. Se abre con clic, Enter o espacio |
 | Hoja del mapa | sin sala / con sala | Indicación "Tocá un punto…" y nota de privacidad / nombre de la sala en Bodoni, distancia y cantidad, "Cerrar" (recibe el foco) y la lista de eventos con su próxima función en dorado |
 | "Estás acá" | — | Relleno `text` con borde dorado |
 

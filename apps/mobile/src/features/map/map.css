@@ -30,10 +30,20 @@
   color: #e0b055;
 }
 
-/* Pines: el área táctil es de 44 px; el círculo crece con la cantidad de eventos. */
+/* Pines: solo el círculo recibe toques. Un área transparente más grande taparía al vecino
+   en zonas densas y abriría otra sala; el círculo mide de 24 a 40 px (WCAG 2.5.8: 24). */
 .pin-icon {
   background: none;
   border: 0;
+}
+
+.leaflet-marker-icon.leaflet-interactive.pin-icon {
+  pointer-events: none;
+}
+
+.pin-icon .pin {
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .pin-hit {

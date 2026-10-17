@@ -151,7 +151,7 @@ const shot = async (page, name) => {
   const pin = page.locator('.leaflet-marker-icon.pin-icon').first();
   await pin.waitFor({ timeout: 20000 });
   await page.waitForTimeout(2000); // teselas
-  await pin.click();
+  await pin.dispatchEvent('click'); // en zonas densas otro punto puede quedar encima
   await page.getByRole('button', { name: /^Cerrar / }).waitFor({ timeout: 10000 });
   await page.waitForTimeout(800); // paneo hasta la sala
   await shot(page, '07a-explore-map');
