@@ -1,7 +1,7 @@
 import { SELECTABLE_DISCIPLINES } from '@culturaba/shared';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useMemo, useReducer, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { EventList } from '@/components/ui/EventList';
 import { Chip, Screen, Txt } from '@/components/ui/Primitives';
 import {
@@ -15,6 +15,9 @@ import { useEventsInfinite } from '@/features/hooks';
 import { MapView } from '@/features/map/MapView';
 import { disciplineIcon } from '@/lib/disciplineIcons';
 import { fonts, radius, spacing, useColors } from '@/theme/tokens';
+
+// El mapa es solo web por ahora; en el teléfono Explorar es la lista.
+const CAN_MAP = Platform.OS === 'web';
 
 function useDebounced<T>(value: T, ms: number): T {
   const [v, setV] = useState(value);
@@ -41,7 +44,7 @@ export default function Explore() {
     };
   }, [q, filters.disciplines, filters.datePreset, filters.freeOnly]);
 
-  const [mode, setMode] = useState<'map' | 'list'>('map');
+  const [mode, setMode] = useState<'map' | 'list'>(CAN_MAP ? 'map' : 'list');
   const query = useEventsInfinite(catalogFilters, mode === 'list');
 
   const header = (
@@ -73,20 +76,22 @@ export default function Explore() {
           </Pressable>
         ) : null}
       </View>
-      <View style={[styles.chips, { flexDirection: 'row' }]}>
-        <Chip
-          label="Mapa"
-          icon="map-outline"
-          selected={mode === 'map'}
-          onPress={() => setMode('map')}
-        />
-        <Chip
-          label="Lista"
-          icon="list-outline"
-          selected={mode === 'list'}
-          onPress={() => setMode('list')}
-        />
-      </View>
+      {CAN_MAP ? (
+        <View style={[styles.chips, { flexDirection: 'row' }]}>
+          <Chip
+            label="Mapa"
+            icon="map-outline"
+            selected={mode === 'map'}
+            onPress={() => setMode('map')}
+          />
+          <Chip
+            label="Lista"
+            icon="list-outline"
+            selected={mode === 'list'}
+            onPress={() => setMode('list')}
+          />
+        </View>
+      ) : null}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}

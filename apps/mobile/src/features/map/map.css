@@ -29,3 +29,43 @@
 .leaflet-container .leaflet-control-attribution a {
   color: #e0b055;
 }
+
+/* Pines: el área táctil es de 44 px; el círculo crece con la cantidad de eventos. */
+.pin-icon {
+  background: none;
+  border: 0;
+}
+
+.pin-hit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+}
+
+.pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 2px solid #1c0f15;
+  background-color: #e0b055;
+  color: #1c0f15;
+  font:
+    12px / 1 SchibstedGrotesk_600SemiBold,
+    system-ui,
+    sans-serif;
+}
+
+.pin.on {
+  background-color: #f6eee8;
+  box-shadow: 0 0 0 3px #e0b055;
+}
+
+.leaflet-marker-icon.pin-icon:focus-visible {
+  outline: 2px solid #e0b055;
+  outline-offset: 2px;
+  border-radius: 50%;
+}

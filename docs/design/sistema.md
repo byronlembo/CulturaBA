@@ -137,7 +137,8 @@ familia por peso, porque en nativo `fontWeight` no elige archivo. **Nunca** se c
 | Acción de la ficha (Asistiré, Recomiendo, Guardar) | activa | Fondo y borde dorados, ícono y texto oscuros |
 | Todo control en la web | foco de teclado | Anillo `2px solid accent`, separado 2 px (`:focus-visible` en `index.html`) |
 | Pestaña | activa / inactiva | `accent` / `muted`; etiqueta Schibsted 12 |
-| Pin del mapa | seleccionado | Relleno opaco y borde `text` de 3 px; los demás al 85 % con borde `bg` |
+| Pin del mapa | normal / elegido / foco | Círculo dorado de 24–40 px según la cantidad de eventos (con el número si hay más de uno) dentro de un área táctil de 44 px / marfil con anillo dorado / anillo de foco dorado. Se abre con clic, Enter o espacio |
+| Hoja del mapa | sin sala / con sala | Indicación "Tocá un punto…" y nota de privacidad / nombre de la sala en Bodoni, distancia y cantidad, "Cerrar" (recibe el foco) y la lista de eventos con su próxima función en dorado |
 | "Estás acá" | — | Relleno `text` con borde dorado |
 
 No hay animaciones propias; las transiciones son las de React Navigation.
@@ -150,7 +151,16 @@ No hay animaciones propias; las transiciones son las de React Navigation.
 - **Cargando / vacío / error:**
   - Cargando muestra `Loading`, con el spinner dorado.
   - Vacío y error usan `EmptyState` / `ErrorState` con un título según el contexto y "Reintentar".
-- **Mapa:** las teselas de OpenStreetMap se oscurecen con un filtro CSS (`shortcut`; con más tráfico conviene un proveedor de teselas oscuras). La lista de salas debajo repite la información para lectores de pantalla.
+- **Mapa (solo web):**
+  - Ocupa la pantalla debajo de los filtros. La hoja ocupa hasta la mitad del alto y la sala elegida se acomoda por encima de ella.
+  - Tocar el mapa fuera de un punto cierra la hoja.
+  - Las teselas de OpenStreetMap se oscurecen con un filtro CSS (`shortcut`; con más tráfico conviene un proveedor de teselas oscuras).
+  - En el Microcentro los puntos se pisan a zoom 12 (`shortcut`: agrupar con `leaflet.markercluster`).
+  - El modo Lista es la alternativa completa.
+- **"Fui" (asistencia):** en la ficha, sección "¿Fuiste?".
+  - Se elige la fecha entre las funciones ya empezadas; las de los últimos 7 días muestran "· +10".
+  - Guarda la entrada del diario (puntaje y reseña opcionales) y después suma los puntos.
+  - Si los puntos fallan (p. ej., 3 funciones ese día), la entrada queda y se avisa.
 - **Zona horaria:** las fechas siempre van en hora de Buenos Aires. Si el dispositivo está en otra zona, se avisa "Horarios en hora de Buenos Aires".
 
 ## Accesibilidad (verificado el 17-oct en la build web)

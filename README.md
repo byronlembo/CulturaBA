@@ -9,7 +9,7 @@ base de datos (Supabase/Postgres) y la app móvil (Expo).
 Ciudad (Linda). Complejo Teatral corregido pero fuera del cron (su sitio responde 403 a los
 runners de GitHub); MNBA y Palacio Libertad bloqueados por Cloudflare.
 La app suma mapa de la ciudad, cuenta con email, calendario, diario de funciones, puntos
-por asistencia (check-in en la sala), amigos y ranking. Detalle en [`docs/informe-etapa-1.md`](docs/informe-etapa-1.md) y
+por asistencia ("Fui", de buena fe), amigos y ranking. Detalle en [`docs/informe-etapa-1.md`](docs/informe-etapa-1.md) y
 [`docs/roadmap.md`](docs/roadmap.md).
 
 Documentación: [`docs/product-spec.md`](docs/product-spec.md) ·

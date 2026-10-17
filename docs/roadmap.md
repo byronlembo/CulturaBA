@@ -50,7 +50,7 @@ cuando una función próxima se cancela, se posterga o se reprograma.
 - **Diario ("Fui"):** desde la ficha, funciones ya empezadas (o la muestra abierta hoy)
   con puntaje 1–5 y reseña; pantalla "Tu diario" con estadísticas. Privado. Guarda título,
   disciplina y sala al anotar, así sobrevive al archivado del evento.
-- **Puntos:** check-in en la sala durante la función (cuenta con email; coordenadas
+- **Puntos** (reemplazado el 17-oct por "Fui", de buena fe): check-in en la sala durante la función (cuenta con email; coordenadas
   publicadas por la fuente; GPS a menos de 300 m y precisión < 150 m; una vez por función;
   máximo 3 por día) → 10 puntos en un libro contable que solo escriben las funciones de la
   base.
@@ -70,14 +70,26 @@ cuando una función próxima se cancela, se posterga o se reprograma.
 - **Ranking:** global o entre amigos, del mes o histórico, con los puntos de check-in (canjear
   no resta).
 
+**Hecho (17-oct):**
+- **Mapa independiente:**
+  - En la web, Explorar en modo mapa ocupa la pantalla debajo de los filtros.
+  - Tocar un punto (o elegirlo con Tab y Enter) abre una hoja con las funciones de esa sala, con enlace a cada ficha. El botón de ubicación muestra la sala más cercana.
+  - El modo Lista sigue siendo la alternativa completa; en el teléfono, Explorar es la lista.
+- **Asistencia de buena fe ("Fui"):**
+  - Desde la ficha se anota una función ya empezada: queda en el diario y suma 10 puntos si fue en los últimos 7 días.
+  - Sin GPS, también para invitados (conservan los puntos al crear la cuenta; en el ranking solo aparecen cuentas con @usuario).
+  - Una vez por función, máximo 3 por día de función.
+  - Se quitó el check-in con ubicación, porque no hay canjes reales. Las recompensas se ocultan mientras el catálogo esté vacío.
+
 **Pendiente:**
 - Mapa nativo (`react-native-maps`) y proveedor de teselas con plan si crece el tráfico.
 - Link de invitación para sumar amigos; bloquear o denunciar usuarios.
 - SMTP propio en Supabase (hoy los emails solo llegan al equipo) y plantillas con código
   (`scripts/push-auth-emails.sh`); entrar con Google (requiere credenciales de Google Cloud).
-- Check-in en la app nativa (`expo-location`); hoy, desde la web.
-- Fase B de verificación: código QR en la sala con instituciones asociadas (el GPS se
-  puede falsear).
+- Verificación de asistencia cuando haya canjes reales: código QR en la sala con
+  instituciones asociadas (hoy los puntos son de buena fe).
+- Agrupar puntos del mapa (`leaflet.markercluster`) si la superposición en el Microcentro molesta.
+- Recordatorio "¿Fuiste?" para lo marcado como Asistiré en la última semana.
 - Herramienta para que una institución valide un código (hoy: SQL, ver README).
 - Diario público opcional, perfiles, seguir a amigos, listas propias.
 - Revisar salas cuyas coordenadas difieren entre publicaciones de Linda (gana la primera).

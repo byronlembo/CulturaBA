@@ -1,5 +1,5 @@
 import type { EventSummary } from '@/api/types';
-import { distanceMeters, formatDistance, venuePins } from './venues';
+import { distanceMeters, formatDistance, pinSize, venuePins } from './venues';
 
 const ev = (id: string, venueName: string, venueLat: number | null, venueLng: number | null) =>
   ({ id, venueName, venueLat, venueLng, institutionName: 'X' }) as EventSummary;
@@ -35,4 +35,12 @@ it('mide y formatea distancias', () => {
   expect(d).toBeLessThan(350);
   expect(formatDistance(d)).toMatch(/^\d+0 m$/);
   expect(formatDistance(1234)).toBe('1,2 km');
+});
+
+it('agranda el punto con la cantidad de eventos, con tope', () => {
+  expect(pinSize(1)).toBe(24);
+  expect(pinSize(5)).toBe(29);
+  expect(pinSize(13)).toBe(40);
+  expect(pinSize(80)).toBe(40);
+  expect(pinSize(0)).toBe(24);
 });

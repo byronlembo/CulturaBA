@@ -146,9 +146,14 @@ const shot = async (page, name) => {
 
   // 5. Explorar con búsqueda: el primer resultado sin filtro desaparece al buscar.
   await page.goto(`${base}/explorar`, { waitUntil: 'networkidle' });
-  // Explorar abre en el mapa: salas con coordenadas publicadas por las fuentes.
-  await page.locator('path.leaflet-interactive').first().waitFor({ timeout: 20000 });
+  // Explorar abre en el mapa: salas con coordenadas publicadas por las fuentes. Tocar un
+  // punto abre la hoja con sus funciones.
+  const pin = page.locator('.leaflet-marker-icon.pin-icon').first();
+  await pin.waitFor({ timeout: 20000 });
   await page.waitForTimeout(2000); // teselas
+  await pin.click();
+  await page.getByRole('button', { name: /^Cerrar / }).waitFor({ timeout: 10000 });
+  await page.waitForTimeout(800); // paneo hasta la sala
   await shot(page, '07a-explore-map');
   await page.getByText('Lista', { exact: true }).click();
   await page.getByText(all[0].title).first().waitFor({ timeout: 15000 });
@@ -206,11 +211,12 @@ const shot = async (page, name) => {
     const [ongoing] = await r.json();
     if (!ongoing) throw new Error('no hay muestras en curso para probar el diario');
     await page.goto(`${base}/event/${ongoing.event_slug}`, { waitUntil: 'networkidle' });
-    await page.getByRole('button', { name: '¿Fuiste? Anotalo en tu diario' }).click();
+    await page.getByRole('button', { name: 'Fui a esta función' }).click();
     await page.getByRole('button', { name: '4 de 5' }).click();
     await page.getByLabel('Tu reseña').fill('Recorrido de prueba del diario.');
-    await page.getByRole('button', { name: 'Anotar en mi diario' }).click();
+    await page.getByRole('button', { name: 'Fui', exact: true }).click();
     await page.getByText(/^Fuiste el /).waitFor({ timeout: 15000 });
+    await page.getByText('¡Listo! Sumaste 10 puntos.').waitFor({ timeout: 15000 });
     await shot(page, '10-diary-event');
     await page.goto(`${base}/diario`, { waitUntil: 'networkidle' });
     await page.getByText(ongoing.event_title).first().waitFor({ timeout: 15000 });
