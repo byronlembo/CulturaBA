@@ -244,7 +244,10 @@ export function useDiaryMutation() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (change: (u: UserApi) => Promise<void>) => change(user),
-    onSettled: () => qc.invalidateQueries({ queryKey: keys.diary }),
+    onSettled: () => {
+      void qc.invalidateQueries({ queryKey: keys.diary });
+      void qc.invalidateQueries({ queryKey: keys.points }); // "Fui" también suma puntos
+    },
   });
 }
 
@@ -269,7 +272,7 @@ export function useRewards() {
   });
 }
 
-/** Check-in o canje; refresca saldo, movimientos, recompensas y canjes. */
+/** "Fui" o canje; refresca saldo, movimientos, recompensas y canjes. */
 export function usePointsMutation<T>() {
   const { user } = useApi();
   const qc = useQueryClient();

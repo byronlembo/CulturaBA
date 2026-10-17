@@ -16,6 +16,7 @@ export function PointsSection() {
   const rewards = useRewards();
   const redeem = usePointsMutation<{ code: string; balance: number }>();
   const balance = points.data?.balance ?? 0;
+  const rewardList = rewards.data?.rewards ?? [];
 
   return (
     <Section title="Tus puntos">
@@ -25,9 +26,9 @@ export function PointsSection() {
           <Txt tone="muted"> puntos</Txt>
         </Txt>
         <Txt tone="muted">
-          Sumás {POINTS_PER_CHECK_IN} puntos por cada función a la que vas: hacé check-in desde la
-          ficha del evento, en la sala.
-          {account?.isAnonymous ? ' Necesitás una cuenta.' : ''}
+          Sumás {POINTS_PER_CHECK_IN} puntos por cada función a la que fuiste: tocá "Fui a esta
+          función" en la ficha, hasta 7 días después. Es de buena fe: por ahora sirven para el
+          ranking.
         </Txt>
         <View style={{ flexDirection: 'row', gap: spacing.sm }}>
           <Button
@@ -61,36 +62,35 @@ export function PointsSection() {
         ))}
       </Card>
 
-      <Txt variant="heading" style={{ marginTop: spacing.lg, marginBottom: spacing.sm }}>
-        Recompensas
-      </Txt>
-      {(rewards.data?.rewards ?? []).length === 0 ? (
-        <Txt tone="muted">
-          Todavía no hay recompensas. Las vamos sumando a medida que se suman instituciones.
-        </Txt>
-      ) : (
-        (rewards.data?.rewards ?? []).map((r) => (
-          <Card
-            key={r.id}
-            style={{ padding: spacing.md, gap: spacing.sm, marginBottom: spacing.sm }}
-          >
-            <Txt variant="heading">{r.title}</Txt>
-            {r.description ? <Txt tone="muted">{r.description}</Txt> : null}
-            {r.terms ? (
-              <Txt variant="caption" tone="muted">
-                {r.terms}
-              </Txt>
-            ) : null}
-            <Button
-              label={`Canjear por ${r.cost} puntos`}
-              variant="secondary"
-              disabled={balance < r.cost || Boolean(account?.isAnonymous)}
-              loading={redeem.isPending}
-              onPress={() => redeem.mutate((u) => u.redeemReward(r.id))}
-            />
-          </Card>
-        ))
-      )}
+      {/* Sin catálogo no hay sección: los puntos hoy sirven para el ranking. */}
+      {rewardList.length > 0 ? (
+        <>
+          <Txt variant="heading" style={{ marginTop: spacing.lg, marginBottom: spacing.sm }}>
+            Recompensas
+          </Txt>
+          {rewardList.map((r) => (
+            <Card
+              key={r.id}
+              style={{ padding: spacing.md, gap: spacing.sm, marginBottom: spacing.sm }}
+            >
+              <Txt variant="heading">{r.title}</Txt>
+              {r.description ? <Txt tone="muted">{r.description}</Txt> : null}
+              {r.terms ? (
+                <Txt variant="caption" tone="muted">
+                  {r.terms}
+                </Txt>
+              ) : null}
+              <Button
+                label={`Canjear por ${r.cost} puntos`}
+                variant="secondary"
+                disabled={balance < r.cost || Boolean(account?.isAnonymous)}
+                loading={redeem.isPending}
+                onPress={() => redeem.mutate((u) => u.redeemReward(r.id))}
+              />
+            </Card>
+          ))}
+        </>
+      ) : null}
       {redeem.data ? (
         <Txt style={{ marginTop: spacing.sm }}>
           Tu código: {redeem.data.code}. Mostralo al retirar la recompensa.

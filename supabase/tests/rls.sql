@@ -40,6 +40,18 @@ insert into public.occurrences (id, event_id, venue_id, kind, starts_at, ends_at
   ('00000000-0000-4000-8000-0000000000f1', '00000000-0000-4000-8000-0000000000e1',
     (select id from public.venues where slug = 'teatro-colon'), 'timed', now() - interval '20 minutes',
     null, current_date, current_date, 'scheduled');
+-- Good-faith "Fui": three more today (per-day limit), one 3 days ago, one 8 days ago.
+insert into public.occurrences (id, event_id, venue_id, kind, starts_at, ends_at, start_date, end_date, status) values
+  ('00000000-0000-4000-8000-0000000000f2', '00000000-0000-4000-8000-0000000000e1',
+    (select id from public.venues where slug = 'teatro-colon'), 'timed', now() - interval '21 minutes', null, current_date, current_date, 'scheduled'),
+  ('00000000-0000-4000-8000-0000000000f3', '00000000-0000-4000-8000-0000000000e1',
+    (select id from public.venues where slug = 'teatro-colon'), 'timed', now() - interval '22 minutes', null, current_date, current_date, 'scheduled'),
+  ('00000000-0000-4000-8000-0000000000f4', '00000000-0000-4000-8000-0000000000e1',
+    (select id from public.venues where slug = 'teatro-colon'), 'timed', now() - interval '23 minutes', null, current_date, current_date, 'scheduled'),
+  ('00000000-0000-4000-8000-0000000000f5', '00000000-0000-4000-8000-0000000000e1',
+    (select id from public.venues where slug = 'teatro-colon'), 'timed', now() - interval '3 days', null, current_date - 3, current_date - 3, 'scheduled'),
+  ('00000000-0000-4000-8000-0000000000f6', '00000000-0000-4000-8000-0000000000e1',
+    (select id from public.venues where slug = 'teatro-colon'), 'timed', now() - interval '8 days', null, current_date - 8, current_date - 8, 'scheduled');
 insert into public.rewards (id, title, cost, stock) values
   ('00000000-0000-4000-8000-0000000000a1', 'Recompensa de prueba', 10, 1);
 
@@ -62,7 +74,7 @@ begin
   if n <> 1 then raise exception 'anon should see exactly 1 published event, saw %', n; end if;
 
   select count(*) into n from public.occurrences;
-  if n <> 2 then raise exception 'anon should see 2 visible occurrences (not missing, published event), saw %', n; end if;
+  if n <> 7 then raise exception 'anon should see 7 visible occurrences (not missing, published event), saw %', n; end if;
 
   select count(*) into n from public.event_disciplines;
   if n <> 2 then raise exception 'anon should see 2 discipline rows of the published event, saw %', n; end if;
@@ -74,7 +86,7 @@ begin
   if v.next_starts_at is null then raise exception 'v_events_public next_starts_at is null'; end if;
 
   select count(*) into n from public.v_occurrences_public;
-  if n <> 2 then raise exception 'v_occurrences_public should expose 2 rows, saw %', n; end if;
+  if n <> 7 then raise exception 'v_occurrences_public should expose 7 rows, saw %', n; end if;
 
   select count(*) into n from public.v_event_sources_public;
   if n <> 1 then raise exception 'v_event_sources_public should expose 1 row, saw %', n; end if;
@@ -122,7 +134,7 @@ begin
   select count(*) into n from public.rewards;
   if n <> 1 then raise exception 'anon should see the active reward, saw %', n; end if;
   begin
-    perform public.check_in('00000000-0000-4000-8000-0000000000f1', -34.6011, -58.3826, 20);
+    perform public.check_in('00000000-0000-4000-8000-0000000000f1');
     raise exception 'anon must not check in';
   exception when insufficient_privilege then null;
   end;
@@ -231,38 +243,41 @@ begin
   if n <> 0 then raise exception 'user B must not see user A diary, saw %', n; end if;
   perform set_config('request.jwt.claims', user_a, true);
 
-  -- points: guests cannot earn; accounts earn once per performance, at the venue
+  -- points ("Fui", good faith): guests earn too; from 1 h before a performance until 7 days
+  -- after it, once per performance, at most 3 performances per day
+  if (public.check_in('00000000-0000-4000-8000-0000000000f1') ->> 'balance')::int <> 10 then
+    raise exception 'a guest should earn 10 points';
+  end if;
+  perform public.check_in('00000000-0000-4000-8000-0000000000f2');
+  perform public.check_in('00000000-0000-4000-8000-0000000000f3');
   begin
-    perform public.check_in('00000000-0000-4000-8000-0000000000f1', -34.6011, -58.3826, 20);
-    raise exception 'a guest must not earn points';
+    perform public.check_in('00000000-0000-4000-8000-0000000000f4');
+    raise exception 'a fourth performance on the same day must not count';
   exception when raise_exception then
-    if sqlerrm <> 'account_required' then raise; end if;
+    if sqlerrm <> 'daily_limit' then raise; end if;
   end;
-  perform set_config('request.jwt.claims', user_b, true);
+  if (public.check_in('00000000-0000-4000-8000-0000000000f5') ->> 'balance')::int <> 40 then
+    raise exception 'a performance 3 days ago should count';
+  end if;
   begin
-    perform public.check_in('00000000-0000-4000-8000-0000000000f1', -34.6200, -58.3826, 20);
-    raise exception '2 km away must not count';
+    perform public.check_in('00000000-0000-4000-8000-0000000000f6');
+    raise exception 'a performance 8 days ago must not count';
   exception when raise_exception then
-    if sqlerrm <> 'too_far' then raise; end if;
-  end;
-  begin
-    perform public.check_in('00000000-0000-4000-8000-0000000000f1', -34.6011, -58.3826, 500);
-    raise exception 'a 500 m fix must not count';
-  exception when raise_exception then
-    if sqlerrm <> 'low_accuracy' then raise; end if;
+    if sqlerrm <> 'outside_window' then raise; end if;
   end;
   begin
     perform public.check_in((select id from public.occurrences where event_id = e1 and status = 'scheduled'
-      and starts_at > now() + interval '1 day'), -34.6011, -58.3826, 20);
+      and starts_at > now() + interval '1 day'));
     raise exception 'a performance in two days must not count';
   exception when raise_exception then
     if sqlerrm <> 'outside_window' then raise; end if;
   end;
-  if (public.check_in('00000000-0000-4000-8000-0000000000f1', -34.6011, -58.3826, 20) ->> 'balance')::int <> 10 then
+  perform set_config('request.jwt.claims', user_b, true);
+  if (public.check_in('00000000-0000-4000-8000-0000000000f1') ->> 'balance')::int <> 10 then
     raise exception 'first check-in should give 10 points';
   end if;
   begin
-    perform public.check_in('00000000-0000-4000-8000-0000000000f1', -34.6011, -58.3826, 20);
+    perform public.check_in('00000000-0000-4000-8000-0000000000f1');
     raise exception 'second check-in to the same performance must not count';
   exception when raise_exception then
     if sqlerrm <> 'already_checked_in' then raise; end if;
@@ -349,7 +364,7 @@ begin
   end;
   perform set_config('request.jwt.claims', user_b, true);
   perform set_config('request.jwt.claims', user_a, true);
-  select count(*) into n from public.points_ledger;
+  select count(*) into n from public.points_ledger where user_id <> auth.uid();
   if n <> 0 then raise exception 'user A must not see user B points, saw %', n; end if;
 
   execute 'reset role';

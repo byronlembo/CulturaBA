@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native';
 import type { DiaryEntry } from '@/api/types';
 import { Button, Chip, Field, Txt } from '@/components/ui/Primitives';
 import { useDiaryMutation } from '@/features/hooks';
+import { POINTS_PER_CHECK_IN } from '@/features/points/points';
 import { spacing, useColors } from '@/theme/tokens';
 import type { DiaryDateOption } from './diary';
 
@@ -48,7 +49,16 @@ export function Stars({
   );
 }
 
-/** Alta (elige la fecha entre `options`) o edición de una entrada existente (`entry`). */
+/** Lo que pasó con los puntos al anotar un "Fui". */
+export interface FuiResult {
+  points?: number;
+  pointsError?: string;
+}
+
+/**
+ * Alta ("Fui": elige la fecha entre `options` y, si es de los últimos 7 días, suma puntos) o
+ * edición de una entrada existente (`entry`).
+ */
 export function DiaryForm({
   eventId,
   options,
@@ -58,7 +68,7 @@ export function DiaryForm({
   eventId: string;
   options?: DiaryDateOption[];
   entry?: DiaryEntry;
-  onDone: () => void;
+  onDone: (result?: FuiResult) => void;
 }) {
   const save = useDiaryMutation();
   const [picked, setPicked] = useState(options?.[0] ?? null);
@@ -73,7 +83,7 @@ export function DiaryForm({
           {options.map((o) => (
             <Chip
               key={o.date}
-              label={o.label}
+              label={o.points ? `${o.label} · +${POINTS_PER_CHECK_IN}` : o.label}
               selected={picked?.date === o.date}
               onPress={() => setPicked(o)}
             />
@@ -91,30 +101,46 @@ export function DiaryForm({
         style={{ minHeight: 80, textAlignVertical: 'top' }}
       />
       <Button
-        label={entry ? 'Guardar cambios' : 'Anotar en mi diario'}
+        label={entry ? 'Guardar cambios' : 'Fui'}
         disabled={!entry && !picked}
         loading={save.isPending}
-        onPress={() =>
+        onPress={() => {
+          if (entry) {
+            save.mutate((u) => u.updateDiaryEntry(entry.id, { rating, review: text }), {
+              onSuccess: () => onDone(),
+            });
+            return;
+          }
+          const result: FuiResult = {};
           save.mutate(
-            (u) =>
-              entry
-                ? u.updateDiaryEntry(entry.id, { rating, review: text })
-                : u.addDiaryEntry(eventId, {
-                    attendedOn: picked?.date ?? '',
-                    occurrenceId: picked?.occurrenceId ?? null,
-                    rating,
-                    review: text,
-                  }),
-            { onSuccess: onDone },
-          )
-        }
+            async (u) => {
+              await u.addDiaryEntry(eventId, {
+                attendedOn: picked?.date ?? '',
+                occurrenceId: picked?.occurrenceId ?? null,
+                rating,
+                review: text,
+              });
+              // La entrada ya quedó; si los puntos fallan, se avisa sin deshacerla.
+              if (picked?.points) {
+                try {
+                  result.points = (await u.checkIn(picked.occurrenceId)).points;
+                } catch (err) {
+                  result.pointsError = (err as Error).message;
+                }
+              }
+            },
+            { onSuccess: () => onDone(result) },
+          );
+        }}
       />
       {entry ? (
         <Button
           label="Borrar del diario"
           variant="ghost"
           disabled={save.isPending}
-          onPress={() => save.mutate((u) => u.deleteDiaryEntry(entry.id), { onSuccess: onDone })}
+          onPress={() =>
+            save.mutate((u) => u.deleteDiaryEntry(entry.id), { onSuccess: () => onDone() })
+          }
         />
       ) : null}
       {save.error ? (

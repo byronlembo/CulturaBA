@@ -1,11 +1,14 @@
 import { toBa } from '@culturaba/shared';
 import type { DiaryEntry, Occurrence } from '@/api/types';
+import { POINTS_WINDOW_DAYS } from '@/features/points/points';
 import { formatBaDateShort, formatBaDateTimeShort } from '@/lib/dates';
 
 export interface DiaryDateOption {
   date: string;
   occurrenceId: string;
   label: string;
+  /** Suma puntos al anotarla: empezó hace 7 días o menos (o es una muestra abierta hoy). */
+  points: boolean;
 }
 
 /**
@@ -19,13 +22,14 @@ export function diaryDateOptions(occurrences: Occurrence[], now = Date.now()): D
     if (o.status === 'cancelled') continue;
     if (o.kind === 'range') {
       if (o.startDate <= today && today <= o.endDate)
-        options.push({ date: today, occurrenceId: o.id, label: 'Hoy' });
+        options.push({ date: today, occurrenceId: o.id, label: 'Hoy', points: true });
     } else if (Date.parse(o.startsAt) <= now) {
       options.push({
         date: o.startDate,
         occurrenceId: o.id,
         label:
           o.kind === 'timed' ? formatBaDateTimeShort(o.startsAt) : formatBaDateShort(o.startsAt),
+        points: Date.parse(o.startsAt) >= now - POINTS_WINDOW_DAYS * 86_400_000,
       });
     }
   }

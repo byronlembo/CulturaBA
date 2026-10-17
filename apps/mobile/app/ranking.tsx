@@ -56,7 +56,7 @@ export default function Ranking() {
               <Chip label="Siempre" selected={!month} onPress={() => setMonth(false)} />
             </View>
             <Txt variant="small" tone="muted">
-              Puntos por check-in en las funciones. Canjear recompensas no te baja en el ranking.
+              Puntos por las funciones a las que fuiste. Es de buena fe: anotá solo lo que viste.
             </Txt>
             {username.data === null ? (
               <Button
@@ -78,7 +78,7 @@ export default function Ranking() {
               title={
                 scope === 'friends' ? 'Sumá amigos para competir' : 'Todavía nadie sumó puntos'
               }
-              body="Hacé check-in en las funciones a las que vas para sumar puntos."
+              body="Tocá «Fui a esta función» en la ficha de lo que viste para sumar puntos."
             />
           )
         }

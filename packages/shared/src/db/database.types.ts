@@ -7,14 +7,14 @@ export type Database = {
           Tables: {
             "check_ins": {
                   Row: {
-                    "accuracy_m": number,"created_at": string,"distance_m": number,"event_id": string,"id": string,"lat": number,"lng": number,"occurrence_id": string,"user_id": string,"venue_id": string
+                    "accuracy_m": number | null,"attended_on": string | null,"created_at": string,"distance_m": number | null,"event_id": string,"id": string,"lat": number | null,"lng": number | null,"occurrence_id": string,"user_id": string,"venue_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "accuracy_m": number,"created_at"?: string,"distance_m": number,"event_id": string,"id"?: string,"lat": number,"lng": number,"occurrence_id": string,"user_id": string,"venue_id": string
+                    "accuracy_m"?: number | null,"attended_on"?: string | null,"created_at"?: string,"distance_m"?: number | null,"event_id": string,"id"?: string,"lat"?: number | null,"lng"?: number | null,"occurrence_id": string,"user_id": string,"venue_id"?: string | null
                   }
                   Update: {
-                    "accuracy_m"?: number,"created_at"?: string,"distance_m"?: number,"event_id"?: string,"id"?: string,"lat"?: number,"lng"?: number,"occurrence_id"?: string,"user_id"?: string,"venue_id"?: string
+                    "accuracy_m"?: number | null,"attended_on"?: string | null,"created_at"?: string,"distance_m"?: number | null,"event_id"?: string,"id"?: string,"lat"?: number | null,"lng"?: number | null,"occurrence_id"?: string,"user_id"?: string,"venue_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -908,7 +908,7 @@ isOneToOne: false
 { Args: { "p_action": Database["public"]['Enums']["user_action"],"p_delta": number,"p_event_id": string }; Returns: undefined
                            },
 "check_in":
-{ Args: { "p_accuracy_m": number,"p_lat": number,"p_lng": number,"p_occurrence_id": string }; Returns: Json
+{ Args: { "p_occurrence_id": string }; Returns: Json
                            },
 "distance_m":
 { Args: { "lat1": number,"lat2": number,"lng1": number,"lng2": number }; Returns: number

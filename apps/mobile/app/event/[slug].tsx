@@ -32,7 +32,6 @@ import {
   useStats,
   useToggleAction,
 } from '@/features/hooks';
-import { CheckInCard } from '@/features/points/CheckInCard';
 import { addToCalendar, calendarEntry } from '@/lib/calendar';
 import { relativeTimeEs, whenText } from '@/lib/dates';
 import { env } from '@/lib/env';
@@ -203,7 +202,6 @@ function Body({ event }: { event: EventDetail }) {
           <Txt tone="muted">No hay funciones próximas publicadas.</Txt>
         )}
 
-        <CheckInCard occurrences={occurrences.data ?? []} />
         <DiarySection eventId={event.id} occurrences={occurrences.data ?? []} />
 
         {event.venueName ? (

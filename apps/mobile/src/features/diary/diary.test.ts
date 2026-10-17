@@ -35,6 +35,21 @@ describe('diaryDateOptions', () => {
       ['2026-10-11', 'a'],
     ]);
     expect(options[1]?.label).toBe('mié 14 oct · 20:00');
+    expect(options.map((o) => o.points)).toEqual([true, true, true]);
+  });
+
+  it('suma puntos solo hasta 7 días después de la función', () => {
+    const options = diaryDateOptions(
+      [
+        occ({ id: 'a', startsAt: '2026-10-08T12:30:00-03:00', startDate: '2026-10-08' }),
+        occ({ id: 'b', startsAt: '2026-10-08T11:30:00-03:00', startDate: '2026-10-07' }),
+      ],
+      now,
+    );
+    expect(options.map((o) => [o.occurrenceId, o.points])).toEqual([
+      ['a', true],
+      ['b', false],
+    ]);
   });
 
   it('no ofrece nada para un evento que todavía no empezó', () => {

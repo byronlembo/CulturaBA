@@ -135,13 +135,8 @@ export function createSupabaseUserApi(supabase: SupabaseClient<Database>, userId
       if (error) throw new Error(error.message);
     },
 
-    async checkIn(occurrenceId, at) {
-      const { data, error } = await supabase.rpc('check_in', {
-        p_occurrence_id: occurrenceId,
-        p_lat: at.lat,
-        p_lng: at.lng,
-        p_accuracy_m: at.accuracy,
-      });
+    async checkIn(occurrenceId) {
+      const { data, error } = await supabase.rpc('check_in', { p_occurrence_id: occurrenceId });
       if (error) throw new Error(pointsErrorMessage(error.message));
       return data as { points: number; balance: number };
     },

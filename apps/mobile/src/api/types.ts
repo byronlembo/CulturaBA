@@ -73,7 +73,7 @@ export interface Occurrence {
   room: string | null;
   venueName: string | null;
   venueAddress: string | null;
-  /** Coordenadas publicadas por la fuente; sin ellas no hay check-in. */
+  /** Coordenadas publicadas por la fuente (el mapa las usa). */
   venueLat: number | null;
   venueLng: number | null;
 }
@@ -225,7 +225,7 @@ export interface UserApi {
   addDiaryEntry(eventId: string, input: DiaryInput): Promise<void>;
   updateDiaryEntry(id: string, input: Pick<DiaryInput, 'rating' | 'review'>): Promise<void>;
   deleteDiaryEntry(id: string): Promise<void>;
-  checkIn(occurrenceId: string, at: Position): Promise<{ points: number; balance: number }>;
+  checkIn(occurrenceId: string): Promise<{ points: number; balance: number }>;
   getPoints(): Promise<{ balance: number; moves: PointsMove[] }>;
   listRewards(): Promise<Reward[]>;
   redeemReward(rewardId: string): Promise<{ code: string; balance: number }>;
