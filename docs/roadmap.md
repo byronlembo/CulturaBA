@@ -84,6 +84,29 @@ cuando una función próxima se cancela, se posterga o se reprograma.
 - Conflicto de sala entre fuentes para la misma función: hoy se muestran ambas; que gane
   la institución.
 
+## Diseño — identidad "Telón" (17-oct)
+
+**Hecho:**
+- **Auditoría** con axe-core, las sondas de `ux-ui-audit` y las skills de accesibilidad,
+  textos (`docs/design/voz.md`) y crítica. Se corrigió lo medible: contraste, etiquetas,
+  áreas táctiles de 44 px, encabezados, idioma y foco visible.
+- **Identidad elegida entre dos direcciones:**
+  - Telón es la sala oscura bordó con dorado, en Bodoni Moda + Schibsted Grotesk.
+  - La app es siempre oscura.
+  - Las tarjetas son "talones de entrada" con la fecha a la izquierda.
+- **Implementada en la app web:** tokens, primitivas, ficha, mapa oscuro, calendario,
+  ranking y cifras del diario y de los puntos. Especificación en `docs/design/sistema.md`.
+- **Verificado:** 0 problemas críticos o serios de accesibilidad y 0 fallas de contraste en
+  lo medido.
+
+**Pendiente:**
+- Prueba de usabilidad con 5 personas (guion en `docs/design/investigacion.md`) y otra ronda
+  de ajustes con lo que salga.
+- Fuentes recortadas en woff2 para la primera carga web (hoy unos 400 KB de TTF).
+- Borde punteado del talón en iOS; mapa nativo con la misma paleta.
+- Capturas 12–16 de `docs/screenshots` (check-in, puntos, mapa cerca, amigos, ranking):
+  muestran el estilo anterior porque requieren una cuenta de prueba.
+
 ## Etapa 3 — Operación y expansión
 - Panel mínimo de revisión: fuentes y última corrida, errores, candidatos
   (`candidate_reasons`), duplicados (`event_duplicates`), corregir fechas, desactivar
