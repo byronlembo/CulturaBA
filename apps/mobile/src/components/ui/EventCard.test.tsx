@@ -35,7 +35,8 @@ const base: EventSummary = {
 
 describe('eventWhen', () => {
   it('shows next date plus remaining count', () => {
-    expect(eventWhen(base)).toMatch(/^dom 18 oct(?: 2026)? · 20:00 · \+1 fechas$/);
+    expect(eventWhen(base)).toMatch(/^dom 18 oct(?: 2026)? · 20:00 · \+1 fecha$/);
+    expect(eventWhen({ ...base, upcomingCount: 3 })).toMatch(/· \+2 fechas$/);
   });
   it('describes ongoing exhibitions', () => {
     expect(
@@ -81,7 +82,7 @@ describe('ticket stub', () => {
     // 23:30 en BA es 02:30Z del día siguiente: debe seguir siendo "dom 18 oct".
     const e = { ...base, nextStartsAt: '2026-10-19T02:30:00.000Z' };
     expect(ticketDate(e)).toEqual({ top: 'dom', day: '18', bottom: 'oct' });
-    expect(ticketDetail(e)).toEqual({ time: '23:30', note: '+1 fechas' });
+    expect(ticketDetail(e)).toEqual({ time: '23:30', note: '+1 fecha' });
   });
   it('uses the closing date for ongoing exhibitions', () => {
     const e = {
@@ -120,6 +121,11 @@ describe('<EventCard />', () => {
     expect(screen.getByText('3 van')).toBeTruthy();
     expect(screen.getByText('20:00')).toBeTruthy();
     expect(screen.queryByText('Gratis')).toBeNull();
+  });
+
+  it('uses the singular for one person', async () => {
+    await render(<EventCard event={{ ...base, attendingCount: 1, recommendCount: 1 }} />);
+    expect(screen.getByText('1 va · 1 recomienda')).toBeTruthy();
   });
 
   it('marks free events', async () => {

@@ -1,9 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fonts, useColors } from '@/theme/tokens';
 
 export default function TabsLayout() {
   const c = useColors();
+  // Alto explícito: con Schibsted Grotesk la etiqueta no entra en los 49 px por defecto.
+  const insets = useSafeAreaInsets();
   return (
     <Tabs
       screenOptions={{
@@ -14,8 +17,19 @@ export default function TabsLayout() {
         headerTitleAlign: 'left',
         tabBarActiveTintColor: c.accent,
         tabBarInactiveTintColor: c.muted,
-        tabBarStyle: { backgroundColor: c.tabBar, borderTopColor: c.border },
-        tabBarLabelStyle: { fontFamily: fonts.bodyMedium, fontSize: 11, lineHeight: 14 },
+        tabBarStyle: {
+          backgroundColor: c.tabBar,
+          borderTopColor: c.border,
+          height: 64 + insets.bottom,
+          paddingTop: 6,
+          paddingBottom: 6 + insets.bottom,
+        },
+        tabBarLabelStyle: {
+          fontFamily: fonts.bodyMedium,
+          fontSize: 12,
+          lineHeight: 16,
+          flexShrink: 0,
+        },
         sceneStyle: { backgroundColor: c.bg },
       }}
     >

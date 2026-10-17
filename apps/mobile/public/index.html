@@ -18,6 +18,16 @@
       body {
         overflow: hidden;
       }
+      /* Telón: anillo de foco dorado (el del navegador no se ve sobre el bordó) */
+      :focus-visible {
+        outline: 2px solid #e0b055;
+        outline-offset: 2px;
+      }
+      body {
+        font-family: SchibstedGrotesk_400Regular, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
       /* These styles make the root element full-height */
       #root {
         display: flex;

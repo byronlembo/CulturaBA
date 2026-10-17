@@ -15,6 +15,8 @@ import { fonts, radius, spacing, useColors } from '@/theme/tokens';
 import { EventImage } from './EventImage';
 import { Card, Txt } from './Primitives';
 
+const moreDates = (n: number) => `+${n} ${n === 1 ? 'fecha' : 'fechas'}`;
+
 /** Texto de "cuándo" para una tarjeta: próxima función, rango de una muestra o "en curso". */
 export function eventWhen(e: EventSummary): string {
   if (!e.nextStartsAt) return 'Sin fechas próximas';
@@ -28,7 +30,7 @@ export function eventWhen(e: EventSummary): string {
     return formatBaDateRange(start, localDateOf(e.nextEndsAt));
   }
   const when = formatBaDateTimeShort(e.nextStartsAt);
-  return e.upcomingCount > 1 ? `${when} · +${e.upcomingCount - 1} fechas` : when;
+  return e.upcomingCount > 1 ? `${when} · ${moreDates(e.upcomingCount - 1)}` : when;
 }
 
 /** Columna de fecha del talón (hora de BA): "vie / 16 / oct", o "hasta / 13 / dic" si está en curso. */
@@ -48,7 +50,7 @@ export function ticketDetail(e: EventSummary): { time: string | null; note: stri
   if (!e.nextStartsAt) return { time: null, note: 'Sin fechas próximas' };
   if (e.isOngoing) return { time: null, note: 'En curso' };
   if (e.nextKind === 'range') return { time: null, note: eventWhen(e) };
-  const more = e.upcomingCount > 1 ? `+${e.upcomingCount - 1} fechas` : null;
+  const more = e.upcomingCount > 1 ? moreDates(e.upcomingCount - 1) : null;
   if (e.nextKind === 'all_day')
     return { time: null, note: ['Todo el día', more].filter(Boolean).join(' · ') };
   return { time: formatBaTime(e.nextStartsAt), note: more };
@@ -135,8 +137,12 @@ export function EventCard({ event, compact }: { event: EventSummary; compact?: b
               {event.attendingCount + event.recommendCount > 0 ? (
                 <Txt variant="caption" tone="muted">
                   {[
-                    event.attendingCount > 0 ? `${event.attendingCount} van` : null,
-                    event.recommendCount > 0 ? `${event.recommendCount} recomiendan` : null,
+                    event.attendingCount > 0
+                      ? `${event.attendingCount} ${event.attendingCount === 1 ? 'va' : 'van'}`
+                      : null,
+                    event.recommendCount > 0
+                      ? `${event.recommendCount} ${event.recommendCount === 1 ? 'recomienda' : 'recomiendan'}`
+                      : null,
                   ]
                     .filter(Boolean)
                     .join(' · ')}

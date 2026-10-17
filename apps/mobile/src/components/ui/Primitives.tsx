@@ -109,7 +109,7 @@ export function Section({
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Txt variant="section" role="heading">
+        <Txt variant="section" role="heading" aria-level={2}>
           {title}
         </Txt>
         {right}
@@ -170,6 +170,7 @@ export function Chip({
       accessibilityRole="button"
       accessibilityState={{ selected: Boolean(selected) }}
       onPress={onPress}
+      style={({ pressed }) => pressed && styles.pressed}
     >
       {content}
     </Pressable>
@@ -241,7 +242,12 @@ export function EmptyState({
   return (
     <View style={styles.state}>
       <Ionicons name={icon} size={40} color={c.muted} />
-      <Txt variant="title" role="heading" style={{ marginTop: spacing.md, textAlign: 'center' }}>
+      <Txt
+        variant="title"
+        role="heading"
+        aria-level={2}
+        style={{ marginTop: spacing.md, textAlign: 'center' }}
+      >
         {title}
       </Txt>
       {body ? (
@@ -323,5 +329,6 @@ const styles = StyleSheet.create({
   },
   stat: { flex: 1, padding: spacing.md, borderRadius: radius.md, gap: 2 },
   statValue: { fontFamily: fonts.bodySemi, fontSize: 28, lineHeight: 34 },
+  pressed: { opacity: 0.8 },
   state: { alignItems: 'center', justifyContent: 'center', padding: spacing.xxl, flexGrow: 1 },
 });

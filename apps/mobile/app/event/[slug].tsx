@@ -60,11 +60,12 @@ function ActionButton({
       accessibilityState={{ selected: active }}
       accessibilityLabel={`${label}${count ? `, ${count}` : ''}`}
       onPress={() => toggle.mutate({ action, next: !active })}
-      style={[
+      style={({ pressed }) => [
         styles.action,
         active
           ? { backgroundColor: c.accent, borderColor: c.accent }
           : { borderColor: c.borderStrong },
+        pressed && { opacity: 0.8 },
       ]}
     >
       <Ionicons name={icon} size={20} color={active ? c.onAccent : c.text} />
@@ -180,7 +181,7 @@ function Body({ event }: { event: EventDetail }) {
           </Pressable>
         </View>
 
-        <Txt variant="section" role="heading" style={{ marginTop: spacing.xl }}>
+        <Txt variant="section" role="heading" aria-level={2} style={{ marginTop: spacing.xl }}>
           Fechas
         </Txt>
         {occurrences.isPending ? (
@@ -231,14 +232,14 @@ function Body({ event }: { event: EventDetail }) {
 
         {event.priceVerified && event.priceText ? (
           <View style={{ marginTop: spacing.xl }}>
-            <Txt variant="section" role="heading">
+            <Txt variant="section" role="heading" aria-level={2}>
               Entradas
             </Txt>
             <Txt style={{ marginTop: 4 }}>{event.priceText}</Txt>
           </View>
         ) : event.isFree === true ? (
           <View style={{ marginTop: spacing.xl }}>
-            <Txt variant="section" role="heading">
+            <Txt variant="section" role="heading" aria-level={2}>
               Entradas
             </Txt>
             <Txt style={{ marginTop: 4 }}>Entrada gratuita</Txt>
@@ -247,7 +248,7 @@ function Body({ event }: { event: EventDetail }) {
 
         {event.aiSummary ? (
           <View style={{ marginTop: spacing.xl }}>
-            <Txt variant="section" role="heading">
+            <Txt variant="section" role="heading" aria-level={2}>
               Qué esperar
             </Txt>
             <Txt style={{ marginTop: 4 }}>{event.aiSummary}</Txt>
@@ -257,7 +258,7 @@ function Body({ event }: { event: EventDetail }) {
           </View>
         ) : summary ? (
           <View style={{ marginTop: spacing.xl }}>
-            <Txt variant="section" role="heading">
+            <Txt variant="section" role="heading" aria-level={2}>
               En breve
             </Txt>
             <Txt style={{ marginTop: 4 }}>{summary}</Txt>
@@ -266,7 +267,7 @@ function Body({ event }: { event: EventDetail }) {
 
         {event.description ? (
           <View style={{ marginTop: spacing.xl }}>
-            <Txt variant="section" role="heading">
+            <Txt variant="section" role="heading" aria-level={2}>
               Sobre el evento
             </Txt>
             <Txt style={{ marginTop: 4 }}>{event.description}</Txt>

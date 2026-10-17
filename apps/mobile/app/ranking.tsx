@@ -105,7 +105,9 @@ export default function Ranking() {
               @{r.username}
               {r.isMe ? ' (vos)' : ''}
             </Txt>
-            <Txt variant="heading">{r.points}</Txt>
+            <Txt variant="heading" style={{ fontVariant: ['tabular-nums'] }}>
+              {r.points}
+            </Txt>
           </View>
         )}
       />
