@@ -1,7 +1,31 @@
+/* Colores copiados de src/theme/tokens.ts (Leaflet se estiliza por CSS). */
 /* Botones de zoom de Leaflet de 44 px (área táctil mínima). */
 .leaflet-container .leaflet-bar a {
   width: 44px;
   height: 44px;
   line-height: 44px;
   font-size: 22px;
+  background-color: #2a1720;
+  color: #f6eee8;
+  border-bottom-color: #4a2a35;
+}
+
+/* Telón: fondo de la sala mientras cargan las teselas. */
+.leaflet-container {
+  background-color: #1c0f15;
+  font-family: SchibstedGrotesk_400Regular, system-ui, sans-serif;
+}
+
+/* shortcut: teselas claras de OSM oscurecidas por CSS; con más tráfico, proveedor de teselas oscuras con plan. */
+.leaflet-tile-pane {
+  filter: invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.35);
+}
+
+.leaflet-container .leaflet-control-attribution {
+  background-color: rgba(28, 15, 21, 0.8);
+  color: #cbb8b8;
+}
+
+.leaflet-container .leaflet-control-attribution a {
+  color: #e0b055;
 }

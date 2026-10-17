@@ -1,10 +1,10 @@
 import { useRouter } from 'expo-router';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useApi } from '@/api/context';
 import { Button, Card, Section, Txt } from '@/components/ui/Primitives';
 import { usePoints, usePointsMutation, useRewards } from '@/features/hooks';
 import { relativeTimeEs } from '@/lib/dates';
-import { spacing, useColors } from '@/theme/tokens';
+import { fonts, spacing, useColors } from '@/theme/tokens';
 import { POINTS_PER_CHECK_IN } from './points';
 
 /** Perfil: saldo, últimos movimientos, recompensas disponibles y canjes. */
@@ -20,7 +20,10 @@ export function PointsSection() {
   return (
     <Section title="Tus puntos">
       <Card style={{ padding: spacing.md, gap: spacing.sm }}>
-        <Txt variant="display">{balance}</Txt>
+        <Txt accessibilityLabel={`${balance} puntos`} style={styles.hero}>
+          {balance}
+          <Txt tone="muted"> puntos</Txt>
+        </Txt>
         <Txt tone="muted">
           Sumás {POINTS_PER_CHECK_IN} puntos por cada función a la que vas: hacé check-in desde la
           ficha del evento, en la sala.
@@ -112,3 +115,7 @@ export function PointsSection() {
     </Section>
   );
 }
+
+const styles = StyleSheet.create({
+  hero: { fontFamily: fonts.bodySemi, fontSize: 48, lineHeight: 56 },
+});

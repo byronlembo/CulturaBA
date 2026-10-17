@@ -35,7 +35,6 @@ import {
 import { CheckInCard } from '@/features/points/CheckInCard';
 import { addToCalendar, calendarEntry } from '@/lib/calendar';
 import { relativeTimeEs, whenText } from '@/lib/dates';
-import { disciplineIcon } from '@/lib/disciplineIcons';
 import { env } from '@/lib/env';
 import { radius, spacing, useColors } from '@/theme/tokens';
 
@@ -61,9 +60,14 @@ function ActionButton({
       accessibilityState={{ selected: active }}
       accessibilityLabel={`${label}${count ? `, ${count}` : ''}`}
       onPress={() => toggle.mutate({ action, next: !active })}
-      style={[styles.action, { backgroundColor: active ? c.accent : c.surfaceAlt }]}
+      style={[
+        styles.action,
+        active
+          ? { backgroundColor: c.accent, borderColor: c.accent }
+          : { borderColor: c.borderStrong },
+      ]}
     >
-      <Ionicons name={icon} size={18} color={active ? c.onAccent : c.text} />
+      <Ionicons name={icon} size={20} color={active ? c.onAccent : c.text} />
       <Txt variant="caption" style={{ color: active ? c.onAccent : c.text, marginTop: 4 }}>
         {label}
       </Txt>
@@ -122,15 +126,11 @@ function Body({ event }: { event: EventDetail }) {
         style={styles.hero}
       />
       <View style={{ paddingHorizontal: spacing.lg, paddingTop: spacing.lg }}>
-        <View style={styles.row}>
-          <Ionicons name={disciplineIcon(discipline)} size={14} color={c.accent} />
-          <Txt variant="caption" tone="accent" style={{ marginLeft: 6 }}>
-            {discipline ? disciplineLabel(discipline) : 'Cultura'}
-          </Txt>
-          <Txt variant="caption" tone="muted" style={{ marginLeft: 'auto' }}>
-            {event.institutionName}
-          </Txt>
-        </View>
+        <Txt variant="small" tone="muted">
+          {[discipline ? disciplineLabel(discipline) : 'Cultura', event.institutionName]
+            .filter(Boolean)
+            .join(' · ')}
+        </Txt>
         <Txt variant="display" style={{ marginTop: spacing.sm }} accessibilityRole="header">
           {event.title}
         </Txt>
@@ -171,16 +171,16 @@ function Body({ event }: { event: EventDetail }) {
             accessibilityRole="button"
             accessibilityLabel="Compartir"
             onPress={() => void share()}
-            style={[styles.action, { backgroundColor: c.surfaceAlt }]}
+            style={[styles.action, { borderColor: c.borderStrong }]}
           >
-            <Ionicons name="share-outline" size={18} color={c.text} />
+            <Ionicons name="share-outline" size={20} color={c.text} />
             <Txt variant="caption" style={{ marginTop: 4 }}>
               Compartir
             </Txt>
           </Pressable>
         </View>
 
-        <Txt variant="heading" style={{ marginTop: spacing.xl }}>
+        <Txt variant="section" role="heading" style={{ marginTop: spacing.xl }}>
           Fechas
         </Txt>
         {occurrences.isPending ? (
@@ -206,8 +206,10 @@ function Body({ event }: { event: EventDetail }) {
         <DiarySection eventId={event.id} occurrences={occurrences.data ?? []} />
 
         {event.venueName ? (
-          <Card style={{ marginTop: spacing.xl, padding: spacing.md }}>
-            <Txt variant="heading">{event.venueName}</Txt>
+          <Card style={{ marginTop: spacing.xl, padding: spacing.lg }}>
+            <Txt variant="title" style={{ fontSize: 20 }}>
+              {event.venueName}
+            </Txt>
             {event.venueAddress ? (
               <Txt tone="muted" style={{ marginTop: 2 }}>
                 {event.venueAddress}
@@ -218,7 +220,7 @@ function Body({ event }: { event: EventDetail }) {
               <View style={{ marginTop: spacing.md }}>
                 <Button
                   label="Cómo llegar"
-                  variant="secondary"
+                  variant="ghost"
                   icon="navigate-outline"
                   onPress={() => void Linking.openURL(mapUrl)}
                 />
@@ -229,19 +231,25 @@ function Body({ event }: { event: EventDetail }) {
 
         {event.priceVerified && event.priceText ? (
           <View style={{ marginTop: spacing.xl }}>
-            <Txt variant="heading">Entradas</Txt>
+            <Txt variant="section" role="heading">
+              Entradas
+            </Txt>
             <Txt style={{ marginTop: 4 }}>{event.priceText}</Txt>
           </View>
         ) : event.isFree === true ? (
           <View style={{ marginTop: spacing.xl }}>
-            <Txt variant="heading">Entradas</Txt>
+            <Txt variant="section" role="heading">
+              Entradas
+            </Txt>
             <Txt style={{ marginTop: 4 }}>Entrada gratuita</Txt>
           </View>
         ) : null}
 
         {event.aiSummary ? (
           <View style={{ marginTop: spacing.xl }}>
-            <Txt variant="heading">Qué esperar</Txt>
+            <Txt variant="section" role="heading">
+              Qué esperar
+            </Txt>
             <Txt style={{ marginTop: 4 }}>{event.aiSummary}</Txt>
             <Txt variant="caption" tone="muted" style={{ marginTop: 4 }}>
               Resumen generado automáticamente a partir del texto oficial.
@@ -249,14 +257,18 @@ function Body({ event }: { event: EventDetail }) {
           </View>
         ) : summary ? (
           <View style={{ marginTop: spacing.xl }}>
-            <Txt variant="heading">En breve</Txt>
+            <Txt variant="section" role="heading">
+              En breve
+            </Txt>
             <Txt style={{ marginTop: 4 }}>{summary}</Txt>
           </View>
         ) : null}
 
         {event.description ? (
           <View style={{ marginTop: spacing.xl }}>
-            <Txt variant="heading">Sobre el evento</Txt>
+            <Txt variant="section" role="heading">
+              Sobre el evento
+            </Txt>
             <Txt style={{ marginTop: 4 }}>{event.description}</Txt>
             {event.descriptionAttribution ? (
               <Txt variant="caption" tone="muted" style={{ marginTop: 6 }}>
@@ -341,7 +353,15 @@ const styles = StyleSheet.create({
   hero: { width: '100%', aspectRatio: 16 / 10 },
   row: { flexDirection: 'row', alignItems: 'center' },
   actions: { flexDirection: 'row', gap: spacing.sm },
-  action: { flex: 1, alignItems: 'center', paddingVertical: 10, borderRadius: radius.md },
+  action: {
+    flex: 1,
+    minHeight: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    borderRadius: radius.md,
+    borderWidth: 1,
+  },
   provenance: {
     flexDirection: 'row',
     alignItems: 'center',

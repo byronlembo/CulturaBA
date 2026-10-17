@@ -49,10 +49,10 @@ export function EventMap({
           center={[p.lat, p.lng]}
           radius={Math.min(6 + p.events.length * 2, 18)}
           pathOptions={{
-            color: '#fff',
-            weight: 2,
+            color: selected === p.key ? c.text : c.bg,
+            weight: selected === p.key ? 3 : 2,
             fillColor: c.accent,
-            fillOpacity: selected === p.key ? 1 : 0.75,
+            fillOpacity: selected === p.key ? 1 : 0.85,
           }}
           eventHandlers={{ click: () => onSelect(p.key) }}
         >
@@ -65,7 +65,7 @@ export function EventMap({
         <CircleMarker
           center={[me.lat, me.lng]}
           radius={7}
-          pathOptions={{ color: '#fff', weight: 2, fillColor: '#2F6FED', fillOpacity: 1 }}
+          pathOptions={{ color: c.accent, weight: 3, fillColor: c.text, fillOpacity: 1 }}
         >
           <Tooltip>Estás acá</Tooltip>
         </CircleMarker>

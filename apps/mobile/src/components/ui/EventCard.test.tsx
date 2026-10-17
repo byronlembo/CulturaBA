@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react-native';
 import type { EventSummary } from '@/api/types';
-import { EventCard, eventWhen } from './EventCard';
+import { EventCard, eventWhen, ticketDate, ticketDetail } from './EventCard';
 
 jest.mock('expo-router', () => ({
   Link: ({ children }: { children: React.ReactNode }) => children,
@@ -76,13 +76,49 @@ describe('eventWhen', () => {
   });
 });
 
+describe('ticket stub', () => {
+  it('shows the Buenos Aires weekday, day and month of the next performance', () => {
+    // 23:30 en BA es 02:30Z del día siguiente: debe seguir siendo "dom 18 oct".
+    const e = { ...base, nextStartsAt: '2026-10-19T02:30:00.000Z' };
+    expect(ticketDate(e)).toEqual({ top: 'dom', day: '18', bottom: 'oct' });
+    expect(ticketDetail(e)).toEqual({ time: '23:30', note: '+1 fechas' });
+  });
+  it('uses the closing date for ongoing exhibitions', () => {
+    const e = {
+      ...base,
+      isOngoing: true,
+      nextKind: 'range' as const,
+      nextStartsAt: '2026-10-14T15:00:00-03:00',
+      lastEndsAt: '2026-12-14T02:59:59.000Z',
+    };
+    expect(ticketDate(e)).toEqual({ top: 'hasta', day: '13', bottom: 'dic' });
+    expect(ticketDetail(e)).toEqual({ time: null, note: 'En curso' });
+  });
+  it('shows the range of an upcoming exhibition without a time', () => {
+    const e = {
+      ...base,
+      nextKind: 'range' as const,
+      nextStartsAt: '2026-10-16T00:00:00-03:00',
+      nextEndsAt: '2026-12-13T23:59:59-03:00',
+      upcomingCount: 1,
+    };
+    expect(ticketDetail(e).time).toBeNull();
+    expect(ticketDetail(e).note).toMatch(/^Del 16 oct/);
+  });
+  it('has no date column without upcoming dates', () => {
+    const e = { ...base, nextStartsAt: null };
+    expect(ticketDate(e)).toBeNull();
+    expect(ticketDetail(e)).toEqual({ time: null, note: 'Sin fechas próximas' });
+  });
+});
+
 describe('<EventCard />', () => {
   it('renders title, discipline, venue and social counts', async () => {
     await render(<EventCard event={base} />);
     expect(screen.getByText('La Traviata')).toBeTruthy();
-    expect(screen.getByText('Ópera y música clásica')).toBeTruthy();
-    expect(screen.getByText('Teatro Colón')).toBeTruthy();
+    expect(screen.getByText('Ópera y música clásica · Teatro Colón')).toBeTruthy();
     expect(screen.getByText('3 van')).toBeTruthy();
+    expect(screen.getByText('20:00')).toBeTruthy();
     expect(screen.queryByText('Gratis')).toBeNull();
   });
 

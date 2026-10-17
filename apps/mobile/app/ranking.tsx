@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/Primitives';
 import { useLeaderboard, useUsername } from '@/features/hooks';
 import { NeedsAccount } from '@/features/social/NeedsAccount';
-import { spacing, useColors } from '@/theme/tokens';
+import { radius, spacing, useColors } from '@/theme/tokens';
 
 export default function Ranking() {
   const c = useColors();
@@ -41,7 +41,7 @@ export default function Ranking() {
         contentContainerStyle={{ padding: spacing.lg, gap: spacing.sm }}
         ListHeaderComponent={
           <View style={{ gap: spacing.sm, marginBottom: spacing.md }}>
-            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm }}>
               <Chip
                 label="Amigos"
                 selected={scope === 'friends'}
@@ -89,12 +89,16 @@ export default function Ranking() {
               alignItems: 'center',
               gap: spacing.md,
               padding: spacing.md,
-              borderRadius: 12,
+              borderRadius: radius.md,
               backgroundColor: r.isMe ? c.surfaceAlt : c.surface,
             }}
             accessibilityLabel={`Puesto ${r.rank}, @${r.username}, ${r.points} puntos${r.isMe ? ', vos' : ''}`}
           >
-            <Txt variant="heading" style={{ width: 32 }}>
+            <Txt
+              variant="title"
+              tone={r.rank <= 3 ? 'accent' : 'muted'}
+              style={{ width: 36, fontSize: 26, lineHeight: 30 }}
+            >
               {r.rank}
             </Txt>
             <Txt style={{ flex: 1 }}>

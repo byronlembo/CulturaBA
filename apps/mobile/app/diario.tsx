@@ -1,8 +1,16 @@
 import { type DisciplineSlug, disciplineLabel } from '@culturaba/shared';
 import { Link } from 'expo-router';
 import { useState } from 'react';
-import { FlatList, Pressable } from 'react-native';
-import { Card, EmptyState, ErrorState, Loading, Screen, Txt } from '@/components/ui/Primitives';
+import { FlatList, Pressable, View } from 'react-native';
+import {
+  Card,
+  EmptyState,
+  ErrorState,
+  Loading,
+  Screen,
+  StatTile,
+  Txt,
+} from '@/components/ui/Primitives';
 import { DiaryForm, Stars } from '@/features/diary/DiaryForm';
 import { diaryStats } from '@/features/diary/diary';
 import { useDiary } from '@/features/hooks';
@@ -27,14 +35,14 @@ export default function Diary() {
         contentContainerStyle={{ padding: spacing.lg, gap: spacing.md }}
         ListHeaderComponent={
           entries.length > 0 ? (
-            <Card style={{ padding: spacing.md, gap: 4 }}>
-              <Txt variant="heading">
-                {stats.thisYear} {stats.thisYear === 1 ? 'función' : 'funciones'} en {year}
-              </Txt>
-              <Txt tone="muted">
-                {stats.total} en total
-                {stats.averageRating !== null ? ` · puntaje promedio ${stats.averageRating}` : ''}
-              </Txt>
+            <View style={{ gap: spacing.sm }}>
+              <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+                <StatTile label={`En ${year}`} value={String(stats.thisYear)} />
+                <StatTile label="En total" value={String(stats.total)} />
+                {stats.averageRating !== null ? (
+                  <StatTile label="Puntaje promedio" value={String(stats.averageRating)} />
+                ) : null}
+              </View>
               {stats.topDisciplines.length > 0 ? (
                 <Txt tone="muted">
                   Lo que más viste:{' '}
@@ -43,7 +51,7 @@ export default function Diary() {
                     .join(', ')}
                 </Txt>
               ) : null}
-            </Card>
+            </View>
           ) : null
         }
         ListEmptyComponent={

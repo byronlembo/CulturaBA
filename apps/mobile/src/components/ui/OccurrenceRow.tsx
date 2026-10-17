@@ -1,8 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { Occurrence } from '@/api/types';
-import { formatBaDateTimeShort, whenText } from '@/lib/dates';
-import { spacing, useColors } from '@/theme/tokens';
+import { formatBaDateShort, formatBaDateTimeShort, formatBaTime, whenText } from '@/lib/dates';
+import { fonts, spacing, useColors } from '@/theme/tokens';
 import { Badge, Txt } from './Primitives';
 
 export function statusBadge(
@@ -31,23 +31,37 @@ export function OccurrenceRow({
   occurrence,
   showVenue,
   onAddToCalendar,
+  divider = true,
 }: {
   occurrence: Occurrence;
   showVenue?: boolean;
   onAddToCalendar?: () => void;
+  divider?: boolean;
 }) {
   const c = useColors();
   const badge = statusBadge(occurrence);
   const dim = occurrence.status === 'cancelled';
   return (
     <View
-      style={[styles.row, { borderColor: c.border }]}
+      style={[
+        styles.row,
+        divider && { borderBottomWidth: StyleSheet.hairlineWidth, borderColor: c.border },
+      ]}
       accessibilityLabel={`${whenText(occurrence)}${badge ? `, ${badge.label}` : ''}`}
     >
       <View style={{ flex: 1 }}>
-        <Txt variant="heading" style={dim ? styles.dim : undefined}>
-          {whenText(occurrence)}
-        </Txt>
+        <View style={[styles.when, dim && styles.dim]}>
+          <Txt variant="title" style={styles.date}>
+            {occurrence.kind === 'timed'
+              ? formatBaDateShort(occurrence.startsAt)
+              : whenText(occurrence)}
+          </Txt>
+          {occurrence.kind === 'timed' ? (
+            <Txt tone="accent" style={styles.time}>
+              {formatBaTime(occurrence.startsAt)}
+            </Txt>
+          ) : null}
+        </View>
         {occurrence.scheduleText ? (
           <Txt variant="small" tone="muted">
             {occurrence.scheduleText}
@@ -76,7 +90,7 @@ export function OccurrenceRow({
           onPress={onAddToCalendar}
           style={styles.iconButton}
         >
-          <Ionicons name="calendar-outline" size={22} color={c.accent} />
+          <Ionicons name="calendar-outline" size={22} color={c.muted} />
         </Pressable>
       ) : null}
     </View>
@@ -88,9 +102,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
     gap: spacing.md,
   },
+  when: { flexDirection: 'row', alignItems: 'baseline', flexWrap: 'wrap', columnGap: spacing.md },
+  date: { fontSize: 20, lineHeight: 26 },
+  time: { fontFamily: fonts.bodySemi },
   dim: { textDecorationLine: 'line-through', opacity: 0.6 },
   iconButton: { minWidth: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
 });

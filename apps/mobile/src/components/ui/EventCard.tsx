@@ -1,11 +1,17 @@
-import { type DisciplineSlug, disciplineLabel, localDateOf } from '@culturaba/shared';
-import { Ionicons } from '@expo/vector-icons';
+import {
+  type DisciplineSlug,
+  disciplineLabel,
+  formatBaTime,
+  localDateOf,
+  MONTHS_ES_SHORT,
+  toBa,
+  WEEKDAYS_ES_SHORT,
+} from '@culturaba/shared';
 import { Link } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { EventSummary } from '@/api/types';
 import { formatBaDateRange, formatBaDateTimeShort } from '@/lib/dates';
-import { disciplineIcon } from '@/lib/disciplineIcons';
-import { radius, spacing, useColors } from '@/theme/tokens';
+import { fonts, radius, spacing, useColors } from '@/theme/tokens';
 import { EventImage } from './EventImage';
 import { Card, Txt } from './Primitives';
 
@@ -25,9 +31,34 @@ export function eventWhen(e: EventSummary): string {
   return e.upcomingCount > 1 ? `${when} · +${e.upcomingCount - 1} fechas` : when;
 }
 
+/** Columna de fecha del talón (hora de BA): "vie / 16 / oct", o "hasta / 13 / dic" si está en curso. */
+export function ticketDate(e: EventSummary): { top: string; day: string; bottom: string } | null {
+  if (!e.nextStartsAt) return null;
+  const until = e.isOngoing && e.lastEndsAt ? e.lastEndsAt : null;
+  const dt = toBa(until ?? e.nextStartsAt);
+  return {
+    top: until ? 'hasta' : (WEEKDAYS_ES_SHORT[dt.weekday - 1] ?? ''),
+    day: String(dt.day),
+    bottom: MONTHS_ES_SHORT[dt.month - 1] ?? '',
+  };
+}
+
+/** Línea bajo el título: hora destacada (si es una función) y el resto de las fechas. */
+export function ticketDetail(e: EventSummary): { time: string | null; note: string | null } {
+  if (!e.nextStartsAt) return { time: null, note: 'Sin fechas próximas' };
+  if (e.isOngoing) return { time: null, note: 'En curso' };
+  if (e.nextKind === 'range') return { time: null, note: eventWhen(e) };
+  const more = e.upcomingCount > 1 ? `+${e.upcomingCount - 1} fechas` : null;
+  if (e.nextKind === 'all_day')
+    return { time: null, note: ['Todo el día', more].filter(Boolean).join(' · ') };
+  return { time: formatBaTime(e.nextStartsAt), note: more };
+}
+
 export function EventCard({ event, compact }: { event: EventSummary; compact?: boolean }) {
   const c = useColors();
   const discipline = event.primaryDiscipline as DisciplineSlug | null;
+  const date = compact ? null : ticketDate(event);
+  const detail = ticketDetail(event);
   return (
     <Link href={`/event/${event.slug}`} asChild>
       <Pressable
@@ -50,45 +81,68 @@ export function EventCard({ event, compact }: { event: EventSummary; compact?: b
             accessibilityLabel={event.title}
             style={compact ? styles.imageCompact : styles.image}
           />
+          {compact ? null : (
+            <>
+              {/* Talón de entrada: dos muescas y la línea de corte. */}
+              <View style={styles.perforation}>
+                <View style={[styles.notch, styles.notchLeft, { backgroundColor: c.bg }]} />
+                <View style={[styles.notch, styles.notchRight, { backgroundColor: c.bg }]} />
+              </View>
+              {/* shortcut: borde punteado de un solo lado sale liso en iOS; dibujar guiones si molesta. */}
+              <View style={[styles.cut, { borderColor: c.borderStrong }]} />
+            </>
+          )}
           <View style={styles.body}>
-            <View style={styles.row}>
-              <Ionicons name={disciplineIcon(discipline)} size={14} color={c.accent} />
-              <Txt variant="caption" tone="accent" style={{ marginLeft: 6 }}>
-                {discipline ? disciplineLabel(discipline) : 'Cultura'}
-              </Txt>
-              {event.isFree === true ? (
-                <Txt variant="caption" tone="muted" style={{ marginLeft: 'auto' }}>
-                  Gratis
+            {date ? (
+              <View style={styles.date}>
+                <Txt variant="caption" tone="muted">
+                  {date.top}
                 </Txt>
-              ) : null}
-            </View>
-            <Txt variant={compact ? 'heading' : 'title'} numberOfLines={2} style={{ marginTop: 4 }}>
-              {event.title}
-            </Txt>
-            <Txt variant="small" tone="muted" style={{ marginTop: 6 }} numberOfLines={1}>
-              {eventWhen(event)}
-            </Txt>
-            <Txt variant="small" tone="muted" numberOfLines={1}>
-              {event.venueName ?? event.institutionName}
-            </Txt>
-            {event.attendingCount + event.recommendCount > 0 ? (
-              <View style={[styles.row, { marginTop: 8 }]}>
-                {event.attendingCount > 0 ? (
-                  <Txt variant="caption" tone="muted">
-                    {event.attendingCount} van
-                  </Txt>
-                ) : null}
-                {event.recommendCount > 0 ? (
-                  <Txt
-                    variant="caption"
-                    tone="muted"
-                    style={{ marginLeft: event.attendingCount > 0 ? 10 : 0 }}
-                  >
-                    {event.recommendCount} recomiendan
+                <Txt variant="numeral">{date.day}</Txt>
+                <Txt variant="caption" tone="muted">
+                  {date.bottom}
+                </Txt>
+              </View>
+            ) : null}
+            <View style={styles.info}>
+              <Txt variant="small" tone="muted" numberOfLines={1}>
+                {[
+                  discipline ? disciplineLabel(discipline) : 'Cultura',
+                  event.venueName ?? event.institutionName,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </Txt>
+              <Txt variant="title" numberOfLines={2} style={compact && styles.titleCompact}>
+                {event.title}
+              </Txt>
+              <View style={styles.row}>
+                <Txt variant="small" tone="muted" numberOfLines={1} style={styles.shrink}>
+                  {detail.time ? (
+                    <Txt variant="small" tone="accent" style={{ fontFamily: fonts.bodySemi }}>
+                      {detail.time}
+                    </Txt>
+                  ) : null}
+                  {detail.time && detail.note ? ' · ' : null}
+                  {detail.note}
+                </Txt>
+                {event.isFree === true ? (
+                  <Txt variant="small" tone="accent" style={styles.free}>
+                    Gratis
                   </Txt>
                 ) : null}
               </View>
-            ) : null}
+              {event.attendingCount + event.recommendCount > 0 ? (
+                <Txt variant="caption" tone="muted">
+                  {[
+                    event.attendingCount > 0 ? `${event.attendingCount} van` : null,
+                    event.recommendCount > 0 ? `${event.recommendCount} recomiendan` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </Txt>
+              ) : null}
+            </View>
           </View>
         </Card>
       </Pressable>
@@ -96,16 +150,34 @@ export function EventCard({ event, compact }: { event: EventSummary; compact?: b
   );
 }
 
+const NOTCH = 20;
+
 const styles = StyleSheet.create({
   card: { marginHorizontal: spacing.lg, marginBottom: spacing.lg },
   compact: { flexDirection: 'row' },
-  image: { width: '100%', aspectRatio: 16 / 9 },
+  image: { width: '100%', aspectRatio: 2 },
   imageCompact: {
     width: 110,
     height: '100%',
     minHeight: 110,
     borderRadius: radius.md,
   },
-  body: { padding: spacing.md, flex: 1 },
+  perforation: { height: 0, zIndex: 1 },
+  notch: {
+    position: 'absolute',
+    top: -NOTCH / 2,
+    width: NOTCH,
+    height: NOTCH,
+    borderRadius: NOTCH / 2,
+  },
+  notchLeft: { left: -NOTCH / 2 },
+  notchRight: { right: -NOTCH / 2 },
+  cut: { borderTopWidth: 2, borderStyle: 'dashed', marginHorizontal: spacing.lg },
+  body: { flexDirection: 'row', gap: spacing.lg, padding: spacing.lg, flex: 1 },
+  date: { width: 44, alignItems: 'center' },
+  info: { flex: 1, minWidth: 0, gap: 4 },
+  titleCompact: { fontSize: 19, lineHeight: 22 },
   row: { flexDirection: 'row', alignItems: 'center' },
+  shrink: { flexShrink: 1 },
+  free: { marginLeft: 'auto', paddingLeft: spacing.sm, fontFamily: fonts.bodySemi },
 });

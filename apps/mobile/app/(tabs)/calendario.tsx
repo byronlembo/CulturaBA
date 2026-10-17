@@ -10,7 +10,7 @@ import { Chip, EmptyState, ErrorState, Loading, Screen, Txt } from '@/components
 import { groupByDate } from '@/features/calendar/groupByDate';
 import { useCalendar, useInterests, useMyActions } from '@/features/hooks';
 import { timezoneNote, todayLocalDate } from '@/lib/dates';
-import { spacing, useColors } from '@/theme/tokens';
+import { radius, spacing, useColors } from '@/theme/tokens';
 
 const MAX_MONTHS_AHEAD = 11;
 type Mode = 'interests' | 'plans' | 'all';
@@ -20,14 +20,14 @@ function CalendarItem({ item }: { item: CalendarOccurrence }) {
   return (
     <Link href={`/event/${item.eventSlug}`} asChild>
       <Pressable accessibilityRole="link">
-        <View style={[styles.item, { backgroundColor: c.surface, borderColor: c.border }]}>
+        <View style={[styles.item, { backgroundColor: c.surface }]}>
           <Txt variant="caption" tone="accent">
             {item.institutionName}
           </Txt>
-          <Txt variant="heading" numberOfLines={2}>
+          <Txt variant="title" numberOfLines={2} style={{ fontSize: 20 }}>
             {item.eventTitle}
           </Txt>
-          <OccurrenceRow occurrence={item} showVenue />
+          <OccurrenceRow occurrence={item} showVenue divider={false} />
         </View>
       </Pressable>
     </Link>
@@ -69,7 +69,7 @@ export default function Calendar() {
         >
           <Ionicons name="chevron-back" size={22} color={c.text} />
         </Pressable>
-        <Txt variant="heading">
+        <Txt variant="title">
           {MONTHS_ES[month.month - 1]?.replace(/^./, (l) => l.toUpperCase())} {month.year}
         </Txt>
         <Pressable
@@ -128,7 +128,7 @@ export default function Calendar() {
         ListHeaderComponent={header}
         renderSectionHeader={({ section }) => (
           <View style={[styles.sectionHeader, { backgroundColor: c.bg }]}>
-            <Txt variant="heading" tone="accent">
+            <Txt variant="section" tone="accent">
               {section.title}
             </Txt>
           </View>
@@ -161,7 +161,6 @@ const styles = StyleSheet.create({
     marginHorizontal: spacing.lg,
     marginBottom: spacing.md,
     padding: spacing.md,
-    borderRadius: 14,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: radius.lg,
   },
 });
