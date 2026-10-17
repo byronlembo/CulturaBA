@@ -37,6 +37,7 @@ apps/mobile          app Expo (Expo Router, TanStack Query, supabase-js)
 packages/shared      contrato NormalizedEvent (zod), fechas en español, dedup, tipos de la base
 packages/ingestion   worker: cliente HTTP cortés, fixtures, pipeline, conectores, CLI
 packages/devapi      API local de solo lectura para desarrollar la app sin Supabase
+docs/design/         sistema de diseño "Telón", voz y textos, guion de prueba con usuarios
 supabase/            migraciones (formato Supabase CLI), seed, stub auth local, smoke test RLS
 scripts/             Postgres local sin Docker, servidor estático y recorrido Playwright
 .github/workflows    ci.yml (lint/typecheck/tests/export) · ingest.yml (cron cada 6 h)
