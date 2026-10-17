@@ -8,6 +8,9 @@ bronce y tipografía de programa de mano. La app es **siempre oscura**: no hay v
 La fuente de verdad es el código; este documento explica el porqué y lo que el código no
 dice (estados, bordes, accesibilidad), para la web y para la futura app nativa.
 
+Referencia visual navegable (tokens, tipografía y componentes): artifact Design System
+"Telón", https://claude.ai/artifact/MV9E8QFGTQD6LbEmjPtPe9 (privado; se comparte desde su menú).
+
 | Dónde | Qué |
 |---|---|
 | `apps/mobile/src/theme/tokens.ts` | Colores, fuentes, escala tipográfica, espacios, radios |
