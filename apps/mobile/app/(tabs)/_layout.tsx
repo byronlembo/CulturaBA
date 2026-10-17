@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
-import { useColors } from '@/theme/tokens';
+import { fonts, useColors } from '@/theme/tokens';
 
 export default function TabsLayout() {
   const c = useColors();
@@ -10,11 +10,12 @@ export default function TabsLayout() {
         headerStyle: { backgroundColor: c.bg },
         headerShadowVisible: false,
         headerTintColor: c.text,
-        headerTitleStyle: { fontWeight: '800', fontSize: 22 },
+        headerTitleStyle: { fontFamily: fonts.display, fontSize: 28 },
         headerTitleAlign: 'left',
         tabBarActiveTintColor: c.accent,
         tabBarInactiveTintColor: c.muted,
-        tabBarStyle: { backgroundColor: c.surface, borderTopColor: c.border },
+        tabBarStyle: { backgroundColor: c.tabBar, borderTopColor: c.border },
+        tabBarLabelStyle: { fontFamily: fonts.bodyMedium, fontSize: 11, lineHeight: 14 },
         sceneStyle: { backgroundColor: c.bg },
       }}
     >

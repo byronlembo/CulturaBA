@@ -12,7 +12,7 @@ import {
   View,
   type ViewProps,
 } from 'react-native';
-import { radius, spacing, type as typeScale, useColors } from '@/theme/tokens';
+import { fonts, radius, spacing, type as typeScale, useColors } from '@/theme/tokens';
 
 export function Screen({ style, ...props }: ViewProps) {
   const c = useColors();
@@ -58,7 +58,7 @@ export function Button({
       style={({ pressed }) => [
         styles.button,
         { backgroundColor: bg, opacity: disabled ? 0.5 : pressed ? 0.85 : 1 },
-        variant === 'ghost' && { borderWidth: 1, borderColor: c.border },
+        variant === 'ghost' && { borderWidth: 1, borderColor: c.borderStrong },
         typeof style === 'object' ? style : null,
       ]}
       {...props}
@@ -70,7 +70,7 @@ export function Button({
           {icon ? (
             <Ionicons name={icon} size={18} color={fg} style={{ marginRight: spacing.sm }} />
           ) : null}
-          <Text style={[typeScale.heading, { color: fg }]}>{label}</Text>
+          <Text style={[typeScale.heading, { fontSize: 15, color: fg }]}>{label}</Text>
         </>
       )}
     </Pressable>
@@ -84,7 +84,7 @@ export function Field({ style, ...props }: TextInputProps) {
       placeholderTextColor={c.muted}
       style={[
         styles.field,
-        { color: c.text, backgroundColor: c.surface, borderColor: c.border },
+        { color: c.text, backgroundColor: c.surface, borderColor: c.outline },
         style,
       ]}
       {...props}
@@ -94,12 +94,7 @@ export function Field({ style, ...props }: TextInputProps) {
 
 export function Card({ style, ...props }: ViewProps) {
   const c = useColors();
-  return (
-    <View
-      style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }, style]}
-      {...props}
-    />
-  );
+  return <View style={[styles.card, { backgroundColor: c.surface }, style]} {...props} />;
 }
 
 export function Section({
@@ -114,7 +109,7 @@ export function Section({
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-        <Txt variant="heading" role="heading">
+        <Txt variant="section" role="heading">
           {title}
         </Txt>
         {right}
@@ -145,8 +140,8 @@ export function Chip({
         small && styles.chipSmall,
         onPress && { minHeight: 44 },
         {
-          backgroundColor: selected ? c.accent : c.surfaceAlt,
-          borderColor: selected ? c.accent : c.border,
+          backgroundColor: selected ? c.accent : 'transparent',
+          borderColor: selected ? c.accent : c.borderStrong,
         },
       ]}
     >
@@ -161,6 +156,7 @@ export function Chip({
       <Text
         style={[
           small ? typeScale.caption : typeScale.small,
+          selected && { fontFamily: fonts.bodySemi },
           { color: selected ? c.onAccent : c.text },
         ]}
       >
@@ -192,6 +188,23 @@ export function Badge({
   return (
     <View style={[styles.badge, { borderColor: color }]}>
       <Text style={[typeScale.caption, { color }]}>{label}</Text>
+    </View>
+  );
+}
+
+/** Cifra destacada con su rótulo (la cifra va en la sans, no en la display). */
+export function StatTile({ label, value }: { label: string; value: string }) {
+  const c = useColors();
+  return (
+    <View
+      accessible
+      accessibilityLabel={`${label}: ${value}`}
+      style={[styles.stat, { backgroundColor: c.surfaceAlt }]}
+    >
+      <Txt variant="caption" tone="muted">
+        {label}
+      </Txt>
+      <Txt style={styles.statValue}>{value}</Txt>
     </View>
   );
 }
@@ -228,7 +241,7 @@ export function EmptyState({
   return (
     <View style={styles.state}>
       <Ionicons name={icon} size={40} color={c.muted} />
-      <Txt variant="heading" role="heading" style={{ marginTop: spacing.md, textAlign: 'center' }}>
+      <Txt variant="title" role="heading" style={{ marginTop: spacing.md, textAlign: 'center' }}>
         {title}
       </Txt>
       {body ? (
@@ -272,8 +285,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 12,
     paddingHorizontal: spacing.lg,
-    borderRadius: radius.md,
-    minHeight: 46,
+    borderRadius: radius.pill,
+    minHeight: 48,
   },
   field: {
     borderWidth: 1,
@@ -282,8 +295,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     minHeight: 44,
     fontSize: 15,
+    fontFamily: fonts.body,
   },
-  card: { borderRadius: radius.lg, borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden' },
+  card: { borderRadius: radius.lg, overflow: 'hidden' },
   section: { marginTop: spacing.xl, paddingHorizontal: spacing.lg },
   sectionHeader: {
     flexDirection: 'row',
@@ -295,7 +309,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     borderRadius: radius.pill,
     borderWidth: 1,
   },
@@ -307,5 +321,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     alignSelf: 'flex-start',
   },
+  stat: { flex: 1, padding: spacing.md, borderRadius: radius.md, gap: 2 },
+  statValue: { fontFamily: fonts.bodySemi, fontSize: 28, lineHeight: 34 },
   state: { alignItems: 'center', justifyContent: 'center', padding: spacing.xxl, flexGrow: 1 },
 });

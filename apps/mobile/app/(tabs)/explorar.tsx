@@ -14,7 +14,7 @@ import {
 import { useEventsInfinite } from '@/features/hooks';
 import { MapView } from '@/features/map/MapView';
 import { disciplineIcon } from '@/lib/disciplineIcons';
-import { radius, spacing, useColors } from '@/theme/tokens';
+import { fonts, radius, spacing, useColors } from '@/theme/tokens';
 
 function useDebounced<T>(value: T, ms: number): T {
   const [v, setV] = useState(value);
@@ -171,6 +171,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     height: 44,
   },
-  input: { flex: 1, alignSelf: 'stretch', fontSize: 15, paddingVertical: 0 },
+  input: {
+    flex: 1,
+    alignSelf: 'stretch',
+    minHeight: 44,
+    fontSize: 15,
+    fontFamily: fonts.body,
+    paddingVertical: 0,
+  },
   chips: { gap: spacing.sm, paddingHorizontal: spacing.lg, paddingTop: spacing.md },
 });

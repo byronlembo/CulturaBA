@@ -15,7 +15,7 @@ const config: ExpoConfig = {
   orientation: 'portrait',
   scheme: 'culturaba',
   icon: './assets/images/icon.png',
-  userInterfaceStyle: 'automatic',
+  userInterfaceStyle: 'dark',
   ios: {
     supportsTablet: false,
     bundleIdentifier: 'ar.com.culturaba.app',
@@ -25,7 +25,7 @@ const config: ExpoConfig = {
     package: 'ar.com.culturaba.app',
     adaptiveIcon: {
       foregroundImage: './assets/images/adaptive-icon.png',
-      backgroundColor: '#181425',
+      backgroundColor: '#1C0F15',
     },
     intentFilters: [
       {
@@ -47,11 +47,12 @@ const config: ExpoConfig = {
       'expo-splash-screen',
       {
         image: './assets/images/splash-icon.png',
-        backgroundColor: '#181425',
+        backgroundColor: '#1C0F15',
         imageWidth: 160,
       },
     ],
     'expo-web-browser',
+    'expo-font',
   ],
   ...(webBasePath ? { experiments: { baseUrl: webBasePath } } : {}),
   extra: {
