@@ -10,8 +10,7 @@
 | Worker de ingestión: HTTP cortés, fixtures, pipeline, dedup entre fuentes, cambios, ausencias, CLI | ✅ 157 tests (27 de integración sobre Postgres real) |
 | Conector Teatro Colón | ✅ en producción |
 | Conector agenda de la Ciudad (Linda) | ✅ en producción (agregador, prioridad 10) |
-| Conectores Usina del Arte y Teatro Nacional Cervantes | ✅ incorporados el 18-oct (REST de WordPress + detalle; Linda se fusiona por enlace) |
-| Conector Museo Moderno | 🔄 en curso |
+| Conectores Usina del Arte, Teatro Nacional Cervantes y Museo Moderno | ✅ en producción desde el 18-oct (REST de WordPress + detalle; Linda se fusiona por enlace o por las palabras del título) |
 | Conector Complejo Teatral | ⏸ corregido el 16-oct; fuera del cron porque el sitio responde 403 a los runners de GitHub |
 | Conectores MNBA y Palacio Libertad | ⛔ bloqueados por desafío de Cloudflare (no se elude) |
 | Catálogo real en Supabase | ✅ 266 eventos publicados, 736 funciones futuras (15-oct) |
@@ -134,6 +133,8 @@ cuando una función próxima se cancela, se posterga o se reprograma.
 - Más fuentes propias: MALBA (REST cerrada), Proa, Planetario y Recoleta (hoy llegan vía
   Linda con prioridad baja o no llegan). Ver el relevamiento del 18-oct en
   `docs/source-inventory.md`.
+- Herramienta para fusionar a mano duplicados que quedaron de antes de la regla de
+  palabras del título (hoy: "Mery Granados y Joaco Burgos…", Usina, 24-oct).
 - Resúmenes "Qué esperar" con IA, basados solo en el texto oficial, con
   `ai_summary_source_hash` para regenerar únicamente cuando cambia la fuente.
 - Caché/redimensionado de imágenes en Storage con atribución.

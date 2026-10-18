@@ -14,8 +14,9 @@
 | `teatro-colon` | Teatro Colón | https://teatrocolon.org.ar/calendario/ | 200 (Cloudflare CDN, sin challenge) | HTML server-side (`cheerio`) | ~3 listados mensuales + ~30 detalles | 100 | **en producción** |
 | `complejo-teatral` | Complejo Teatral de Buenos Aires | https://complejoteatral.gob.ar/ | 200 (Cloudflare CDN, sin challenge) | HTML server-side + agenda diaria `/agenda/?fecha=` | 1 home + 28 días + ~33 detalles ≈ 62 | 100 | ⏸ corregido el 16-oct; fuera del cron: el sitio responde 403 a los runners de GitHub (desde otras IPs funciona) |
 | `agenda-ba` | Agregador oficial de la Ciudad (**Linda**) | https://linda.buenosaires.gob.ar/ | 200 (sin Cloudflare) | **API JSON** `/api/frontend/events/filter?limit=200` | 1–2 | 10 | **en producción** |
-| `usina-del-arte` | Usina del Arte (Ciudad) | https://usinadelarte.ar/ | 200 (Hostinger, sin challenge; `robots.txt` vacío) | **REST WordPress** `wp/v2/actividad` + taxonomías; detalle HTML para fecha y hora de cada función | 4 páginas REST + 6 de taxonomías + ~20 detalles ≈ 30 | 100 | **incorporado** (18-oct) |
-| `teatro-cervantes` | Teatro Nacional Cervantes (Nación) | https://www.teatrocervantes.gob.ar/ | 200 (sin challenge) | **REST WordPress** `wp/v2/obra` + calendario mensual `/calendario/?mes=` + detalle HTML | 1 REST + 3 meses + ~5 detalles ≈ 10 | 100 | **incorporado** (18-oct) |
+| `usina-del-arte` | Usina del Arte (Ciudad) | https://usinadelarte.ar/ | 200 (Hostinger, sin challenge; `robots.txt` vacío) | **REST WordPress** `wp/v2/actividad` + taxonomías; detalle HTML para fecha y hora de cada función | 4 páginas REST + 6 de taxonomías + ~20 detalles ≈ 30 | 100 | **en producción** (18-oct) |
+| `teatro-cervantes` | Teatro Nacional Cervantes (Nación) | https://www.teatrocervantes.gob.ar/ | 200 (sin challenge) | **REST WordPress** `wp/v2/obra` + calendario mensual `/calendario/?mes=` + detalle HTML | 1 REST + 3 meses + ~5 detalles ≈ 10 | 100 | **en producción** (18-oct) |
+| `museo-moderno` | Museo de Arte Moderno de Buenos Aires (Ciudad) | https://museomoderno.org/ | 200 (Cloudflare CDN, sin challenge; `robots.txt` sin `Crawl-delay`) | **REST WordPress** `wp/v2/agenda` (fechas en el texto) + listado y detalle de exposiciones | ~5 de descubrimiento + ~11 detalles ≈ 16 | 100 | **en producción** (18-oct) |
 | `mnba` | Museo Nacional de Bellas Artes | https://bellasartes.gob.ar/agenda/ | **403 Cloudflare managed challenge (Turnstile interactivo) en toda la zona** | — | — | 100 | **bloqueado** |
 | `palacio-libertad` | Palacio Libertad | https://palaciolibertad.gob.ar/agenda/ | **403 challenge en toda la zona (incluso robots.txt)** | — | — | 100 | **bloqueado** |
 | `cultura-gob-ar` | Agenda Cultural Federal | https://www.cultura.gob.ar/agenda/filtro/ | **403 challenge**; `datos.cultura.gob.ar` también | — | — | complementaria | bloqueado |
@@ -118,6 +119,23 @@ institución (100) sobrescribe; agregador (10) solo rellena vacíos y aporta fun
 - Dirección Libertad 815 (publicada en `/contacto/`); las salas María Guerrero, Orestes
   Caviglia y Luisa Vehil van como `room`. Precio solo donde lo dice ("$15.000",
   "Entradas gratuitas"). Linda no publicaba eventos del Cervantes al 18-oct.
+
+### Museo Moderno — `museo-moderno` (`docs/research/museo-moderno.md`)
+- WordPress + Elementor/JetEngine + WPML (se descartan los duplicados en inglés).
+  `wp/v2/agenda` (104 ítems) **no tiene fechas estructuradas**: se leen las líneas que
+  empiezan con fecha ("Miércoles 28 de octubre, a las 17 h", "Sábado 3, 17 y 24 y
+  domingo 4… de octubre, de 15 a 17 h") y el lugar, precio e inscripción del bloque que
+  sigue. Año: lo fija el día de la semana; si no hay, la fecha de publicación (≤ 6 meses
+  adelante). Fecha sin hora → `range` de un día con el texto literal. Módulos virtuales,
+  fuera.
+- Exposiciones: la REST no expone sus fechas (campos de JetEngine); salen de
+  "Inicio/Fin" del detalle y "Hasta el …" del listado "Presentes". 9 de 11 publican solo
+  el mes de inicio: el rango arranca hoy (no se inventa el día de apertura).
+- Talleres publicados solo como patrón ("Todos los miércoles…") no dan fechas: los
+  cubre Linda. Disciplinas por palabras clave del título y resumen (sin categorías).
+- Dirección Av. San Juan 350, San Telmo (`/planea-tu-visita/`). Linda enlaza la ficha de
+  algunas actividades ("Inscribite acá") → misma institución y `sameAsUrls`; el resto se
+  funde por título.
 
 ### MNBA, Palacio Libertad y cultura.gob.ar (`docs/research/gob-ar-alternatives.md`)
 - Los tres hosts devuelven **`cf-mitigated: challenge`** en HTML y no-HTML (`/feed/`,

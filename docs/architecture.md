@@ -88,7 +88,10 @@ métricas y cierre
   misma fuente; (3) `dedup_key` = título normalizado | institución, con compatibilidad
   de fechas (±1 día o solapamiento) para no fusionar temporadas distintas; (4) Dice de
   bigramas entre eventos de la institución con fechas en común: ≥ 0,85 fusiona,
-  0,70–0,85 crea nuevo y deja fila en `event_duplicates`. No hay fusión entre
+  0,70–0,85 crea nuevo y deja fila en `event_duplicates`; (5) **palabras del título**:
+  entre fuentes distintas, si ≥ 80 % de las palabras con contenido del título más corto
+  están en el otro ("Ludo-Espacio" / "Un plan para jugar en familia: llega el
+  Ludo-Espacio"), fechas en común y sin empate. No hay fusión entre
   instituciones distintas: los agregadores resuelven la institución por evento (enlace
   institucional o sala conocida) y desde ahí aplican los mismos pasos.
 - **Merge editorial:** la fuente primaria (o de mayor `priority`) sobrescribe; una
