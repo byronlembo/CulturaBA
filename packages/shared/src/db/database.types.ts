@@ -910,6 +910,9 @@ isOneToOne: false
 "check_in":
 { Args: { "p_occurrence_id": string }; Returns: Json
                            },
+"delete_my_account":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
 "distance_m":
 { Args: { "lat1": number,"lat2": number,"lng1": number,"lng2": number }; Returns: number
                            },

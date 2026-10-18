@@ -9,13 +9,16 @@ cd "$(dirname "$0")/.."
 subject() { awk -v t="[auth.email.template.$1]" '$0==t{f=1;next} f&&/^subject/{sub(/^subject = "/,"");sub(/"$/,"");print;exit}' supabase/config.toml; }
 body=$(node -e '
 const fs = require("node:fs");
-const [ml, ec, mlS, ecS] = process.argv.slice(1);
+const [ml, ec, rc, mlS, ecS, rcS] = process.argv.slice(1);
 process.stdout.write(JSON.stringify({
   mailer_templates_magic_link_content: fs.readFileSync(ml, "utf8"),
   mailer_templates_email_change_content: fs.readFileSync(ec, "utf8"),
+  mailer_templates_recovery_content: fs.readFileSync(rc, "utf8"),
   mailer_subjects_magic_link: mlS,
   mailer_subjects_email_change: ecS,
-}));' supabase/templates/magic_link.html supabase/templates/email_change.html "$(subject magic_link)" "$(subject email_change)")
+  mailer_subjects_recovery: rcS,
+}));' supabase/templates/magic_link.html supabase/templates/email_change.html supabase/templates/recovery.html \
+  "$(subject magic_link)" "$(subject email_change)" "$(subject recovery)")
 curl -sS --fail-with-body -X PATCH "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_REF/config/auth" \
   -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" -H 'Content-Type: application/json' \
   --data "$body" -o /dev/stderr -w 'HTTP %{http_code}\n'

@@ -156,6 +156,11 @@ begin
     raise exception 'anon must not call ensure_profile';
   exception when insufficient_privilege then null;
   end;
+  begin
+    perform public.delete_my_account();
+    raise exception 'anon must not call delete_my_account';
+  exception when insufficient_privilege then null;
+  end;
 
   execute 'reset role';
   raise notice 'anon checks passed';
@@ -383,7 +388,17 @@ begin
   perform set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-0000000000ff","role":"authenticated"}', true);
   if public.ensure_profile() then raise exception 'ensure_profile should be false for a deleted user'; end if;
 
+  -- delete_my_account: the caller (user D, with a saved event) deletes itself and only itself
+  perform set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000d","role":"authenticated"}', true);
+  perform public.delete_my_account();
+
   execute 'reset role';
+  select count(*) into n from auth.users where id = '00000000-0000-4000-8000-00000000000d';
+  if n <> 0 then raise exception 'delete_my_account should delete the caller'; end if;
+  select count(*) into n from public.user_event_actions where user_id = '00000000-0000-4000-8000-00000000000d';
+  if n <> 0 then raise exception 'delete_my_account should cascade to user rows, left %', n; end if;
+  select count(*) into n from auth.users where id = '00000000-0000-4000-8000-00000000000a';
+  if n <> 1 then raise exception 'delete_my_account must not touch other users'; end if;
   raise notice 'authenticated checks passed';
 end
 $$;

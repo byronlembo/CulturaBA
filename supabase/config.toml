@@ -19,13 +19,17 @@ sql_paths = ["./seed.sql"]
 enable_anonymous_sign_ins = true
 enable_signup = true
 site_url = "https://culturaba.xn--lembodiseo-19a.com"
-additional_redirect_urls = ["culturaba://"]
+additional_redirect_urls = ["culturaba://**", "https://culturaba.xn--lembodiseo-19a.com/**"]
+# Guests add Google to their own session (linkIdentity) and keep what they saved.
+enable_manual_linking = true
+minimum_password_length = 8
 
 [auth.rate_limit]
 anonymous_users = 30
 
-# The app signs in with an emailed one-time code (no links): guests confirm an email
-# with updateUser + verifyOtp('email_change'); returning users use signInWithOtp.
+# Accounts: Google, or email + password. Guests confirm their email with a one-time code
+# (updateUser + verifyOtp('email_change')) and then set a password; a forgotten password is
+# reset with another code (resetPasswordForEmail + verifyOtp('recovery')).
 # Remote project (needs custom SMTP on the free tier): `bash scripts/push-auth-emails.sh`.
 [auth.email.template.magic_link]
 subject = "Tu código de CulturaBA: {{ .Token }}"
@@ -34,3 +38,15 @@ content_path = "./supabase/templates/magic_link.html"
 [auth.email.template.email_change]
 subject = "Tu código para crear tu cuenta en CulturaBA: {{ .Token }}"
 content_path = "./supabase/templates/email_change.html"
+
+[auth.email.template.recovery]
+subject = "Tu código para cambiar la contraseña de CulturaBA: {{ .Token }}"
+content_path = "./supabase/templates/recovery.html"
+
+# Remote project: Authentication → Sign In / Providers → Google, with the OAuth client of
+# Google Cloud (docs/publicar-en-tiendas.md explains the steps).
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+skip_nonce_check = true
