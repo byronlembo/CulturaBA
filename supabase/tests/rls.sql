@@ -9,7 +9,10 @@ begin;
 insert into auth.users (id, email, is_anonymous) values
   ('00000000-0000-4000-8000-00000000000a', null, true),
   ('00000000-0000-4000-8000-00000000000b', 'b@example.com', false),
-  ('00000000-0000-4000-8000-00000000000c', 'c@example.com', false);
+  ('00000000-0000-4000-8000-00000000000c', 'c@example.com', false),
+  ('00000000-0000-4000-8000-00000000000d', null, true);
+-- A session whose profile is missing (created before the trigger or a schema reset).
+delete from public.profiles where id = '00000000-0000-4000-8000-00000000000d';
 
 insert into public.events (id, slug, status, institution_id, default_venue_id, title, dedup_key, official_url, primary_discipline, candidate_reasons)
 values
@@ -146,6 +149,11 @@ begin
   begin
     perform public.leaderboard('global');
     raise exception 'anon must not read leaderboards';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    perform public.ensure_profile();
+    raise exception 'anon must not call ensure_profile';
   exception when insufficient_privilege then null;
   end;
 
@@ -366,6 +374,14 @@ begin
   perform set_config('request.jwt.claims', user_a, true);
   select count(*) into n from public.points_ledger where user_id <> auth.uid();
   if n <> 0 then raise exception 'user A must not see user B points, saw %', n; end if;
+
+  -- ensure_profile: recreates a missing profile so writes work again; false for a gone user
+  perform set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-00000000000d","role":"authenticated"}', true);
+  if not public.ensure_profile() then raise exception 'ensure_profile should recreate the profile'; end if;
+  insert into public.user_event_actions (user_id, event_id, action) values (auth.uid(), e1, 'save');
+  if not public.ensure_profile() then raise exception 'ensure_profile should be idempotent'; end if;
+  perform set_config('request.jwt.claims', '{"sub":"00000000-0000-4000-8000-0000000000ff","role":"authenticated"}', true);
+  if public.ensure_profile() then raise exception 'ensure_profile should be false for a deleted user'; end if;
 
   execute 'reset role';
   raise notice 'authenticated checks passed';

@@ -43,6 +43,7 @@ export function ApiProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!supabase) return;
     let cancelled = false;
+    let ensured: string | null = null;
     const startGuest = async () => {
       const { error } = await supabase.auth.signInAnonymously();
       if (error && !cancelled) {
@@ -50,9 +51,19 @@ export function ApiProvider({ children }: { children: ReactNode }) {
         setSessionPending(false);
       }
     };
+    // Una sesión anterior al trigger de perfiles (o a un reinicio del esquema) no tiene
+    // perfil y todo guardado falla: se crea acá. Si el usuario ya no existe, invitado nuevo.
+    const ensureProfile = async () => {
+      const { data, error } = await supabase.rpc('ensure_profile');
+      if (!cancelled && !error && data === false) await supabase.auth.signOut();
+    };
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       if (cancelled) return;
       const u = session?.user;
+      if (u && ensured !== u.id) {
+        ensured = u.id;
+        setTimeout(() => void ensureProfile(), 0); // fuera del callback, como startGuest
+      }
       if (u) {
         setAccount({ email: u.email || null, isAnonymous: u.is_anonymous ?? false });
         setUserApi((prev) => (prev.id === u.id ? prev : createSupabaseUserApi(supabase, u.id)));

@@ -913,6 +913,9 @@ isOneToOne: false
 "distance_m":
 { Args: { "lat1": number,"lat2": number,"lng1": number,"lng2": number }; Returns: number
                            },
+"ensure_profile":
+{ Args: Record<PropertyKey, never>; Returns: boolean
+                           },
 "immutable_unaccent":
 { Args: { "": string }; Returns: string
                            },

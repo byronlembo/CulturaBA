@@ -53,3 +53,5 @@ jobs:
         run: |
           psql "$DATABASE_URL" -Atc "select table_type, table_name from information_schema.tables where table_schema = 'public' order by 1, 2"
           psql "$DATABASE_URL" -Atc "select version from supabase_migrations.schema_migrations order by version"
+          echo "usuarios sin perfil (debe ser 0):"
+          psql "$DATABASE_URL" -Atc "select count(*) from auth.users u where not exists (select 1 from public.profiles p where p.id = u.id)"
