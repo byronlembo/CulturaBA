@@ -102,6 +102,21 @@ institución (100) sobrescribe; agregador (10) solo rellena vacíos y aporta fun
   semana": ítems con día, horario, venue y dirección; selección editorial nacional,
   formato frágil) y vía **Linda**, que incluye eventos de estas instituciones.
 
+## Relevamiento del 18-oct-2026 (fuentes nuevas)
+
+Sondeo HTTP desde el entorno de desarrollo (sin challenge salvo donde se indica):
+
+| Sitio | Resultado | Decisión |
+|---|---|---|
+| usinadelarte.ar (Usina del Arte, Ciudad) | WordPress; REST `wp/v2/actividad` con taxonomías `funcion-fecha`, `funcion-hora`, `sala`, `estado`, `tipo-de-actividad` | conector `usina-del-arte` |
+| teatrocervantes.gob.ar (Teatro Nacional Cervantes) | WordPress; REST `wp/v2/obra` con `fecha_estreno` / `ultima_funcion`; horarios en el detalle | conector `teatro-cervantes` |
+| museomoderno.org (Museo Moderno, Ciudad) | WordPress + WPML; REST `wp/v2/agenda` y `wp/v2/exposiciones`; fechas en el texto | conector `museo-moderno` |
+| elculturalsanmartin.org | El dominio sirve spam de apuestas en turco: **no es el sitio oficial** del Centro Cultural San Martín | descartado (lo cubre Linda) |
+| malba.org.ar | WordPress con REST cerrada (401) | pendiente: relevar HTML |
+| proa.org, planetario.buenosaires.gob.ar | Sin API (HTML propio) | pendiente: relevar HTML |
+| cckonex.org, teatrocoliseo.org.ar, museoevita.org.ar | WordPress sin tipo de evento expuesto | pendiente |
+| centroculturalrecoleta.org, bn.gob.ar, centroculturalborges.org.ar | Sin respuesta desde el entorno (bloqueo de red) | pendiente; Recoleta llega por Linda |
+
 ## Protocolo de relevamiento (para fuentes nuevas)
 
 1. `robots.txt` y sitemaps; respetar `Crawl-delay` y rutas prohibidas.
