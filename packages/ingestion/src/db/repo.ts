@@ -367,6 +367,17 @@ export async function findEventsOnDates(
     where e.institution_id = ${institutionId} and e.status <> 'rejected' and e.merged_into_event_id is null`;
 }
 
+export async function eventHasRecordFrom(
+  db: Queryable,
+  eventId: string,
+  sourceId: string,
+): Promise<boolean> {
+  const rows = await db<{ n: number }[]>`
+    select count(*)::int as n from public.source_records
+    where event_id = ${eventId} and source_id = ${sourceId}`;
+  return (rows[0]?.n ?? 0) > 0;
+}
+
 export async function eventHasOccurrences(db: Queryable, eventId: string): Promise<boolean> {
   const rows = await db<{ n: number }[]>`
     select count(*)::int as n from public.occurrences where event_id = ${eventId} and status <> 'missing'`;

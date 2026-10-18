@@ -4,9 +4,11 @@ import {
   diceCoefficient,
   isPageKey,
   type NormalizedEvent,
+  titleOverlap,
 } from '@culturaba/shared';
 import {
   type EventRow,
+  eventHasRecordFrom,
   eventOccurrenceDates,
   findEventsByDedupKey,
   findEventsBySameAsUrls,
@@ -16,12 +18,13 @@ import type { Queryable } from '../db/sql';
 
 export const FUZZY_MATCH_THRESHOLD = 0.85;
 export const FUZZY_REVIEW_THRESHOLD = 0.7;
+export const TITLE_WORDS_THRESHOLD = 0.8;
 const DATE_TOLERANCE_DAYS = 1;
 
 export interface MatchResult {
   event: EventRow | null;
   /** Por qué se fusionó (para métricas y depuración). */
-  matchedBy?: 'same_as_url' | 'dedup_key' | 'fuzzy';
+  matchedBy?: 'same_as_url' | 'dedup_key' | 'fuzzy' | 'title_words';
   /** Parecido pero no suficiente para fusionar: se crea nuevo y se deja para revisión. */
   reviewCandidate?: { event: EventRow; score: number };
 }
@@ -32,7 +35,11 @@ export interface MatchResult {
  *     de UN solo evento de la misma institución (en cualquier sentido) + fechas compatibles;
  *  1. dedup_key (título normalizado | institución) + compatibilidad de fechas;
  *  2. fuzzy (Dice) entre eventos de la misma institución con fechas en común:
- *     ≥ 0.85 fusiona, 0.70–0.85 crea nuevo y marca para revisión.
+ *     ≥ 0.85 fusiona, 0.70–0.85 crea nuevo y marca para revisión;
+ *  3. palabras del título: entre fuentes distintas (una fuente nunca lista dos veces lo
+ *     mismo), misma institución y fechas en común, si el título más corto está casi
+ *     entero en el otro (≥ 0.8; Linda: "…le cantan a Charly", Usina: "…una noche para
+ *     Charly"). Con dos candidatos empatados no se fusiona.
  * El match por external_id lo hace el pipeline antes de llegar acá.
  */
 export async function findMatchingEvent(
@@ -71,6 +78,8 @@ export async function findMatchingEvent(
     if (!best || score > best.score) best = { event: candidate, score };
   }
   if (best && best.score >= FUZZY_MATCH_THRESHOLD) return { event: best.event, matchedBy: 'fuzzy' };
+  const byWords = await bestByTitleWords(db, normalized.title, onDates, sourceId);
+  if (byWords) return { event: byWords, matchedBy: 'title_words' };
   if (best && best.score >= FUZZY_REVIEW_THRESHOLD) {
     return { event: null, reviewCandidate: best };
   }
@@ -98,6 +107,25 @@ export function sameAsKeys(normalized: NormalizedEvent): string[] {
     .map(canonicalUrl)
     .filter(isSharedTicketKey);
   return [...new Set([...pages, ...tickets])];
+}
+
+async function bestByTitleWords(
+  db: Queryable,
+  title: string,
+  candidates: EventRow[],
+  sourceId: string,
+): Promise<EventRow | null> {
+  const scored: { event: EventRow; score: number }[] = [];
+  for (const event of candidates) {
+    const score = titleOverlap(title, event.title);
+    if (score < TITLE_WORDS_THRESHOLD) continue;
+    if (await eventHasRecordFrom(db, event.id, sourceId)) continue;
+    scored.push({ event, score });
+  }
+  scored.sort((a, b) => b.score - a.score);
+  const [first, second] = scored;
+  if (!first || (second && second.score === first.score)) return null;
+  return first.event;
 }
 
 async function datesCompatible(

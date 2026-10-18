@@ -87,6 +87,56 @@ export function diceCoefficient(a: string, b: string): number {
   return (2 * overlap) / (totalA + totalB);
 }
 
+const TITLE_STOPWORDS = new Set([
+  'a',
+  'al',
+  'con',
+  'de',
+  'del',
+  'el',
+  'en',
+  'la',
+  'las',
+  'le',
+  'les',
+  'lo',
+  'los',
+  'o',
+  'para',
+  'por',
+  'que',
+  'se',
+  'su',
+  'sus',
+  'un',
+  'una',
+  'unas',
+  'unos',
+  'y',
+]);
+
+/** Palabras con contenido de un título normalizado: sin artículos, preposiciones ni letras sueltas. */
+export function titleWords(title: string): string[] {
+  return normalizeTitle(title)
+    .split(' ')
+    .filter((w) => w.length > 1 && !TITLE_STOPWORDS.has(w));
+}
+
+/**
+ * Qué parte de las palabras del título más corto está en el otro (coeficiente de
+ * solapamiento): "Ludo-Espacio" y "Un plan para jugar en familia: llega el Ludo-Espacio"
+ * dan 1. Da 0 si el más corto tiene menos de 2 palabras: una sola no identifica un evento.
+ */
+export function titleOverlap(a: string, b: string): number {
+  const wa = new Set(titleWords(a));
+  const wb = new Set(titleWords(b));
+  const [small, large] = wa.size <= wb.size ? [wa, wb] : [wb, wa];
+  if (small.size < 2) return 0;
+  let shared = 0;
+  for (const w of small) if (large.has(w)) shared += 1;
+  return shared / small.size;
+}
+
 /** Texto plano desde HTML simple: quita etiquetas, decodifica entidades comunes, colapsa espacios. */
 export function htmlToText(html: string): string {
   const entities: Record<string, string> = {

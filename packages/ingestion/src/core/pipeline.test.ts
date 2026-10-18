@@ -612,6 +612,44 @@ describe('deduplication', () => {
     });
   });
 
+  describe('across sources by title words', () => {
+    const show = (over: Partial<Item> = {}): Item => ({
+      id: 'charly',
+      title: 'Mery Granados y Joaco Burgos: una noche para Charly',
+      url: 'https://sample.culturaba.test/actividad/charly/',
+      discipline: 'musica_vivo_jazz',
+      venue: SALA,
+      dates: [{ start: at(6, 20) }],
+      ...over,
+    });
+    const linda = (over: Partial<Item> = {}): Item =>
+      show({
+        id: 'agg-charly',
+        title: 'Mery Granados y Joaco Burgos le cantan a Charly',
+        url: 'https://agenda.sample.test/eventos/charly',
+        ...over,
+      });
+
+    it('attaches the aggregator record when the shorter title is almost all in the other', async () => {
+      await run([show()]);
+      const s = await runAggregator([linda()]);
+      expect(s.stats.events_created).toBe(0);
+      const ev = await q.event('charly');
+      expect((await q.event('agg-charly')).id).toBe(ev.id);
+      expect(ev.title).toBe('Mery Granados y Joaco Burgos: una noche para Charly');
+    });
+
+    it('does not merge two items of the same source, nor on other dates', async () => {
+      await run([
+        show(),
+        show({ id: 'charly-2', title: 'Mery Granados y Joaco Burgos cantan a Charly' }),
+      ]);
+      expect((await q.event('charly-2')).id).not.toBe((await q.event('charly')).id);
+      await runAggregator([linda({ dates: [{ start: at(40, 20) }] })]);
+      expect((await q.event('agg-charly')).id).not.toBe((await q.event('charly')).id);
+    });
+  });
+
   it('does not merge a same-titled event on different dates (new season)', async () => {
     await run(baseItems());
     const items = [

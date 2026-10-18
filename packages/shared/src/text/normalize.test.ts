@@ -7,6 +7,7 @@ import {
   normalizeTitle,
   slugify,
   stripDiacritics,
+  titleOverlap,
 } from './normalize';
 
 describe('normalizeTitle', () => {
@@ -70,6 +71,35 @@ describe('diceCoefficient', () => {
       0.85,
     );
     expect(diceCoefficient('Visita guiada: Goya', 'Visita guiada: Rodin')).toBeLessThan(0.85);
+  });
+});
+
+describe('titleOverlap', () => {
+  it('is 1 when the shorter title is contained in the longer one', () => {
+    expect(
+      titleOverlap('Ludo-Espacio', 'Un plan para jugar en familia: llega el Ludo-Espacio'),
+    ).toBe(1);
+    expect(
+      titleOverlap(
+        'Día de la familia: taller de modelado',
+        'Día de la familia: taller de modelado – Nos acompaña CHILAVERT',
+      ),
+    ).toBe(1);
+  });
+
+  it('counts content words only (Linda and the institution title the same show)', () => {
+    expect(
+      titleOverlap(
+        'Mery Granados y Joaco Burgos le cantan a Charly',
+        'Mery Granados y Joaco Burgos: una noche para Charly',
+      ),
+    ).toBeCloseTo(5 / 6);
+  });
+
+  it('stays low for different programmes and ignores one-word titles', () => {
+    expect(titleOverlap("Les Contes d'Hoffmann", 'Los Cuentos de Hoffmann')).toBe(0.5);
+    expect(titleOverlap('Clases de folklore', 'Clases de tango')).toBe(0.5);
+    expect(titleOverlap('Pentagrama', 'Pentagrama: concierto de cierre')).toBe(0);
   });
 });
 
