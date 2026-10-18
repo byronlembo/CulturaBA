@@ -1,0 +1,118 @@
+{
+  "source": "museo-moderno",
+  "capturedAt": "2026-10-18T20:13:03.546Z",
+  "entries": [
+    {
+      "url": "https://museomoderno.org/exposiciones/",
+      "file": "001-exposiciones.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T20:13:05.587Z"
+    },
+    {
+      "url": "https://museomoderno.org/wp-json/wp/v2/exposiciones?lang=es&_embed=wp:featuredmedia&_fields=id,slug,link,date,modified,title,excerpt,content,_links,_embedded&per_page=100&include=56869,56889,56895,56877,56883,56902,56908,56914,57050,56947,56921",
+      "file": "002-wp-json-wp-v2-exposiciones.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "capturedAt": "2026-10-18T20:13:08.942Z"
+    },
+    {
+      "url": "https://museomoderno.org/planea-tu-visita/",
+      "file": "003-planea-tu-visita.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T20:13:09.182Z"
+    },
+    {
+      "url": "https://museomoderno.org/wp-json/wp/v2/agenda?lang=es&_embed=wp:featuredmedia&_fields=id,slug,link,date,modified,title,excerpt,content,_links,_embedded&per_page=100&page=1",
+      "file": "004-wp-json-wp-v2-agenda.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "capturedAt": "2026-10-18T20:13:16.049Z"
+    },
+    {
+      "url": "https://museomoderno.org/wp-json/wp/v2/agenda?lang=es&_embed=wp:featuredmedia&_fields=id,slug,link,date,modified,title,excerpt,content,_links,_embedded&per_page=100&page=2",
+      "file": "005-wp-json-wp-v2-agenda.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "capturedAt": "2026-10-18T20:13:17.493Z"
+    },
+    {
+      "url": "https://museomoderno.org/exposiciones/habitando-el-futuro/",
+      "file": "006-exposiciones-habitando-el-futuro.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T20:13:18.128Z"
+    },
+    {
+      "url": "https://museomoderno.org/exposiciones/oceano-interior/",
+      "file": "007-exposiciones-oceano-interior.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T20:13:19.654Z"
+    },
+    {
+      "url": "https://museomoderno.org/exposiciones/naturaleza-arquitecta/",
+      "file": "008-exposiciones-naturaleza-arquitecta.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T20:13:21.143Z"
+    },
+    {
+      "url": "https://museomoderno.org/exposiciones/moderno-y-metamoderno-edicion-70o-aniversario/",
+      "file": "009-exposiciones-moderno-y-metamoderno-edicion-70o-aniversario.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T20:13:22.646Z"
+    },
+    {
+      "url": "https://museomoderno.org/exposiciones/vestir-mundos/",
+      "file": "010-exposiciones-vestir-mundos.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T20:13:24.144Z"
+    },
+    {
+      "url": "https://museomoderno.org/exposiciones/bosques-umbral/",
+      "file": "011-exposiciones-bosques-umbral.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T20:13:25.634Z"
+    },
+    {
+      "url": "https://museomoderno.org/exposiciones/ariel-cusnir/",
+      "file": "012-exposiciones-ariel-cusnir.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T20:13:27.237Z"
+    },
+    {
+      "url": "https://museomoderno.org/exposiciones/luis-camnitzer-todo-por-aprender/",
+      "file": "013-exposiciones-luis-camnitzer-todo-por-aprender.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T20:13:28.656Z"
+    },
+    {
+      "url": "https://museomoderno.org/exposiciones/oscuridad-visible-la-larga-sombra-de-la-dictadura/",
+      "file": "014-exposiciones-oscuridad-visible-la-larga-sombra-de-la-dictadura.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T20:13:30.270Z"
+    },
+    {
+      "url": "https://museomoderno.org/exposiciones/la-memoria-de-la-coleccion-el-moderno-en-el-parque/",
+      "file": "015-exposiciones-la-memoria-de-la-coleccion-el-moderno-en-el-parque.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T20:13:31.644Z"
+    },
+    {
+      "url": "https://museomoderno.org/exposiciones/ana-gallardo/",
+      "file": "016-exposiciones-ana-gallardo.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T20:13:33.141Z"
+    }
+  ]
+}

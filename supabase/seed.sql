@@ -136,3 +136,29 @@ on conflict (slug) do update set
   institution_id = excluded.institution_id,
   base_url = excluded.base_url,
   priority = excluded.priority;
+
+-- Museo Moderno (museomoderno.org). Mismo slug de institución que deriva Linda ("Museo Moderno").
+-- Dirección verificada el 18-oct-2026 en /planea-tu-visita/ ("Av. San Juan 350, San Telmo.
+-- Buenos Aires, Argentina") y en el footer del sitio ("Av. San Juan 350. San Telmo. Buenos
+-- Aires. C1147AAO."). Si Linda ya creó el venue "Museo Moderno" con slug derivado, lo adopta.
+insert into public.institutions (slug, name, website_url) values
+  ('museo-moderno', 'Museo Moderno', 'https://museomoderno.org')
+on conflict (slug) do update set name = excluded.name, website_url = excluded.website_url;
+update public.venues set slug = 'museo-moderno'
+where name = 'Museo Moderno'
+  and institution_id = (select id from public.institutions where slug = 'museo-moderno')
+  and not exists (select 1 from public.venues where slug = 'museo-moderno');
+insert into public.venues (slug, institution_id, name, address, neighborhood, city, address_source_url, address_verified_at) values
+  ('museo-moderno', (select id from public.institutions where slug = 'museo-moderno'),
+    'Museo Moderno', 'Av. San Juan 350', 'San Telmo', 'CABA', 'https://museomoderno.org/planea-tu-visita/', '2026-10-18T12:00:00-03:00')
+on conflict (slug) do update set
+  institution_id = excluded.institution_id, name = excluded.name, address = excluded.address,
+  neighborhood = excluded.neighborhood, address_source_url = excluded.address_source_url,
+  address_verified_at = excluded.address_verified_at;
+insert into public.sources (slug, name, institution_id, base_url, kind, priority) values
+  ('museo-moderno', 'Agenda y exposiciones del Museo Moderno',
+    (select id from public.institutions where slug = 'museo-moderno'),
+    'https://museomoderno.org/', 'json_api', 100)
+on conflict (slug) do update set
+  name = excluded.name, institution_id = excluded.institution_id,
+  base_url = excluded.base_url, priority = excluded.priority;
