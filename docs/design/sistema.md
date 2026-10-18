@@ -120,6 +120,17 @@ familia por peso, porque en nativo `fontWeight` no elige archivo. **Nunca** se c
 - **Etiqueta accesible única:** título, cuándo, sala, disciplina y "Gratis". La imagen lleva el título como etiqueta.
 - **Nativo:** en iOS el borde punteado de un solo lado sale liso. Si molesta, dibujar los guiones como Views (anotado como `shortcut` en el código).
 
+### Fechas de la ficha (`EventDates`)
+
+- **Solo próximas:** las fechas pasadas no se listan; para anotarlas está "Fui".
+- **Agrupación:** desde 3 fechas con la misma sala, room, hora, horario y precio, se arman como un grupo.
+  - El título es "Del 18 oct al 17 ene" en Bodoni.
+  - Debajo va "13:00 · mar a dom · 75 funciones", con la hora en dorado.
+  - Después vienen el horario y el precio en común, y "Próxima: …" con su botón de calendario.
+  - El botón "Ver las N fechas" / "Ocultar fechas" (`expanded`) despliega las filas.
+- **Fechas con marca** (cancelada, reprogramada…): nunca se agrupan.
+- **Muestras por tramos:** se unen igual. Los días de la semana salen de lo que cubre cada tramo ("lun a sáb").
+
 ### Fila de función (`OccurrenceRow`)
 
 - **Fecha y hora:** para una función, la fecha va en Bodoni 20 y la hora en `accent` SemiBold. Para rangos y días completos va el texto completo en Bodoni.

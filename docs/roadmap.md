@@ -81,6 +81,12 @@ cuando una función próxima se cancela, se posterga o se reprograma.
   - Una vez por función, máximo 3 por día de función.
   - Se quitó el check-in con ubicación, porque no hay canjes reales. Las recompensas se ocultan mientras el catálogo esté vacío.
 
+**Hecho (18-oct):**
+- **Fechas agrupadas en la ficha:** las repetidas (misma sala, hora, horario y precio) se ven como un rango con días de la semana, cantidad y próxima función, y se despliegan a pedido. Las pasadas ya no se listan.
+- **Perfiles faltantes:** había sesiones sin fila en `profiles`, así que guardar, Asistiré y "Fui" fallaban por clave foránea.
+  - Se completaron los perfiles que faltaban.
+  - La app llama a `ensure_profile()` en cada sesión. Si el usuario ya no existe, arranca un invitado nuevo.
+
 **Pendiente:**
 - Mapa nativo (`react-native-maps`) y proveedor de teselas con plan si crece el tráfico.
 - Link de invitación para sumar amigos; bloquear o denunciar usuarios.
