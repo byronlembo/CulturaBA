@@ -15,6 +15,7 @@ import type {
   UserApi,
 } from '@/api/types';
 import { usePreferences } from '@/store/preferences';
+import { authMethods } from './account/account';
 import { isUpcomingChange } from './calendar/planChanges';
 
 const PAGE = 20;
@@ -283,6 +284,13 @@ export function usePointsMutation<T>() {
       void qc.invalidateQueries({ queryKey: keys.rewards });
     },
   });
+}
+
+// ── Cuenta ──────────────────────────────────────────────────────────────────
+
+/** Formas de entrar habilitadas (Google según el proyecto; email salvo que se apague). */
+export function useAuthMethods() {
+  return useQuery({ queryKey: ['auth-methods'], queryFn: authMethods, staleTime: 3_600_000 });
 }
 
 // ── Amigos y ranking ────────────────────────────────────────────────────────

@@ -1,29 +1,45 @@
+import { DISCIPLINES, type DisciplineSlug } from '@culturaba/shared';
+import { Ionicons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
-import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useApi } from '@/api/context';
-import { InterestPicker } from '@/components/ui/InterestPicker';
-import { Button, Card, Section, Txt } from '@/components/ui/Primitives';
-import { AccountCard } from '@/features/account/AccountCard';
-import { useCatalogSources, useDiary, useInterests } from '@/features/hooks';
-import { PointsSection } from '@/features/points/PointsSection';
-import { usePreferences } from '@/store/preferences';
-import { spacing, useColors } from '@/theme/tokens';
+import { Badge, Button, Card, NavRow, Section, StatTile, Txt } from '@/components/ui/Primitives';
+import { Stars } from '@/features/diary/DiaryForm';
+import {
+  useCatalogSources,
+  useDiary,
+  useFriends,
+  useInterests,
+  usePoints,
+  useUsername,
+} from '@/features/hooks';
+import { formatBaDateRange } from '@/lib/dates';
+import { fonts, spacing, useColors } from '@/theme/tokens';
 
+/**
+ * Perfil por importancia: quién sos (y, si sos invitado, crear la cuenta), tus números
+ * (cada uno lleva a su detalle), tus intereses, lo último que viste y, al final, ajustes.
+ */
 export default function Profile() {
   const c = useColors();
   const router = useRouter();
-  const { mode, user } = useApi();
+  const { user, account } = useApi();
+  const online = user.kind === 'supabase';
+  const guest = !account || account.isAnonymous;
   const diary = useDiary();
-  const { interests, setInterests } = useInterests();
-  const [draft, setDraft] = useState(interests);
+  const points = usePoints();
+  const friends = useFriends();
+  const username = useUsername();
   const sources = useCatalogSources();
-  const resetOnboarding = usePreferences((s) => s.resetOnboarding);
+  const { interests } = useInterests();
 
-  useEffect(() => setDraft(interests), [interests]);
-  const dirty = draft.join() !== interests.join();
+  const handle = username.data ? `@${username.data}` : null;
+  const name = handle ?? (guest ? 'Invitado' : (account?.email?.split('@')[0] ?? 'Tu cuenta'));
+  const initial = (username.data ?? account?.email ?? '').charAt(0).toUpperCase();
+  const count = (n: number | undefined) => (n === undefined ? '—' : String(n));
+  const accepted = friends.data?.filter((f) => f.status === 'accepted').length;
+  const last = diary.data?.[0];
 
   return (
     <ScrollView
@@ -31,87 +47,168 @@ export default function Profile() {
       contentContainerStyle={{ paddingBottom: spacing.xxl }}
       style={{ backgroundColor: c.bg }}
     >
-      <Section title="Tus intereses">
-        <InterestPicker value={draft} onChange={setDraft} min={1} />
-        {dirty ? (
-          <View style={{ marginTop: spacing.md }}>
-            <Button
-              label="Guardar cambios"
-              disabled={draft.length < 1}
-              onPress={() => void setInterests(draft)}
-            />
-          </View>
-        ) : null}
+      <View style={styles.header}>
+        <View style={[styles.avatar, { backgroundColor: c.surfaceAlt, borderColor: c.accent }]}>
+          {initial ? (
+            <Txt style={[styles.initial, { color: c.accent }]}>{initial}</Txt>
+          ) : (
+            <Ionicons name="person" size={30} color={c.muted} />
+          )}
+        </View>
+        <View style={{ flex: 1, gap: 2 }}>
+          <Txt variant="title" numberOfLines={1}>
+            {name}
+          </Txt>
+          <Txt variant="small" tone="muted" numberOfLines={1}>
+            {guest ? 'Sin cuenta todavía' : account?.email}
+          </Txt>
+          {!guest && online && username.data === null ? (
+            <Pressable
+              accessibilityRole="link"
+              onPress={() => router.push('/amigos')}
+              style={styles.inlineLink}
+            >
+              <Txt variant="small" tone="accent">
+                Elegí tu @usuario
+              </Txt>
+            </Pressable>
+          ) : null}
+        </View>
+      </View>
+
+      {guest && online ? (
+        <View style={styles.block}>
+          <Card style={[styles.cta, { borderColor: c.accent }]}>
+            <Txt variant="heading">Guardá tu actividad</Txt>
+            <Txt tone="muted">
+              Con una cuenta no perdés tu diario, tus puntos ni lo guardado si cambiás de teléfono,
+              y podés sumar amigos.
+            </Txt>
+            <Button label="Crear cuenta" onPress={() => router.push('/cuenta')} />
+          </Card>
+        </View>
+      ) : null}
+
+      {online ? (
+        <View style={[styles.block, styles.stats]}>
+          <StatTile
+            label="Funciones vistas"
+            value={count(diary.data?.length)}
+            onPress={() => router.push('/diario')}
+          />
+          <StatTile
+            label="Puntos"
+            value={count(points.data?.balance)}
+            onPress={() => router.push('/puntos')}
+          />
+          <StatTile
+            label="Amigos"
+            value={guest ? '—' : count(accepted)}
+            onPress={() => router.push('/amigos')}
+          />
+        </View>
+      ) : null}
+
+      <Section
+        title="Tus intereses"
+        right={
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel="Editar tus intereses"
+            onPress={() => router.push('/intereses')}
+            style={styles.inlineLink}
+          >
+            <Txt variant="small" tone="accent">
+              Editar
+            </Txt>
+          </Pressable>
+        }
+      >
+        <View style={styles.chips}>
+          {interests.length ? (
+            DISCIPLINES.filter((d) => interests.includes(d.slug as DisciplineSlug)).map((d) => (
+              <Badge key={d.slug} label={d.shortLabel} tone="accent" />
+            ))
+          ) : (
+            <Txt tone="muted">Elegí qué te interesa para armar «Para vos».</Txt>
+          )}
+        </View>
       </Section>
 
-      {user.kind === 'supabase' ? (
-        <Section title="Tu diario">
-          <Card style={{ padding: spacing.md, gap: spacing.sm }}>
-            <Txt tone="muted">
-              {diary.data?.length
-                ? `${diary.data.length} ${diary.data.length === 1 ? 'función anotada' : 'funciones anotadas'}.`
-                : 'Anotá las funciones a las que fuiste, con puntaje y reseña. Solo vos lo ves.'}
-            </Txt>
-            <Button
-              label="Ver tu diario"
-              variant="secondary"
-              icon="book-outline"
+      {last ? (
+        <Section title="Lo último que viste">
+          <Card>
+            <Pressable
+              accessibilityRole="link"
               onPress={() => router.push('/diario')}
-            />
+              style={({ pressed }) => [styles.lastRow, pressed && { opacity: 0.8 }]}
+            >
+              <View style={{ flex: 1, gap: 4 }}>
+                <Txt variant="heading" numberOfLines={1}>
+                  {last.eventTitle}
+                </Txt>
+                <Txt variant="small" tone="muted" numberOfLines={1}>
+                  {formatBaDateRange(last.attendedOn, last.attendedOn)}
+                  {last.venueName ? ` · ${last.venueName}` : ''}
+                </Txt>
+                {last.rating ? <Stars value={last.rating} /> : null}
+              </View>
+              <Txt variant="small" tone="accent">
+                Ver diario
+              </Txt>
+            </Pressable>
           </Card>
         </Section>
       ) : null}
 
-      {user.kind === 'supabase' ? <PointsSection /> : null}
-
-      <Section title="Tu cuenta">
-        <AccountCard />
-      </Section>
-
-      <Section title="Fuentes oficiales">
+      <Section title="Ajustes">
         <Card>
-          {(sources.data ?? []).map((s, i) => (
-            <Pressable
-              key={s.slug}
-              accessibilityRole="link"
-              onPress={() => void WebBrowser.openBrowserAsync(s.baseUrl)}
-              style={{ padding: spacing.md, borderTopWidth: i ? 1 : 0, borderTopColor: c.border }}
-            >
-              <Txt variant="heading">{s.name}</Txt>
-              <Txt variant="small" tone="muted">
-                {s.baseUrl}
-              </Txt>
-            </Pressable>
-          ))}
-          {sources.isPending ? (
-            <Txt tone="muted" style={{ padding: spacing.md }}>
-              Cargando…
-            </Txt>
-          ) : null}
+          <NavRow
+            first
+            icon="person-circle-outline"
+            label="Cuenta y seguridad"
+            detail={guest ? 'Crear cuenta o entrar' : (account?.email ?? undefined)}
+            onPress={() => router.push('/cuenta')}
+          />
+          <NavRow
+            icon="library-outline"
+            label="Fuentes oficiales"
+            detail={sources.data ? `${sources.data.length} agendas, actualizadas solas` : undefined}
+            onPress={() => router.push('/fuentes')}
+          />
+          <NavRow
+            icon="information-circle-outline"
+            label="Acerca de CulturaBA"
+            detail={`Versión ${Constants.expoConfig?.version ?? ''}`}
+            onPress={() => router.push('/acerca')}
+          />
         </Card>
-        <Txt variant="caption" tone="muted" style={{ marginTop: spacing.sm }}>
-          Los eventos se importan automáticamente de las agendas oficiales. Nunca inventamos fechas,
-          precios ni imágenes: si un dato falta, no se muestra.
-        </Txt>
-      </Section>
-
-      <Section title="Acerca de">
-        <Txt tone="muted">
-          CulturaBA {Constants.expoConfig?.version ?? ''} · origen de datos: {mode}
-        </Txt>
-        <Pressable
-          accessibilityRole="button"
-          onPress={() => {
-            resetOnboarding();
-            router.replace('/(onboarding)/welcome');
-          }}
-          style={{ marginTop: spacing.md, minHeight: 44, justifyContent: 'center' }}
-        >
-          <Txt variant="small" tone="accent">
-            Volver a ver la bienvenida
-          </Txt>
-        </Pressable>
       </Section>
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+  },
+  avatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  initial: { fontFamily: fonts.display, fontSize: 30, lineHeight: 36 },
+  inlineLink: { minHeight: 44, minWidth: 44, justifyContent: 'center' },
+  block: { paddingHorizontal: spacing.lg, marginTop: spacing.lg },
+  cta: { padding: spacing.md, gap: spacing.sm, borderWidth: 1 },
+  stats: { flexDirection: 'row', gap: spacing.sm },
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  lastRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, padding: spacing.md },
+});

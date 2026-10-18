@@ -10,6 +10,8 @@ import { createSupabaseUserApi } from './userSupabase';
 export interface Account {
   email: string | null;
   isAnonymous: boolean;
+  /** Con qué se entra a la cuenta ('google', 'email'). */
+  providers: string[];
 }
 
 export interface ApiContextValue {
@@ -65,7 +67,8 @@ export function ApiProvider({ children }: { children: ReactNode }) {
         setTimeout(() => void ensureProfile(), 0); // fuera del callback, como startGuest
       }
       if (u) {
-        setAccount({ email: u.email || null, isAnonymous: u.is_anonymous ?? false });
+        const providers = (u.app_metadata?.providers as string[] | undefined) ?? [];
+        setAccount({ email: u.email || null, isAnonymous: u.is_anonymous ?? false, providers });
         setUserApi((prev) => (prev.id === u.id ? prev : createSupabaseUserApi(supabase, u.id)));
         setSessionError(null);
         setSessionPending(false);

@@ -19,7 +19,7 @@ export function PointsSection() {
   const rewardList = rewards.data?.rewards ?? [];
 
   return (
-    <Section title="Tus puntos">
+    <Section title="Saldo">
       <Card style={{ padding: spacing.md, gap: spacing.sm }}>
         <Txt accessibilityLabel={`${balance} puntos`} style={styles.hero}>
           {balance}

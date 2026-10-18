@@ -42,14 +42,16 @@ export function Button({
   ...props
 }: PressableProps & {
   label: string;
-  variant?: 'primary' | 'secondary' | 'ghost';
+  /** danger: solo para acciones que no se deshacen (eliminar la cuenta). */
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   icon?: keyof typeof Ionicons.glyphMap;
   loading?: boolean;
 }) {
   const c = useColors();
-  const bg =
-    variant === 'primary' ? c.accent : variant === 'secondary' ? c.surfaceAlt : 'transparent';
-  const fg = variant === 'primary' ? c.onAccent : c.text;
+  const bg = { primary: c.accent, secondary: c.surfaceAlt, ghost: 'transparent', danger: c.danger }[
+    variant
+  ];
+  const fg = variant === 'primary' || variant === 'danger' ? c.onAccent : c.text;
   return (
     <Pressable
       accessibilityRole="button"
@@ -193,20 +195,81 @@ export function Badge({
   );
 }
 
-/** Cifra destacada con su rótulo (la cifra va en la sans, no en la display). */
-export function StatTile({ label, value }: { label: string; value: string }) {
+/** Cifra destacada con su rótulo (la cifra va en la sans, no en la display). Con onPress, lleva a su detalle. */
+export function StatTile({
+  label,
+  value,
+  onPress,
+}: {
+  label: string;
+  value: string;
+  onPress?: () => void;
+}) {
   const c = useColors();
-  return (
-    <View
-      accessible
-      accessibilityLabel={`${label}: ${value}`}
-      style={[styles.stat, { backgroundColor: c.surfaceAlt }]}
-    >
+  // La cifra arriba: alineada en la fila aunque un rótulo ocupe dos líneas.
+  const body = (
+    <>
+      <Txt style={styles.statValue}>{value}</Txt>
       <Txt variant="caption" tone="muted">
         {label}
       </Txt>
-      <Txt style={styles.statValue}>{value}</Txt>
-    </View>
+    </>
+  );
+  const style = [styles.stat, { backgroundColor: c.surfaceAlt }];
+  if (!onPress)
+    return (
+      <View accessible accessibilityLabel={`${label}: ${value}`} style={style}>
+        {body}
+      </View>
+    );
+  return (
+    <Pressable
+      accessibilityRole="link"
+      accessibilityLabel={`${label}: ${value}`}
+      onPress={onPress}
+      style={({ pressed }) => [style, pressed && styles.pressed]}
+    >
+      {body}
+    </Pressable>
+  );
+}
+
+/** Fila de navegación de una lista de ajustes: ícono, texto, detalle opcional y flecha. */
+export function NavRow({
+  icon,
+  label,
+  detail,
+  onPress,
+  first,
+}: {
+  icon: keyof typeof Ionicons.glyphMap;
+  label: string;
+  detail?: string;
+  onPress: () => void;
+  first?: boolean;
+}) {
+  const c = useColors();
+  return (
+    <Pressable
+      accessibilityRole="link"
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.navRow,
+        !first && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.border },
+        pressed && styles.pressed,
+      ]}
+    >
+      <Ionicons name={icon} size={22} color={c.muted} />
+      <View style={{ flex: 1 }}>
+        <Txt>{label}</Txt>
+        {detail ? (
+          <Txt variant="small" tone="muted" numberOfLines={1}>
+            {detail}
+          </Txt>
+        ) : null}
+      </View>
+      <Ionicons name="chevron-forward" size={18} color={c.muted} />
+    </Pressable>
   );
 }
 
@@ -330,5 +393,13 @@ const styles = StyleSheet.create({
   stat: { flex: 1, padding: spacing.md, borderRadius: radius.md, gap: 2 },
   statValue: { fontFamily: fonts.bodySemi, fontSize: 28, lineHeight: 34 },
   pressed: { opacity: 0.8 },
+  navRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+    minHeight: 56,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+  },
   state: { alignItems: 'center', justifyContent: 'center', padding: spacing.xxl, flexGrow: 1 },
 });

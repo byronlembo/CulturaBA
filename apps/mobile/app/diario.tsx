@@ -58,7 +58,7 @@ export default function Diary() {
           <EmptyState
             icon="book-outline"
             title="Tu diario está vacío"
-            body="En la ficha de un evento al que fuiste, tocá «¿Fuiste? Anotalo en tu diario»."
+            body="En la ficha de una función a la que fuiste, tocá «Fui a esta función»."
           />
         }
         renderItem={({ item: e }) => (

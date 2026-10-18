@@ -67,6 +67,26 @@ export default function RootLayout() {
                 name="ranking"
                 options={{ title: 'Ranking', headerBackTitle: 'Volver' }}
               />
+              <Stack.Screen
+                name="puntos"
+                options={{ title: 'Tus puntos', headerBackTitle: 'Volver' }}
+              />
+              <Stack.Screen
+                name="cuenta"
+                options={{ title: 'Cuenta y seguridad', headerBackTitle: 'Volver' }}
+              />
+              <Stack.Screen
+                name="intereses"
+                options={{ title: 'Tus intereses', headerBackTitle: 'Volver' }}
+              />
+              <Stack.Screen
+                name="fuentes"
+                options={{ title: 'Fuentes oficiales', headerBackTitle: 'Volver' }}
+              />
+              <Stack.Screen
+                name="acerca"
+                options={{ title: 'Acerca de CulturaBA', headerBackTitle: 'Volver' }}
+              />
               <Stack.Screen name="+not-found" options={{ title: 'No encontrado' }} />
             </Stack>
           </ThemeProvider>

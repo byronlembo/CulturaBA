@@ -7,8 +7,8 @@ export function NeedsAccount({ what }: { what: string }) {
     <EmptyState
       icon="people-outline"
       title="Necesitás una cuenta"
-      body={`Creá tu cuenta con email en Perfil para ${what}.`}
-      action={<Button label="Ir a Perfil" onPress={() => router.push('/perfil')} />}
+      body={`Creá tu cuenta con Google o con tu email para ${what}.`}
+      action={<Button label="Crear cuenta" onPress={() => router.push('/cuenta')} />}
     />
   );
 }
