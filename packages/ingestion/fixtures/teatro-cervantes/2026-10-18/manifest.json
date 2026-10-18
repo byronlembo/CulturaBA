@@ -1,0 +1,126 @@
+{
+  "source": "teatro-cervantes",
+  "capturedAt": "2026-10-18T16:47:56.724Z",
+  "note": "001-010: `ingest record --source teatro-cervantes --limit 25` (discover + enrich de las 5 obras vigentes en la Ciudad). 101-107: páginas del relevamiento manual del mismo día (obras de gira, que discover excluye, y obras archivadas de 2026) para probar parse con textos literales; el conector no las pide.",
+  "entries": [
+    {
+      "url": "https://www.teatrocervantes.gob.ar/wp-json/wp/v2/categories?per_page=100",
+      "file": "001-wp-json-wp-v2-categories.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:47:59.161Z"
+    },
+    {
+      "url": "https://www.teatrocervantes.gob.ar/calendario/?mes=10&a=2026",
+      "file": "002-calendario.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:48:01.191Z"
+    },
+    {
+      "url": "https://www.teatrocervantes.gob.ar/calendario/?mes=11&a=2026",
+      "file": "003-calendario.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:48:02.492Z"
+    },
+    {
+      "url": "https://www.teatrocervantes.gob.ar/calendario/?mes=12&a=2026",
+      "file": "004-calendario.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:48:03.804Z"
+    },
+    {
+      "url": "https://www.teatrocervantes.gob.ar/wp-json/wp/v2/obra?per_page=100&orderby=modified&order=desc&_fields=id,slug,link,modified,title,fecha_estreno,ultima_funcion,categories",
+      "file": "005-wp-json-wp-v2-obra.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:48:05.444Z"
+    },
+    {
+      "url": "https://www.teatrocervantes.gob.ar/obra/el-movimiento/",
+      "file": "006-obra-el-movimiento.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:48:06.595Z"
+    },
+    {
+      "url": "https://www.teatrocervantes.gob.ar/obra/visitas-guiadas-del-cervantes/",
+      "file": "007-obra-visitas-guiadas-del-cervantes.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:48:08.108Z"
+    },
+    {
+      "url": "https://www.teatrocervantes.gob.ar/obra/ciclo-de-musica-2/",
+      "file": "008-obra-ciclo-de-musica-2.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:48:09.625Z"
+    },
+    {
+      "url": "https://www.teatrocervantes.gob.ar/obra/lo-mucho-que-te-ame/",
+      "file": "009-obra-lo-mucho-que-te-ame.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:48:11.091Z"
+    },
+    {
+      "url": "https://www.teatrocervantes.gob.ar/obra/santos-vega/",
+      "file": "010-obra-santos-vega.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:48:12.611Z"
+    },
+    {
+      "url": "https://www.teatrocervantes.gob.ar/obra/villa-california/",
+      "file": "101-obra-villa-california.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:30:40.000Z"
+    },
+    {
+      "url": "https://www.teatrocervantes.gob.ar/obra/y-los-perros-se-reiran/",
+      "file": "102-obra-y-los-perros-se-reiran.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:30:42.000Z"
+    },
+    {
+      "url": "https://www.teatrocervantes.gob.ar/obra/sanctum-quixote/",
+      "file": "103-obra-sanctum-quixote.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:39:10.000Z"
+    },
+    {
+      "url": "https://www.teatrocervantes.gob.ar/obra/borges-el-eco-infinito/",
+      "file": "104-obra-borges-el-eco-infinito.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:39:04.000Z"
+    },
+    {
+      "url": "https://www.teatrocervantes.gob.ar/obra/el-mago-de-oz/",
+      "file": "105-obra-el-mago-de-oz.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:38:56.000Z"
+    },
+    {
+      "url": "https://www.teatrocervantes.gob.ar/obra/cervantes-electroacustico-2/",
+      "file": "106-obra-cervantes-electroacustico-2.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:39:00.000Z"
+    },
+    {
+      "url": "https://www.teatrocervantes.gob.ar/obra/ciclo-teatro-del-pais/",
+      "file": "107-obra-ciclo-teatro-del-pais.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:39:02.000Z"
+    }
+  ]
+}

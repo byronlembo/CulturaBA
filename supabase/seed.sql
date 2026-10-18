@@ -104,3 +104,35 @@ on conflict (slug) do update set
   institution_id = excluded.institution_id,
   base_url = excluded.base_url,
   priority = excluded.priority;
+
+-- Teatro Nacional Cervantes
+-- Dirección publicada en https://www.teatrocervantes.gob.ar/contacto/ ("Libertad 815 / C1012AAQ,
+-- Ciudad de Buenos Aires") y en el pie de cada página; verificada el 2026-10-18. El sitio no
+-- publica el barrio: queda null. Las salas (María Guerrero, Orestes Caviglia, Luisa Vehil) van
+-- como `room` de este venue. Ver docs/research/teatro-cervantes.md.
+insert into public.institutions (slug, name, website_url) values
+  ('teatro-cervantes', 'Teatro Nacional Cervantes', 'https://www.teatrocervantes.gob.ar')
+on conflict (slug) do update set name = excluded.name, website_url = excluded.website_url;
+
+insert into public.venues (slug, institution_id, name, address, neighborhood, city, address_source_url, address_verified_at) values
+  ('teatro-cervantes',
+    (select id from public.institutions where slug = 'teatro-cervantes'),
+    'Teatro Nacional Cervantes', 'Libertad 815', null, 'CABA',
+    'https://www.teatrocervantes.gob.ar/contacto/', '2026-10-18T13:40:00-03:00')
+on conflict (slug) do update set
+  institution_id = excluded.institution_id,
+  name = excluded.name,
+  address = excluded.address,
+  neighborhood = excluded.neighborhood,
+  address_source_url = excluded.address_source_url,
+  address_verified_at = excluded.address_verified_at;
+
+insert into public.sources (slug, name, institution_id, base_url, kind, priority) values
+  ('teatro-cervantes', 'Programación Teatro Nacional Cervantes',
+    (select id from public.institutions where slug = 'teatro-cervantes'),
+    'https://www.teatrocervantes.gob.ar/', 'html', 100)
+on conflict (slug) do update set
+  name = excluded.name,
+  institution_id = excluded.institution_id,
+  base_url = excluded.base_url,
+  priority = excluded.priority;
