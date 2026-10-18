@@ -40,7 +40,15 @@ import { classifyPlace, resolvePlace } from './venues';
 const FIXTURES = fixtureSetDir('agenda-ba', '2026-10-14');
 const NOW = DateTime.fromISO('2026-10-14T12:00:00', { zone: 'America/Argentina/Buenos_Aires' });
 const LINDA = (slug: string) => `https://linda.buenosaires.gob.ar/eventos/${slug}`;
-const SEED_INSTITUTIONS = new Set(['teatro-colon', 'complejo-teatral', 'mnba', 'palacio-libertad']);
+const SEED_INSTITUTIONS = new Set([
+  'teatro-colon',
+  'complejo-teatral',
+  'mnba',
+  'palacio-libertad',
+  'usina-del-arte',
+  'teatro-cervantes',
+  'museo-moderno',
+]);
 const SEED_VENUES = new Set(['teatro-colon', 'mnba', 'palacio-libertad']);
 
 interface ApiEvent {
@@ -1041,6 +1049,19 @@ describe('agenda-ba · sameAsUrls para deduplicar con la fuente institucional', 
   it('LOS CUENTOS DE HOFFMANN declara la página de entradasba con id de evento', () => {
     expect(eventOf('los-cuentos-de-hoffmann').sameAsUrls).toEqual([
       'https://entradasba.buenosaires.gob.ar/evento/8df036b4-df44-49bf-aafb-2402f5ea675e',
+    ]);
+  });
+
+  it('Usina del Arte y Museo Moderno: la ficha enlazada da la institución y el sameAs', () => {
+    const misty = eventOf('respect-misty-soul-choir');
+    expect([misty.institutionSlug, misty.sameAsUrls]).toEqual([
+      'usina-del-arte',
+      ['https://usinadelarte.ar/actividad/misty-soul-choir-por-primera-vez-en-buenos-aires-presenta-respect/'],
+    ]);
+    const caja = eventOf('caja-de-sorpresas');
+    expect([caja.institutionSlug, caja.sameAsUrls]).toEqual([
+      'museo-moderno',
+      ['https://museomoderno.org/agenda/caja-de-sorpresas/'],
     ]);
   });
 

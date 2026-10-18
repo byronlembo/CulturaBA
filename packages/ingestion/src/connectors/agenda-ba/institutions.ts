@@ -19,7 +19,14 @@ import { slugify } from '@culturaba/shared';
  * (resolveInstitution) con name/url si todavía no existe.
  */
 
-export type SeedInstitutionSlug = 'teatro-colon' | 'complejo-teatral' | 'mnba' | 'palacio-libertad';
+export type SeedInstitutionSlug =
+  | 'teatro-colon'
+  | 'complejo-teatral'
+  | 'mnba'
+  | 'palacio-libertad'
+  | 'usina-del-arte'
+  | 'teatro-cervantes'
+  | 'museo-moderno';
 
 /** Host (sin "www.") → institución del seed. */
 export const SEED_INSTITUTION_HOSTS: Readonly<Record<string, SeedInstitutionSlug>> = {
@@ -27,6 +34,9 @@ export const SEED_INSTITUTION_HOSTS: Readonly<Record<string, SeedInstitutionSlug
   'complejoteatral.gob.ar': 'complejo-teatral',
   'bellasartes.gob.ar': 'mnba',
   'palaciolibertad.gob.ar': 'palacio-libertad',
+  'usinadelarte.ar': 'usina-del-arte',
+  'teatrocervantes.gob.ar': 'teatro-cervantes',
+  'museomoderno.org': 'museo-moderno',
 };
 
 /** Institución de respaldo: quien publica el evento cuando no hay un espacio con nombre propio. */
