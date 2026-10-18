@@ -74,3 +74,33 @@ on conflict (slug) do update set
 
 -- La API de Linda devuelve conjuntos algo distintos entre llamadas: exigir 3 ausencias.
 update public.sources set config = config || '{"missThreshold": 3}'::jsonb where slug = 'agenda-ba';
+
+-- Usina del Arte (docs/research/usina-del-arte.md). Dirección verificada el 18-oct-2026 en
+-- usinadelarte.ar/contacto/ y en el bloque "Dirección" de cada actividad: "Agustín R.
+-- Caffarena 1, C1157 Cdad. Autónoma de Buenos Aires". El sitio no publica barrio ni
+-- coordenadas: quedan en NULL. Si Linda ya creó la sede con su slug derivado, se la adopta.
+insert into public.institutions (slug, name, website_url) values
+  ('usina-del-arte', 'Usina del Arte', 'https://usinadelarte.ar')
+on conflict (slug) do update set name = excluded.name, website_url = excluded.website_url;
+update public.venues set slug = 'usina-del-arte'
+  where slug = 'usina-del-arte-usina-del-arte'
+    and not exists (select 1 from public.venues where slug = 'usina-del-arte');
+insert into public.venues (slug, institution_id, name, address, neighborhood, city, address_source_url, address_verified_at) values
+  ('usina-del-arte',
+    (select id from public.institutions where slug = 'usina-del-arte'),
+    'Usina del Arte', 'Agustín R. Caffarena 1', null, 'CABA', 'https://usinadelarte.ar/contacto/', '2026-10-18T12:00:00-03:00')
+on conflict (slug) do update set
+  institution_id = excluded.institution_id,
+  name = excluded.name,
+  address = excluded.address,
+  address_source_url = excluded.address_source_url,
+  address_verified_at = excluded.address_verified_at;
+insert into public.sources (slug, name, institution_id, base_url, kind, priority) values
+  ('usina-del-arte', 'Programación Usina del Arte',
+    (select id from public.institutions where slug = 'usina-del-arte'),
+    'https://usinadelarte.ar/', 'json_api', 100)
+on conflict (slug) do update set
+  name = excluded.name,
+  institution_id = excluded.institution_id,
+  base_url = excluded.base_url,
+  priority = excluded.priority;

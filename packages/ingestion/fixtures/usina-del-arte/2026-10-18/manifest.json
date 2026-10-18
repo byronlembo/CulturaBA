@@ -1,0 +1,209 @@
+{
+  "source": "usina-del-arte",
+  "capturedAt": "2026-10-18T16:43:10.828Z",
+  "entries": [
+    {
+      "url": "https://usinadelarte.ar/wp-json/wp/v2/actividad?_fields=id,slug,link,title,modified,featured_media,funcion-fecha,funcion-hora,sala,estado,tipo-de-actividad&orderby=id&order=asc&per_page=100&page=1",
+      "file": "001-wp-json-wp-v2-actividad.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:13.360Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/wp-json/wp/v2/actividad?_fields=id,slug,link,title,modified,featured_media,funcion-fecha,funcion-hora,sala,estado,tipo-de-actividad&orderby=id&order=asc&per_page=100&page=2",
+      "file": "002-wp-json-wp-v2-actividad.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:14.311Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/wp-json/wp/v2/actividad?_fields=id,slug,link,title,modified,featured_media,funcion-fecha,funcion-hora,sala,estado,tipo-de-actividad&orderby=id&order=asc&per_page=100&page=3",
+      "file": "003-wp-json-wp-v2-actividad.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:15.797Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/wp-json/wp/v2/actividad?_fields=id,slug,link,title,modified,featured_media,funcion-fecha,funcion-hora,sala,estado,tipo-de-actividad&orderby=id&order=asc&per_page=100&page=4",
+      "file": "004-wp-json-wp-v2-actividad.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:17.278Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/wp-json/wp/v2/funcion-fecha?_fields=id,name,slug&orderby=id&order=asc&per_page=100&page=1",
+      "file": "005-wp-json-wp-v2-funcion-fecha.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:18.685Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/wp-json/wp/v2/funcion-fecha?_fields=id,name,slug&orderby=id&order=asc&per_page=100&page=2",
+      "file": "006-wp-json-wp-v2-funcion-fecha.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:20.203Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/wp-json/wp/v2/funcion-hora?_fields=id,name,slug&orderby=id&order=asc&per_page=100&page=1",
+      "file": "007-wp-json-wp-v2-funcion-hora.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:22.082Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/wp-json/wp/v2/sala?_fields=id,name,slug&orderby=id&order=asc&per_page=100&page=1",
+      "file": "008-wp-json-wp-v2-sala.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:23.573Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/wp-json/wp/v2/estado?_fields=id,name,slug&orderby=id&order=asc&per_page=100&page=1",
+      "file": "009-wp-json-wp-v2-estado.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:24.948Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/wp-json/wp/v2/tipo-de-actividad?_fields=id,name,slug&orderby=id&order=asc&per_page=100&page=1",
+      "file": "010-wp-json-wp-v2-tipo-de-actividad.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:26.289Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/esdras-campos-y-agustina-herrerarecital-de-violonchelo-y-piano/",
+      "file": "011-actividad-esdras-campos-y-agustina-herrerarecital-de-violonchelo-y-piano.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:28.001Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/latinfonico-3/",
+      "file": "012-actividad-latinfonico-3.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:29.364Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/musica-latina-creacion-de-accesorios-para-bailar-nos-acompana-plasticola/",
+      "file": "013-actividad-musica-latina-creacion-de-accesorios-para-bailar-nos-acompana-plastico.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:31.369Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/pena-en-el-salon-mayor-1210/",
+      "file": "014-actividad-pena-en-el-salon-mayor-1210.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:32.683Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/dj-inca-1210/",
+      "file": "015-actividad-dj-inca-1210.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:34.463Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/clases-de-folklore-1210/",
+      "file": "016-actividad-clases-de-folklore-1210.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:35.659Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/etchart-cardoso-duo-presentan-pueblo-adentro/",
+      "file": "017-actividad-etchart-cardoso-duo-presentan-pueblo-adentro.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:36.897Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/entre-el-sonido-y-el-tiempo/",
+      "file": "018-actividad-entre-el-sonido-y-el-tiempo.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:38.516Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/ludo-espacio/",
+      "file": "019-actividad-ludo-espacio.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:39.899Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/entre-el-sonido-y-el-tiempo-eng/",
+      "file": "020-actividad-entre-el-sonido-y-el-tiempo-eng.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:41.576Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/concierto-de-gala-del-ansambel-sasa-avsenika/",
+      "file": "021-actividad-concierto-de-gala-del-ansambel-sasa-avsenika.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:42.882Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/misty-soul-choir-por-primera-vez-en-buenos-aires-presenta-respect/",
+      "file": "022-actividad-misty-soul-choir-por-primera-vez-en-buenos-aires-presenta-respect.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:44.402Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/historias-de-circovisita-guiada-ludica-para-familias/",
+      "file": "023-actividad-historias-de-circovisita-guiada-ludica-para-familias.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:45.831Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/eugenia-fuente-y-javier-mas-la-cancion-espanola-y-la-argentina/",
+      "file": "024-actividad-eugenia-fuente-y-javier-mas-la-cancion-espanola-y-la-argentina.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:47.399Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/dia-de-la-familia-taller-de-modelado-nos-acompana-chilavert/",
+      "file": "025-actividad-dia-de-la-familia-taller-de-modelado-nos-acompana-chilavert.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:48.968Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/las-canciones-mas-lindas-de-charly-artista-invitado-pablo-granados/",
+      "file": "026-actividad-las-canciones-mas-lindas-de-charly-artista-invitado-pablo-granados.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:50.650Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/mery-granados-y-joaco-burgos-una-noche-para-charly/",
+      "file": "027-actividad-mery-granados-y-joaco-burgos-una-noche-para-charly.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:51.919Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/jose-luis-jurirecital-de-piano/",
+      "file": "028-actividad-jose-luis-jurirecital-de-piano.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:53.519Z"
+    },
+    {
+      "url": "https://usinadelarte.ar/actividad/charly-en-el-pais-de-las-maravillas/",
+      "file": "029-actividad-charly-en-el-pais-de-las-maravillas.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-18T16:43:55.016Z"
+    }
+  ]
+}

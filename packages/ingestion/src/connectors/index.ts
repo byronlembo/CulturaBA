@@ -5,6 +5,7 @@ import { mnbaConnector } from './mnba/connector';
 import { palacioLibertadConnector } from './palacio-libertad/connector';
 import { sampleConnector } from './sample/connector';
 import { teatroColonConnector } from './teatro-colon/connector';
+import { usinaDelArteConnector } from './usina-del-arte/connector';
 
 /** Registro de conectores. Agregar uno nuevo = una línea acá. */
 export const CONNECTORS: readonly SourceConnector[] = [
@@ -14,6 +15,7 @@ export const CONNECTORS: readonly SourceConnector[] = [
   mnbaConnector,
   palacioLibertadConnector,
   agendaBaConnector,
+  usinaDelArteConnector,
 ];
 
 export function getConnector(slug: string): SourceConnector {
