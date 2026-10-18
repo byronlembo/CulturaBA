@@ -13,7 +13,6 @@ import { Linking, Platform, Pressable, ScrollView, Share, StyleSheet, View } fro
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { EventDetail, UserAction } from '@/api/types';
 import { EventImage } from '@/components/ui/EventImage';
-import { OccurrenceRow } from '@/components/ui/OccurrenceRow';
 import {
   Button,
   Card,
@@ -24,6 +23,7 @@ import {
   Txt,
 } from '@/components/ui/Primitives';
 import { DiarySection } from '@/features/diary/DiarySection';
+import { EventDates } from '@/features/event/EventDates';
 import {
   useEvent,
   useEventSources,
@@ -32,7 +32,6 @@ import {
   useStats,
   useToggleAction,
 } from '@/features/hooks';
-import { addToCalendar, calendarEntry } from '@/lib/calendar';
 import { relativeTimeEs, whenText } from '@/lib/dates';
 import { env } from '@/lib/env';
 import { radius, spacing, useColors } from '@/theme/tokens';
@@ -185,21 +184,8 @@ function Body({ event }: { event: EventDetail }) {
         </Txt>
         {occurrences.isPending ? (
           <Loading />
-        ) : occurrences.data && occurrences.data.length > 0 ? (
-          occurrences.data.map((o) => (
-            <OccurrenceRow
-              key={o.id}
-              occurrence={o}
-              showVenue={Boolean(o.venueName && o.venueName !== event.venueName)}
-              onAddToCalendar={
-                Date.parse(o.endsAt ?? o.startsAt) >= Date.now()
-                  ? () => addToCalendar(calendarEntry(event, o), event.slug)
-                  : undefined
-              }
-            />
-          ))
         ) : (
-          <Txt tone="muted">No hay funciones próximas publicadas.</Txt>
+          <EventDates event={event} occurrences={occurrences.data ?? []} />
         )}
 
         <DiarySection eventId={event.id} occurrences={occurrences.data ?? []} />
