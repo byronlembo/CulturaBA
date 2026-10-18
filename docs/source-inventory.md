@@ -14,6 +14,8 @@
 | `teatro-colon` | Teatro Colón | https://teatrocolon.org.ar/calendario/ | 200 (Cloudflare CDN, sin challenge) | HTML server-side (`cheerio`) | ~3 listados mensuales + ~30 detalles | 100 | **en producción** |
 | `complejo-teatral` | Complejo Teatral de Buenos Aires | https://complejoteatral.gob.ar/ | 200 (Cloudflare CDN, sin challenge) | HTML server-side + agenda diaria `/agenda/?fecha=` | 1 home + 28 días + ~33 detalles ≈ 62 | 100 | ⏸ corregido el 16-oct; fuera del cron: el sitio responde 403 a los runners de GitHub (desde otras IPs funciona) |
 | `agenda-ba` | Agregador oficial de la Ciudad (**Linda**) | https://linda.buenosaires.gob.ar/ | 200 (sin Cloudflare) | **API JSON** `/api/frontend/events/filter?limit=200` | 1–2 | 10 | **en producción** |
+| `usina-del-arte` | Usina del Arte (Ciudad) | https://usinadelarte.ar/ | 200 (Hostinger, sin challenge; `robots.txt` vacío) | **REST WordPress** `wp/v2/actividad` + taxonomías; detalle HTML para fecha y hora de cada función | 4 páginas REST + 6 de taxonomías + ~20 detalles ≈ 30 | 100 | **incorporado** (18-oct) |
+| `teatro-cervantes` | Teatro Nacional Cervantes (Nación) | https://www.teatrocervantes.gob.ar/ | 200 (sin challenge) | **REST WordPress** `wp/v2/obra` + calendario mensual `/calendario/?mes=` + detalle HTML | 1 REST + 3 meses + ~5 detalles ≈ 10 | 100 | **incorporado** (18-oct) |
 | `mnba` | Museo Nacional de Bellas Artes | https://bellasartes.gob.ar/agenda/ | **403 Cloudflare managed challenge (Turnstile interactivo) en toda la zona** | — | — | 100 | **bloqueado** |
 | `palacio-libertad` | Palacio Libertad | https://palaciolibertad.gob.ar/agenda/ | **403 challenge en toda la zona (incluso robots.txt)** | — | — | 100 | **bloqueado** |
 | `cultura-gob-ar` | Agenda Cultural Federal | https://www.cultura.gob.ar/agenda/filtro/ | **403 challenge**; `datos.cultura.gob.ar` también | — | — | complementaria | bloqueado |
@@ -86,6 +88,36 @@ institución (100) sobrescribe; agregador (10) solo rellena vacíos y aporta fun
 - `turismo.buenosaires.gob.ar` ("Qué hacer esta semana", `/es/eventos`): JSON inline
   editorial, sin ids; `Crawl-delay: 10`. `data.buenosaires.gob.ar`: su `robots.txt`
   prohíbe `/api/` (no se usa). Complementario, no prioritario.
+
+### Usina del Arte — `usina-del-arte` (`docs/research/usina-del-arte.md`)
+- WordPress + Elementor en Hostinger; `robots.txt` vacío (todo permitido). REST
+  `wp/v2/actividad` (356 actividades, `content` vacío) con taxonomías `funcion-fecha`
+  ("25/10/2026"), `funcion-hora` (solo 7 actividades), `sala`, `estado`
+  (`Pasadas`/`Programadas`, cargado a mano) y `tipo-de-actividad` (64 términos, mapeados
+  a disciplinas con una tabla explícita).
+- Las taxonomías son **conjuntos** por actividad: no dicen qué hora va con qué fecha. La
+  verdad está en el detalle (`.function-item`, una fila por función con fecha y hora);
+  sin filas, se combinan solo si no hay ambigüedad. Fecha sin hora → `range` de un día.
+- Dirección publicada en `/contacto/` y en cada detalle (Agustín R. Caffarena 1); sin
+  barrio ni coordenadas. La sala va como `room`.
+- Linda enlaza la ficha de algunas actividades ("Entradas") → `sameAsUrls` y misma
+  institución. A veces enlaza un slug viejo que redirige: ahí solo funde por título y fecha.
+
+### Teatro Nacional Cervantes — `teatro-cervantes` (`docs/research/teatro-cervantes.md`)
+- WordPress. REST `wp/v2/obra` con `fecha_estreno` / `ultima_funcion` ("29/10/2026") y
+  categorías de contexto (no de género). Giras ("En el país"), Tecnópolis y Cervantes
+  Online quedan fuera (el catálogo es CABA).
+- **Calendario mensual** `/calendario/?mes=MM&a=AAAA`: una fila por función con día y
+  hora; respeta feriados. Es la fuente principal; se leen el mes actual y los dos
+  siguientes (si falla un mes, falla la corrida). Puede estar incompleto (*El
+  movimiento* no figura).
+- Si una obra no está en el calendario, se lee el texto del detalle: fechas enumeradas
+  con su hora, o patrón semanal **solo dentro de la temporada publicada**. Cualquier
+  frase dudosa ("Excepto…", "luego de vacaciones") anula las funciones del texto y queda
+  un `range` con el texto literal.
+- Dirección Libertad 815 (publicada en `/contacto/`); las salas María Guerrero, Orestes
+  Caviglia y Luisa Vehil van como `room`. Precio solo donde lo dice ("$15.000",
+  "Entradas gratuitas"). Linda no publicaba eventos del Cervantes al 18-oct.
 
 ### MNBA, Palacio Libertad y cultura.gob.ar (`docs/research/gob-ar-alternatives.md`)
 - Los tres hosts devuelven **`cf-mitigated: challenge`** en HTML y no-HTML (`/feed/`,
