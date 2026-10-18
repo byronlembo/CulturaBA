@@ -41,9 +41,15 @@ cuando una función próxima se cancela, se posterga o se reprograma.
   `major`) a quienes guardaron/van; recordatorios (`reminders`) 1 semana / 1 día / 2 h;
   horarios silenciosos y límites; nunca duplicar; abrir la ficha correcta.
 - `expo-calendar` en los builds nativos (hoy el teléfono abre Google Calendar).
-- EAS build/submit; universal links verificados en el dominio definitivo.
+- EAS build/submit; universal links verificados en el dominio definitivo. Camino completo
+  y lo que falta en el teléfono (Apple, mapa nativo, avisos): `docs/publicar-en-tiendas.md`.
 
 ## Etapa 2b — Cuenta, diario y puntos
+
+**19-oct:** Perfil ordenado por importancia (identidad, números, intereses, lo último que
+viste, ajustes). Cuentas con Google o email y contraseña (sin enlaces), olvidé mi
+contraseña por código y eliminar cuenta. Pendiente: credenciales de Google en Supabase,
+Resend para los emails y "Iniciar sesión con Apple" al publicar en la App Store.
 
 **Hecho (16-oct):**
 - **Cuenta:** el invitado confirma un email y su sesión pasa a ser cuenta (conserva lo

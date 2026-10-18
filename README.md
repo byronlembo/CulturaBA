@@ -8,7 +8,7 @@ base de datos (Supabase/Postgres) y la app móvil (Expo).
 **Estado (18-oct-2026):** fuentes en producción: Teatro Colón, Usina del Arte, Teatro
 Nacional Cervantes, Museo Moderno y la agenda oficial de la Ciudad (Linda). Complejo Teatral corregido pero fuera del cron (su sitio responde 403 a los
 runners de GitHub); MNBA y Palacio Libertad bloqueados por Cloudflare.
-La app suma mapa de la ciudad, cuenta con email, calendario, diario de funciones, puntos
+La app suma mapa de la ciudad, cuenta con Google o email y contraseña, calendario, diario de funciones, puntos
 por asistencia ("Fui", de buena fe), amigos y ranking. Detalle en [`docs/informe-etapa-1.md`](docs/informe-etapa-1.md) y
 [`docs/roadmap.md`](docs/roadmap.md).
 
@@ -118,13 +118,13 @@ psql "$DATABASE_URL" -f supabase/seed.sql                # disciplinas, instituc
 pnpm db:types                                            # regenerar tipos tras cambiar migraciones
 ```
 
-Cuentas: el invitado confirma un email y su sesión pasa a ser una cuenta (conserva lo
-guardado); para entrar desde otro dispositivo se pide un email. Con el proveedor de email
-por defecto, Supabase manda un **enlace** que vuelve a la web (no deja cambiar plantillas),
-solo a miembros del equipo del proyecto y pocos por hora. Para usuarios reales: configurar
-SMTP propio (Auth → SMTP Settings) y subir las plantillas con **código** de
-`supabase/templates/` con `SUPABASE_PROJECT_REF=<ref> bash scripts/push-auth-emails.sh`
-(sirven también en la app nativa, donde el enlace abre la web).
+Cuentas: todo arranca como invitado. Crear cuenta suma **Google** o un **email con
+contraseña** (confirmado con un código) a esa sesión, así lo guardado queda; "Ya tengo
+cuenta" entra con Google o con email y contraseña; "¿Olvidaste tu contraseña?" manda un
+código. En Cuenta y seguridad se cambia la contraseña, se conecta Google, se cierra sesión
+y se **elimina la cuenta** (`delete_my_account()`). El botón de Google aparece cuando el
+proyecto tiene el proveedor activo; los emails llegan a cualquiera recién con SMTP propio
+(Resend): pasos en [`docs/publicar-en-tiendas.md`](docs/publicar-en-tiendas.md), anexos A y B.
 
 Recompensas (hasta que haya panel): se cargan y validan con SQL desde Supabase.
 

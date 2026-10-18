@@ -14,7 +14,7 @@ Referencia visual navegable (tokens, tipografía y componentes): artifact Design
 | Dónde | Qué |
 |---|---|
 | `apps/mobile/src/theme/tokens.ts` | Colores, fuentes, escala tipográfica, espacios, radios |
-| `apps/mobile/src/components/ui/Primitives.tsx` | Screen, Txt, Button, Field, Card, Section, Chip, Badge, StatTile, Skeleton, EmptyState, ErrorState, Loading |
+| `apps/mobile/src/components/ui/Primitives.tsx` | Screen, Txt, Button, Field, Card, Section, Chip, Badge, StatTile, NavRow, Skeleton, EmptyState, ErrorState, Loading |
 | `apps/mobile/src/components/ui/EventCard.tsx` | Tarjeta "talón de entrada" |
 | `apps/mobile/src/components/ui/OccurrenceRow.tsx` | Fila de función (fecha, hora, estado, calendario) |
 | `apps/mobile/app/_layout.tsx`, `app/(tabs)/_layout.tsx` | Carga de fuentes, tema de navegación, barra de pestañas |
@@ -79,12 +79,22 @@ familia por peso, porque en nativo `fontWeight` no elige archivo. **Nunca** se c
 
 | Componente | Variantes / props | Notas |
 |---|---|---|
-| `Button` | `primary` (dorado), `secondary` (`surfaceAlt`), `ghost` (borde `borderStrong`); `icon`, `loading`, `disabled` | Pill, alto mínimo 48. Texto `heading` 15 |
+| `Button` | `primary` (dorado), `secondary` (`surfaceAlt`), `ghost` (borde `borderStrong`), `danger` (`danger` con texto `onAccent`, 8,2:1; solo para lo que no se deshace); `icon`, `loading`, `disabled` | Pill, alto mínimo 48. Texto `heading` 15. "Seguir con Google" va en `secondary` con el logo (pautas de marca de Google) |
 | `Chip` | `selected`, `small`, `icon`, `onPress` | Seleccionado: dorado con texto oscuro en SemiBold. Sin seleccionar: transparente con borde `borderStrong`. Alto mínimo 44 si es tocable |
 | `Card` | — | `surface`, radio 14, sin borde |
 | `Section` | `title`, `right` | Título `section` con `role=heading` y `aria-level=2` |
 | `Field` | props de `TextInput` | `surface` + borde `outline`, alto mínimo 44 |
-| `StatTile` | `label`, `value` | `surfaceAlt`, rótulo `caption`, cifra Schibsted 28. Se lee como "rótulo: valor" |
+| `StatTile` | `label`, `value`, `onPress?` | `surfaceAlt`, cifra Schibsted 28 arriba y rótulo `caption` abajo (las cifras quedan alineadas aunque un rótulo ocupe dos líneas). Con `onPress` es un enlace a su detalle. Se lee como "rótulo: valor" |
+| `NavRow` | `icon`, `label`, `detail?`, `onPress`, `first?` | Fila de ajustes: ícono `muted` 22, texto y detalle `small`, flecha; alto mínimo 56; separador `border` entre filas |
+
+### Perfil (orden por importancia)
+
+1. **Identidad:** avatar (inicial en Bodoni dorado o ícono de persona), @usuario o "Invitado", email.
+2. **Invitado:** tarjeta "Guardá tu actividad" con borde dorado y "Crear cuenta" (la acción más importante para quien no tiene cuenta).
+3. **Números:** funciones vistas, puntos y amigos en tres `StatTile` tocables (llevan al diario, a puntos y a amigos).
+4. **Tus intereses:** resumen en `Badge` con "Editar" (pantalla propia).
+5. **Lo último que viste:** la entrada más reciente del diario.
+6. **Ajustes:** `NavRow` a Cuenta y seguridad, Fuentes oficiales y Acerca de. Cerrar sesión y eliminar cuenta viven en Cuenta y seguridad, al final.
 | `EmptyState` / `ErrorState` | `title`, `body`, `action` / `title`, `onRetry` | El título va en Bodoni con `aria-level=2`. Los errores nunca muestran el mensaje técnico |
 | `EventCard` | `compact` | Ver abajo |
 | `OccurrenceRow` | `showVenue`, `onAddToCalendar`, `divider` | Ver abajo |
