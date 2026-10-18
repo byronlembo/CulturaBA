@@ -198,7 +198,7 @@ describe('museo-moderno · resultado por ítem', () => {
     const occurrences = [...all.values()].flatMap((p) => p.event?.occurrences ?? []);
     expect(occurrences.filter((o) => o.kind === 'range')).toHaveLength(11);
     expect(occurrences.filter((o) => o.kind === 'timed')).toHaveLength(44);
-    expect(occurrences.filter((o) => o.kind === 'all_day')).toHaveLength(0);
+    expect(occurrences.filter((o) => o.kind === 'all_day')).toHaveLength(0); // sin hora → range de un día
   });
 
   it('institución y atribución comunes a todos los ítems', () => {

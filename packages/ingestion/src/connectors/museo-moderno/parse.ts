@@ -1,5 +1,4 @@
 import {
-  allDayBounds,
   BA_TZ,
   baDateTime,
   detectFreeEs,
@@ -616,16 +615,18 @@ function buildAgendaEvent(raw: RawRecord, ctx: ParseContext): ParseResult {
         status: titleStatus ?? spec.status,
       });
     } else if (spec.kind === 'all_day') {
-      const bounds = allDayBounds(spec.date);
+      // Fecha sin hora: rango de un día con el texto literal, como en Usina. `all_day` la
+      // app lo muestra "todo el día", y el sitio no dice eso.
+      const bounds = rangeBounds(spec.date, spec.date);
       occurrences.push({
         ...common,
         externalId: `${raw.externalId}|${spec.date}|dia`,
-        kind: 'all_day',
+        kind: 'range',
         startsAt: bounds.startsAt,
         endsAt: bounds.endsAt,
         startDate: spec.date,
         endDate: spec.date,
-        scheduleText: null,
+        scheduleText: spec.sourceText,
         status: titleStatus ?? spec.status,
       });
     } else {
