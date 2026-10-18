@@ -1056,7 +1056,9 @@ describe('agenda-ba · sameAsUrls para deduplicar con la fuente institucional', 
     const misty = eventOf('respect-misty-soul-choir');
     expect([misty.institutionSlug, misty.sameAsUrls]).toEqual([
       'usina-del-arte',
-      ['https://usinadelarte.ar/actividad/misty-soul-choir-por-primera-vez-en-buenos-aires-presenta-respect/'],
+      [
+        'https://usinadelarte.ar/actividad/misty-soul-choir-por-primera-vez-en-buenos-aires-presenta-respect/',
+      ],
     ]);
     const caja = eventOf('caja-de-sorpresas');
     expect([caja.institutionSlug, caja.sameAsUrls]).toEqual([
