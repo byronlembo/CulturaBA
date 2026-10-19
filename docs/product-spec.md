@@ -53,9 +53,10 @@ foto) → **Asistiré · Recomiendo · Guardar · Compartir** con conteos públi
 **Fechas** (cada función con sala, precio verificado y badges *Cancelada / Postergada /
 Agotada / Reprogramada (antes: …)*) → venue con dirección y **Cómo llegar** (solo si hay
 dirección o coordenadas) → Entradas (solo precio verificado o "Entrada gratuita"
-explícita) → "Qué esperar" (solo si existe `ai_summary`, rotulado como generado) o
-"En breve" (primer párrafo del texto oficial) → "Sobre el evento" (texto original +
-atribución) → duración/idioma/edad si existen → botones **Entradas** y **Sitio
+explícita) → "Qué esperar" (solo si existe `ai_summary`, rotulado como generado) →
+"Sobre el evento" (texto original sin repeticiones —`cleanDescription` al importar saca
+el título repetido arriba y la bajada que el cuerpo vuelve a decir—, mostrado hasta ~200
+caracteres con "Leer más", + atribución) → duración/idioma/edad si existen → botones **Entradas** y **Sitio
 oficial** (navegador in-app) → pie de procedencia ("Fuente: … · Verificado hace N h")
 → "Agregar al calendario" (deshabilitado hasta Etapa 2).
 
