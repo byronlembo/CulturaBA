@@ -19,7 +19,8 @@ Referencia visual navegable (tokens, tipografía y componentes): artifact Design
 | `apps/mobile/src/components/ui/OccurrenceRow.tsx` | Fila de función (fecha, hora, estado, calendario) |
 | `apps/mobile/app/_layout.tsx`, `app/(tabs)/_layout.tsx` | Carga de fuentes, tema de navegación, barra de pestañas |
 | `apps/mobile/public/index.html` | Fondo, anillo de foco y suavizado de fuentes en la web |
-| `apps/mobile/src/features/map/map.css` | Mapa (Leaflet) en la paleta |
+| `apps/mobile/src/features/map/map.css` | Mapa web (Leaflet) en la paleta |
+| `apps/mobile/src/features/map/mapStyle.ts` | Mapa de Android (Google Maps) en la paleta, desde los tokens |
 | `docs/design/voz.md` | Voz y textos |
 
 ## Tokens
@@ -172,11 +173,12 @@ No hay animaciones propias; las transiciones son las de React Navigation.
 - **Cargando / vacío / error:**
   - Cargando muestra `Loading`, con el spinner dorado.
   - Vacío y error usan `EmptyState` / `ErrorState` con un título según el contexto y "Reintentar".
-- **Mapa (solo web):**
+- **Mapa (web y teléfono):**
   - Ocupa la pantalla debajo de los filtros. La hoja ocupa hasta la mitad del alto y la sala elegida se acomoda por encima de ella.
   - Tocar el mapa fuera de un punto cierra la hoja.
   - Las teselas de OpenStreetMap se oscurecen con un filtro CSS (`shortcut`; con más tráfico conviene un proveedor de teselas oscuras).
   - En el Microcentro los puntos se pisan a zoom 12 (`shortcut`: agrupar con `leaflet.markercluster`).
+  - En el teléfono (`EventMap.tsx`, `react-native-maps`): Apple Maps en modo oscuro en iPhone y Google Maps con el estilo Telón de `mapStyle.ts` en Android; mismos pines (vista propia, dorado / marfil con anillo) y misma hoja. Al elegir una sala, el lector de pantalla la anuncia; "Estás acá" es el punto de ubicación del sistema.
   - El modo Lista es la alternativa completa.
 - **"Fui" (asistencia):** en la ficha, sección "¿Fuiste?".
   - Se elige la fecha entre las funciones ya empezadas; las de los últimos 7 días muestran "· +10".

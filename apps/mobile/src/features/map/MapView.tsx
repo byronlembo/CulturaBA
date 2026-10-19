@@ -1,7 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import {
+  AccessibilityInfo,
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import type { CatalogFilters } from '@/api/types';
 import { eventWhen } from '@/components/ui/EventCard';
 import { Txt } from '@/components/ui/Primitives';
@@ -12,8 +20,9 @@ import { EventMap } from './EventMap';
 import { formatDistance, type LatLng, venuePins } from './venues';
 
 /**
- * Explorar en modo mapa (solo web): el mapa ocupa la pantalla debajo de los filtros y, al
- * tocar una sala, la hoja de abajo muestra sus funciones. El modo Lista es la alternativa.
+ * Explorar en modo mapa (Leaflet en la web, Apple/Google Maps en el teléfono): el mapa ocupa
+ * la pantalla debajo de los filtros y, al tocar una sala, la hoja de abajo muestra sus
+ * funciones. El modo Lista es la alternativa.
  */
 export function MapView({ header, filters }: { header: React.ReactNode; filters: CatalogFilters }) {
   const c = useColors();
@@ -27,10 +36,18 @@ export function MapView({ header, filters }: { header: React.ReactNode; filters:
   const pins = useMemo(() => venuePins(events.data ?? [], me), [events.data, me]);
   const pin = pins.find((p) => p.key === selected) ?? null;
 
-  // Al abrir una sala, el foco pasa a la hoja (teclado y lector de pantalla).
+  // Al abrir una sala: en la web el foco pasa a la hoja (teclado); en el teléfono el lector
+  // de pantalla la anuncia.
+  const pinName = pin?.name;
+  const pinCount = pin?.events.length;
   useEffect(() => {
-    if (pin) closeRef.current?.focus();
-  }, [pin]);
+    if (!pinName) return;
+    if (Platform.OS === 'web') closeRef.current?.focus();
+    else
+      AccessibilityInfo.announceForAccessibility(
+        `${pinName}, ${pinCount} ${pinCount === 1 ? 'evento' : 'eventos'}`,
+      );
+  }, [pinName, pinCount]);
 
   const locate = async () => {
     setLocating(true);

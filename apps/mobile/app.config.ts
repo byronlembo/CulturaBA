@@ -53,6 +53,16 @@ const config: ExpoConfig = {
     ],
     'expo-web-browser',
     'expo-font',
+    [
+      'expo-location',
+      {
+        locationWhenInUsePermission:
+          'Para mostrarte las salas con funciones cerca tuyo. Tu ubicación no se guarda.',
+      },
+    ],
+    // Google Maps en Android necesita una clave de Maps SDK for Android (Google Cloud), que
+    // llega como variable de entorno del build (EAS). En iPhone es Apple Maps, sin clave.
+    ['react-native-maps', { androidGoogleMapsApiKey: process.env.GOOGLE_MAPS_ANDROID_API_KEY }],
   ],
   ...(webBasePath ? { experiments: { baseUrl: webBasePath } } : {}),
   extra: {

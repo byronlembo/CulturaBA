@@ -16,6 +16,27 @@ export interface VenuePin extends LatLng {
 
 export const BA_CENTER: LatLng = { lat: -34.6037, lng: -58.3816 };
 
+/** Región del mapa nativo (react-native-maps). */
+export interface Region {
+  latitude: number;
+  longitude: number;
+  latitudeDelta: number;
+  longitudeDelta: number;
+}
+
+/**
+ * Región que muestra un punto con el alto visible `delta` (en grados). Con `lift`, el punto
+ * queda por encima del centro (la hoja de abajo tapa la parte inferior), como en la web.
+ */
+export function regionShowing(p: LatLng, delta: number, lift = 0.22): Region {
+  return {
+    latitude: p.lat - delta * lift,
+    longitude: p.lng,
+    latitudeDelta: delta,
+    longitudeDelta: delta,
+  };
+}
+
 export function distanceMeters(a: LatLng, b: LatLng): number {
   const rad = Math.PI / 180;
   const h =

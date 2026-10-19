@@ -46,6 +46,11 @@ cuando una función próxima se cancela, se posterga o se reprograma.
 
 ## Etapa 2b — Cuenta, diario y puntos
 
+**19-oct (mapa):** mapa nativo con `react-native-maps` (Apple Maps oscuro en iPhone,
+Google Maps con estilo Telón en Android), mismos puntos y hoja que la web; "cerca de mí"
+con `expo-location`. Explorar abre en el mapa también en el teléfono. Falta probarlo en
+dispositivos reales y la clave de Maps SDK para Android.
+
 **19-oct:** Perfil ordenado por importancia (identidad, números, intereses, lo último que
 viste, ajustes). Cuentas con Google o email y contraseña (sin enlaces), olvidé mi
 contraseña por código y eliminar cuenta. Pendiente: credenciales de Google en Supabase,

@@ -42,12 +42,12 @@ eas submit -p android
 | **Iniciar sesión con Apple** | — | **Obligatorio** en iPhone si se ofrece Google (pauta 4.8 de Apple). `expo-apple-authentication` + `signInWithIdToken` de Supabase y el proveedor Apple activado en Supabase (con la cuenta de Apple Developer). |
 | **Google en el teléfono** | Programado (abre el navegador del sistema y vuelve a `culturaba://cuenta`) | Probarlo en un dispositivo real; opcional: el SDK nativo de Google para el selector de cuentas. |
 | **Eliminar cuenta** | ✅ en Cuenta y seguridad | Apple lo exige a toda app que permite crear cuentas (pauta 5.1.1(v)). |
-| **Mapa** | Solo en la web (Leaflet) | `react-native-maps` (Apple Maps en iPhone, sin costo). En el teléfono Explorar hoy muestra la lista. |
+| **Mapa** | ✅ `react-native-maps`: Apple Maps en modo oscuro en iPhone (sin clave), Google Maps con estilo Telón en Android; "cerca de mí" con `expo-location` | Android necesita la clave de Maps SDK (anexo A, paso 7) como variable `GOOGLE_MAPS_ANDROID_API_KEY` del build. Probar en dispositivos reales. |
 | **Recordatorios** | Esquema listo, sin envío | `expo-notifications` (APNs / FCM) para "mañana es la función". |
 | **Agregar al calendario** | Descarga un .ics | `expo-calendar` lo agrega directo al calendario del teléfono. |
 | **Enlaces que abren la app** | Configurados en `app.config.ts` | Publicar `/.well-known/apple-app-site-association` y `/.well-known/assetlinks.json` en el dominio (con el Team ID de Apple y la huella de Android). |
 | **Ícono y pantalla de inicio** | Provisorios | Ícono 1024×1024 sin transparencia; splash con la paleta Telón. |
-| **Permiso de ubicación** | Lo pide el mapa | Texto del permiso (`NSLocationWhenInUseUsageDescription`): "Para mostrarte las salas cerca tuyo. No guardamos tu ubicación." |
+| **Permiso de ubicación** | ✅ Configurado (`expo-location`): "Para mostrarte las salas con funciones cerca tuyo. Tu ubicación no se guarda." | — |
 | **Cifrado** | Solo HTTPS | `ITSAppUsesNonExemptEncryption: false` en `ios.infoPlist`, así no pide documentación de exportación. |
 
 ## 4. Lo que piden las fichas de las tiendas
@@ -69,7 +69,7 @@ eas submit -p android
 1. **Resend** configurado (los emails de confirmación y de "olvidé mi contraseña" tienen que
    llegar a cualquiera, no solo al equipo).
 2. **Google y Apple** activados en Supabase y probados en un iPhone y un Android reales.
-3. **Mapa nativo** y **recordatorios**, o sacarlos de la versión 1.0 y avisarlo en la ficha.
+3. **Recordatorios**, o sacarlos de la versión 1.0 y avisarlo en la ficha.
 4. **Política de privacidad** publicada en el dominio.
 5. Recorrido completo en TestFlight y en la prueba cerrada de Play, sin errores.
 
@@ -99,6 +99,12 @@ rechazan, explican la pauta y se reenvía.
 
 El botón aparece solo en la app (lee el ajuste público de Supabase): no hace falta
 publicar una versión nueva.
+
+7. **Mapa en Android** (mismo proyecto de Google Cloud): habilitar *Maps SDK for Android*
+   (sin costo para mapas en apps), crear una clave restringida a la app Android
+   `ar.com.culturaba.app` con la huella SHA-1 que muestra EAS (`eas credentials`) y
+   guardarla como variable del build: `eas env:create --name GOOGLE_MAPS_ANDROID_API_KEY
+   --value <clave>`. En iPhone el mapa es Apple Maps y no necesita clave.
 
 ## Anexo B — Activar los emails para todos (Resend)
 

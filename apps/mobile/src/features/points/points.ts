@@ -1,3 +1,4 @@
+import * as Location from 'expo-location';
 import { Platform } from 'react-native';
 import type { Position } from '@/api/types';
 
@@ -26,10 +27,9 @@ export function pointsErrorMessage(key: string): string {
 }
 
 export function currentPosition(): Promise<Position> {
+  if (Platform.OS !== 'web') return nativePosition();
   const geo = (globalThis as { navigator?: Navigator }).navigator?.geolocation;
-  // shortcut: solo en la web; en la app nativa sumar expo-location con los builds nativos.
-  if (Platform.OS !== 'web' || !geo)
-    return Promise.reject(new Error('Por ahora la ubicación funciona desde la web de CulturaBA.'));
+  if (!geo) return Promise.reject(new Error('Este navegador no permite usar tu ubicación.'));
   return new Promise((resolve, reject) =>
     geo.getCurrentPosition(
       (p) =>
@@ -45,4 +45,20 @@ export function currentPosition(): Promise<Position> {
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     ),
   );
+}
+
+async function nativePosition(): Promise<Position> {
+  const { status } = await Location.requestForegroundPermissionsAsync();
+  if (status !== 'granted')
+    throw new Error(
+      'Para usar tu ubicación, permitila para CulturaBA en los ajustes del teléfono.',
+    );
+  try {
+    const p = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+    return { lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy ?? 0 };
+  } catch {
+    throw new Error(
+      'No pudimos obtener tu ubicación. Revisá que esté activada e intentá de nuevo.',
+    );
+  }
 }

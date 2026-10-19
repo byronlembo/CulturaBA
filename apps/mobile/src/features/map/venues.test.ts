@@ -1,5 +1,5 @@
 import type { EventSummary } from '@/api/types';
-import { distanceMeters, formatDistance, pinSize, venuePins } from './venues';
+import { distanceMeters, formatDistance, pinSize, regionShowing, venuePins } from './venues';
 
 const ev = (id: string, venueName: string, venueLat: number | null, venueLng: number | null) =>
   ({ id, venueName, venueLat, venueLng, institutionName: 'X' }) as EventSummary;
@@ -43,4 +43,16 @@ it('agranda el punto con la cantidad de eventos, con tope', () => {
   expect(pinSize(13)).toBe(40);
   expect(pinSize(80)).toBe(40);
   expect(pinSize(0)).toBe(24);
+});
+
+describe('regionShowing', () => {
+  it('deja el punto por encima del centro para que no lo tape la hoja', () => {
+    const r = regionShowing({ lat: -34.6, lng: -58.38 }, 0.1);
+    expect(r.latitude).toBeCloseTo(-34.622);
+    expect([r.longitude, r.latitudeDelta, r.longitudeDelta]).toEqual([-58.38, 0.1, 0.1]);
+  });
+
+  it('sin desplazamiento, centra el punto', () => {
+    expect(regionShowing({ lat: -34.6, lng: -58.38 }, 0.02, 0).latitude).toBe(-34.6);
+  });
 });
