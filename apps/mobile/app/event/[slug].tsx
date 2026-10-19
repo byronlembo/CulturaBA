@@ -3,12 +3,13 @@ import {
   buildMapUrl,
   buildShareMessage,
   type DisciplineSlug,
+  descriptionPreview,
   disciplineLabel,
-  firstParagraph,
 } from '@culturaba/shared';
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
+import { useState } from 'react';
 import { Linking, Platform, Pressable, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { EventDetail, UserAction } from '@/api/types';
@@ -34,7 +35,7 @@ import {
 } from '@/features/hooks';
 import { relativeTimeEs, whenText } from '@/lib/dates';
 import { env } from '@/lib/env';
-import { radius, spacing, useColors } from '@/theme/tokens';
+import { fonts, radius, spacing, useColors } from '@/theme/tokens';
 
 function ActionButton({
   eventId,
@@ -79,6 +80,37 @@ function ActionButton({
   );
 }
 
+/** "Sobre el evento": el comienzo del texto oficial y, si es largo, "Leer más". */
+function AboutEvent({ text, attribution }: { text: string; attribution: string | null }) {
+  const [open, setOpen] = useState(false);
+  const preview = descriptionPreview(text);
+  return (
+    <View style={{ marginTop: spacing.xl }}>
+      <Txt variant="section" role="heading" aria-level={2}>
+        Sobre el evento
+      </Txt>
+      <Txt style={{ marginTop: 4 }}>{open || !preview.more ? text : preview.text}</Txt>
+      {preview.more ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ expanded: open }}
+          onPress={() => setOpen((v) => !v)}
+          style={{ minHeight: 44, justifyContent: 'center' }}
+        >
+          <Txt variant="small" tone="accent" style={{ fontFamily: fonts.bodySemi }}>
+            {open ? 'Leer menos' : 'Leer más'}
+          </Txt>
+        </Pressable>
+      ) : null}
+      {attribution ? (
+        <Txt variant="caption" tone="muted" style={{ marginTop: 6 }}>
+          {attribution}
+        </Txt>
+      ) : null}
+    </View>
+  );
+}
+
 function Body({ event }: { event: EventDetail }) {
   const c = useColors();
   const occurrences = useOccurrences(event.id);
@@ -98,7 +130,6 @@ function Body({ event }: { event: EventDetail }) {
     },
     Platform.OS === 'ios' ? 'ios' : Platform.OS === 'android' ? 'android' : 'web',
   );
-  const summary = event.description ? firstParagraph(event.description, 220) : null;
 
   async function share() {
     const message = buildShareMessage({
@@ -240,27 +271,10 @@ function Body({ event }: { event: EventDetail }) {
               Resumen generado automáticamente a partir del texto oficial.
             </Txt>
           </View>
-        ) : summary ? (
-          <View style={{ marginTop: spacing.xl }}>
-            <Txt variant="section" role="heading" aria-level={2}>
-              En breve
-            </Txt>
-            <Txt style={{ marginTop: 4 }}>{summary}</Txt>
-          </View>
         ) : null}
 
         {event.description ? (
-          <View style={{ marginTop: spacing.xl }}>
-            <Txt variant="section" role="heading" aria-level={2}>
-              Sobre el evento
-            </Txt>
-            <Txt style={{ marginTop: 4 }}>{event.description}</Txt>
-            {event.descriptionAttribution ? (
-              <Txt variant="caption" tone="muted" style={{ marginTop: 6 }}>
-                {event.descriptionAttribution}
-              </Txt>
-            ) : null}
-          </View>
+          <AboutEvent text={event.description} attribution={event.descriptionAttribution} />
         ) : null}
 
         {event.durationMinutes || event.language || event.ageRating ? (

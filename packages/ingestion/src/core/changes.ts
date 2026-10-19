@@ -1,4 +1,4 @@
-import type { NormalizedEvent } from '@culturaba/shared';
+import { cleanDescription, type NormalizedEvent } from '@culturaba/shared';
 import type { ChangeInput, EventFields, EventRow } from '../db/repo';
 
 /** Campos editoriales que se comparan y la severidad del cambio. */
@@ -27,7 +27,10 @@ export function eventFieldsFromNormalized(n: NormalizedEvent, dedupKeyValue: str
   return {
     title: n.title,
     subtitle: n.subtitle ?? null,
-    description: n.description ?? null,
+    // Sin la entrada repetida ni el título repetido (ver cleanDescription).
+    description: n.description
+      ? cleanDescription(n.description, [n.title, n.subtitle]) || null
+      : null,
     description_html: n.descriptionHtml ?? null,
     description_attribution: n.attribution,
     primary_discipline: n.disciplines[0] ?? null,

@@ -174,6 +174,60 @@ export function htmlToText(html: string): string {
     .trim();
 }
 
+/** Clave para comparar textos: sin acentos, minúsculas y solo letras y números. */
+function textKey(text: string): string {
+  return stripDiacritics(text)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+/**
+ * Saca del texto de una fuente lo que se repite, sin cambiar ninguna palabra:
+ *  · líneas iniciales iguales al título o al subtítulo (ya se muestran arriba);
+ *  · la entrada (primer párrafo, o primera línea si no hay párrafos) cuando el resto del
+ *    texto la vuelve a decir entera: Linda publica la bajada y después el cuerpo, que
+ *    arranca con la misma bajada o la repite más abajo.
+ * El resto queda igual: en los programas se repiten a propósito direcciones y horarios.
+ */
+export function cleanDescription(
+  text: string,
+  headings: (string | null | undefined)[] = [],
+): string {
+  const skip = new Set(headings.filter((h): h is string => Boolean(h)).map(textKey));
+  let body = text.trim();
+  // Después de sacar la entrada puede quedar el título arriba (y al revés): hasta que no cambie.
+  for (let previous = ''; previous !== body; ) {
+    previous = body;
+    const lines = body.split('\n');
+    while (lines.length > 1 && skip.has(textKey(lines[0] ?? ''))) lines.shift();
+    body = lines.join('\n').trim();
+    for (const cut of [body.search(/\n\s*\n/), body.indexOf('\n')]) {
+      const lead = cut > 0 ? textKey(body.slice(0, cut)) : '';
+      if (lead.length >= 20 && textKey(body.slice(cut)).includes(lead)) {
+        body = body.slice(cut).trim();
+        break;
+      }
+    }
+  }
+  return body;
+}
+
+/**
+ * Comienzo de una descripción larga para mostrar con "Leer más": líneas enteras hasta pasar
+ * `min` caracteres. `more` es false si el texto ya es corto y no hace falta cortar.
+ */
+export function descriptionPreview(text: string, min = 200): { text: string; more: boolean } {
+  const lines = text.trim().split('\n');
+  let end = 0;
+  let length = 0;
+  while (end < lines.length && length < min) length += (lines[end++] ?? '').length + 1;
+  const rest = lines.slice(end).join('\n').trim();
+  // Si lo que queda es poco, se muestra todo de una.
+  if (rest.length < min / 2) return { text: text.trim(), more: false };
+  return { text: lines.slice(0, end).join('\n').trim(), more: true };
+}
+
 /** Primer párrafo (hasta ~N caracteres) para usar como descripción breve. */
 export function firstParagraph(text: string, maxLength = 280): string {
   const para =

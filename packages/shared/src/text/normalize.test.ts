@@ -1,5 +1,7 @@
 import {
+  cleanDescription,
   dedupKey,
+  descriptionPreview,
   diceCoefficient,
   eventSlug,
   firstParagraph,
@@ -120,5 +122,57 @@ describe('htmlToText / firstParagraph', () => {
 
   it('stripDiacritics folds ñ to n (NFD), consistently with normalizeTitle', () => {
     expect(stripDiacritics('Ñandú')).toBe('Nandu');
+  });
+});
+
+describe('cleanDescription', () => {
+  it('saca la bajada de Linda cuando el cuerpo arranca con ella', () => {
+    const lead = 'Seis largometrajes de la celebrada actriz neoyorquina.';
+    expect(cleanDescription(`${lead}\n\n${lead}\nFunciones: Del 15 al 22 de octubre`)).toBe(
+      `${lead}\nFunciones: Del 15 al 22 de octubre`,
+    );
+  });
+
+  it('saca la entrada aunque el cuerpo la repita más abajo y con otras palabras alrededor', () => {
+    expect(
+      cleanDescription(
+        'El Salón Dorado será escenario de Clics eternos.\n\nEl sábado 24, a las 19 h, el Salón Dorado será escenario de Clics eternos.',
+      ),
+    ).toBe('El sábado 24, a las 19 h, el Salón Dorado será escenario de Clics eternos.');
+  });
+
+  it('saca el título repetido arriba, también si aparece después de la entrada', () => {
+    expect(
+      cleanDescription('El cascanueces\nCoreografía: Silvia Bazilis', ['El Cascanueces']),
+    ).toBe('Coreografía: Silvia Bazilis');
+    expect(
+      cleanDescription(
+        'Un taller para mirar con atención.\n\nTrama\nUn taller para mirar con atención. Cupos limitados.',
+        ['Trama'],
+      ),
+    ).toBe('Un taller para mirar con atención. Cupos limitados.');
+  });
+
+  it('deja las repeticiones de los programas y nunca deja el texto vacío', () => {
+    const program =
+      'Programación:\n17:30 h | Biblioteca\nDirección: Lavalleja 924, Ciudad Autónoma de Buenos Aires.\n19:00 h | Biblioteca\nDirección: Lavalleja 924, Ciudad Autónoma de Buenos Aires.';
+    expect(cleanDescription(program, ['Festival'])).toBe(program);
+    expect(cleanDescription('Trama', ['Trama'])).toBe('Trama');
+  });
+});
+
+describe('descriptionPreview', () => {
+  it('corta en líneas enteras pasado el mínimo y avisa que hay más', () => {
+    const text = `${'a'.repeat(150)}\n${'b'.repeat(80)}\n${'c'.repeat(300)}`;
+    expect(descriptionPreview(text)).toEqual({
+      text: `${'a'.repeat(150)}\n${'b'.repeat(80)}`,
+      more: true,
+    });
+  });
+
+  it('muestra todo si el texto es corto o lo que sobra es poco', () => {
+    expect(descriptionPreview('Una línea.')).toEqual({ text: 'Una línea.', more: false });
+    const text = `${'a'.repeat(250)}\nCupos limitados.`;
+    expect(descriptionPreview(text)).toEqual({ text, more: false });
   });
 });
