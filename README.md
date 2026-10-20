@@ -123,8 +123,8 @@ contraseña** (confirmado con un código) a esa sesión, así lo guardado queda;
 cuenta" entra con Google o con email y contraseña; "¿Olvidaste tu contraseña?" manda un
 código. En Cuenta y seguridad se cambia la contraseña, se conecta Google, se cierra sesión
 y se **elimina la cuenta** (`delete_my_account()`). El botón de Google aparece cuando el
-proyecto tiene el proveedor activo; los emails llegan a cualquiera recién con SMTP propio
-(Resend): pasos en [`docs/publicar-en-tiendas.md`](docs/publicar-en-tiendas.md), anexos A y B.
+proyecto tiene el proveedor activo (pasos en [`docs/publicar-en-tiendas.md`](docs/publicar-en-tiendas.md),
+anexo A). Los emails con código salen por Resend desde `hola@info.lembodiseño.com` (anexo B).
 
 Recompensas (hasta que haya panel): se cargan y validan con SQL desde Supabase.
 

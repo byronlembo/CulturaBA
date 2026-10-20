@@ -66,8 +66,8 @@ eas submit -p android
 
 ## 5. Antes de enviar a revisión
 
-1. **Resend** configurado (los emails de confirmación y de "olvidé mi contraseña" tienen que
-   llegar a cualquiera, no solo al equipo).
+1. ✅ **Resend** configurado (20-oct): los emails de confirmación y de "olvidé mi
+   contraseña" salen desde `hola@info.lembodiseño.com` para cualquiera.
 2. **Google y Apple** activados en Supabase y probados en un iPhone y un Android reales.
 3. **Recordatorios**, o sacarlos de la versión 1.0 y avisarlo en la ficha.
 4. **Política de privacidad** publicada en el dominio.
@@ -106,7 +106,11 @@ publicar una versión nueva.
    guardarla como variable del build: `eas env:create --name GOOGLE_MAPS_ANDROID_API_KEY
    --value <clave>`. En iPhone el mapa es Apple Maps y no necesita clave.
 
-## Anexo B — Activar los emails para todos (Resend)
+## Anexo B — Activar los emails para todos (Resend) — hecho el 20-oct
+
+Configurado con el subdominio `info.lembodiseño.com` (DNS en Vercel, verificado en Resend),
+remitente `CulturaBA <hola@info.lembodiseño.com>`, límite de 30 emails por hora. Para
+repetirlo o cambiarlo:
 
 1. En Resend: verificar el dominio (registros DNS) y crear una API key.
 2. **Supabase → Authentication → Emails → SMTP Settings**: host `smtp.resend.com`,

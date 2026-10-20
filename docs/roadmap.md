@@ -53,8 +53,10 @@ dispositivos reales y la clave de Maps SDK para Android.
 
 **19-oct:** Perfil ordenado por importancia (identidad, números, intereses, lo último que
 viste, ajustes). Cuentas con Google o email y contraseña (sin enlaces), olvidé mi
-contraseña por código y eliminar cuenta. Pendiente: credenciales de Google en Supabase,
-Resend para los emails y "Iniciar sesión con Apple" al publicar en la App Store.
+contraseña por código y eliminar cuenta. **20-oct:** emails por Resend desde
+`hola@info.lembodiseño.com` con plantillas de código (probado con la dirección de prueba de
+Resend). Pendiente: credenciales de Google en Supabase y "Iniciar sesión con Apple" al
+publicar en la App Store.
 
 **Hecho (16-oct):**
 - **Cuenta:** el invitado confirma un email y su sesión pasa a ser cuenta (conserva lo
@@ -102,8 +104,7 @@ Resend para los emails y "Iniciar sesión con Apple" al publicar en la App Store
 **Pendiente:**
 - Mapa nativo (`react-native-maps`) y proveedor de teselas con plan si crece el tráfico.
 - Link de invitación para sumar amigos; bloquear o denunciar usuarios.
-- SMTP propio en Supabase (hoy los emails solo llegan al equipo) y plantillas con código
-  (`scripts/push-auth-emails.sh`); entrar con Google (requiere credenciales de Google Cloud).
+- Entrar con Google (requiere credenciales de Google Cloud; los emails ya salen por Resend).
 - Verificación de asistencia cuando haya canjes reales: código QR en la sala con
   instituciones asociadas (hoy los puntos son de buena fe).
 - Agrupar puntos del mapa (`leaflet.markercluster`) si la superposición en el Microcentro molesta.
