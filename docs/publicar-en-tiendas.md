@@ -92,9 +92,9 @@ rechazan, explican la pauta y se reenvía.
      `https://<ref>.supabase.co/auth/v1/callback`
 4. **Supabase → Authentication → Sign In / Providers → Google**: activarlo y pegar el
    *Client ID* y el *Client Secret*.
-5. En la misma sección, activar **Allow manual linking** (así el invitado suma Google a su
+5. ✅ (20-oct) En la misma sección, activar **Allow manual linking** (así el invitado suma Google a su
    sesión y conserva lo guardado).
-6. **Authentication → URL Configuration → Redirect URLs**: agregar
+6. ✅ (20-oct; además, contraseña mínima de 8) **Authentication → URL Configuration → Redirect URLs**: agregar
    `https://culturaba.xn--lembodiseo-19a.com/**` y `culturaba://**`.
 
 El botón aparece solo en la app (lee el ajuste público de Supabase): no hace falta
