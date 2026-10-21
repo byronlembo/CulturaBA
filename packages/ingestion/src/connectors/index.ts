@@ -4,6 +4,7 @@ import { complejoTeatralConnector } from './complejo-teatral/connector';
 import { mnbaConnector } from './mnba/connector';
 import { museoModernoConnector } from './museo-moderno/connector';
 import { palacioLibertadConnector } from './palacio-libertad/connector';
+import { planetarioConnector } from './planetario/connector';
 import { sampleConnector } from './sample/connector';
 import { teatroCervantesConnector } from './teatro-cervantes/connector';
 import { teatroColonConnector } from './teatro-colon/connector';
@@ -19,6 +20,7 @@ export const CONNECTORS: readonly SourceConnector[] = [
   usinaDelArteConnector,
   teatroCervantesConnector,
   museoModernoConnector,
+  planetarioConnector,
   // Agregador al final: las instituciones crean sus eventos y Linda se fusiona con ellos.
   agendaBaConnector,
 ];

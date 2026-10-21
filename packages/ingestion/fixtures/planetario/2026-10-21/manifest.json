@@ -1,0 +1,118 @@
+{
+  "source": "planetario",
+  "capturedAt": "2026-10-21T21:29:38.129Z",
+  "entries": [
+    {
+      "url": "https://planetario.buenosaires.gob.ar/encuentros-de-ciencia",
+      "file": "001-encuentros-de-ciencia.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-21T21:29:39.889Z"
+    },
+    {
+      "url": "https://planetario.buenosaires.gob.ar/otras-actividades",
+      "file": "002-otras-actividades.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-21T21:29:41.424Z"
+    },
+    {
+      "url": "https://planetario.buenosaires.gob.ar/cursos",
+      "file": "003-cursos.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-21T21:29:42.899Z"
+    },
+    {
+      "url": "https://planetario.buenosaires.gob.ar/agenda",
+      "file": "004-agenda.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-21T21:29:44.367Z"
+    },
+    {
+      "url": "https://planetario.buenosaires.gob.ar/espectaculos-publico-general",
+      "file": "005-espectaculos-publico-general.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-21T21:29:45.869Z"
+    },
+    {
+      "url": "https://planetario.buenosaires.gob.ar/alerta-espacial-noticias-bajo-la-lupa",
+      "file": "006-alerta-espacial-noticias-bajo-la-lupa.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-21T21:29:47.371Z"
+    },
+    {
+      "url": "https://planetario.buenosaires.gob.ar/te-quiero-desde-el-mar-hasta-el-cielo",
+      "file": "007-te-quiero-desde-el-mar-hasta-el-cielo.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-21T21:29:48.875Z"
+    },
+    {
+      "url": "https://planetario.buenosaires.gob.ar/agujeros-negros-supermasivos",
+      "file": "008-agujeros-negros-supermasivos.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-21T21:29:50.389Z"
+    },
+    {
+      "url": "https://planetario.buenosaires.gob.ar/top-5-lo-mejor-del-universo",
+      "file": "009-top-5-lo-mejor-del-universo.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-21T21:29:51.883Z"
+    },
+    {
+      "url": "https://planetario.buenosaires.gob.ar/vuelta-por-el-universo",
+      "file": "010-vuelta-por-el-universo.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-21T21:29:53.378Z"
+    },
+    {
+      "url": "https://planetario.buenosaires.gob.ar/veo-veo",
+      "file": "011-veo-veo.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-21T21:29:54.879Z"
+    },
+    {
+      "url": "https://planetario.buenosaires.gob.ar/descubrir-observar-y-disfrutar-el-cielo",
+      "file": "012-descubrir-observar-y-disfrutar-el-cielo.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-21T21:29:56.390Z"
+    },
+    {
+      "url": "https://planetario.buenosaires.gob.ar/astronomia-general",
+      "file": "013-astronomia-general.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-21T21:29:57.889Z"
+    },
+    {
+      "url": "https://planetario.buenosaires.gob.ar/madre-noche",
+      "file": "014-madre-noche.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-21T21:29:59.387Z"
+    },
+    {
+      "url": "https://planetario.buenosaires.gob.ar/el-universo-que-no-vemos",
+      "file": "015-el-universo-que-no-vemos.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-21T21:30:00.902Z"
+    },
+    {
+      "url": "https://planetario.buenosaires.gob.ar/el-telescopio-espacial-roman",
+      "file": "016-el-telescopio-espacial-roman.html",
+      "status": 200,
+      "contentType": "text/html; charset=UTF-8",
+      "capturedAt": "2026-10-21T21:30:02.393Z"
+    }
+  ]
+}

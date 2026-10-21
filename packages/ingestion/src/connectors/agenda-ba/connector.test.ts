@@ -26,6 +26,7 @@ import {
   splitSentences,
 } from './dates';
 import { mapDisciplines, PERFORMING_ETIQUETAS } from './disciplines';
+import { seedInstitutionFromLinks } from './institutions';
 import {
   cleanTrackingUrl,
   eventPageUrl,
@@ -1083,6 +1084,16 @@ describe('agenda-ba · sameAsUrls para deduplicar con la fuente institucional', 
       'museo-moderno',
       ['https://museomoderno.org/agenda/caja-de-sorpresas/'],
     ]);
+  });
+
+  it('Planetario: una ficha de planetario.buenosaires.gob.ar es sameAs y da la institución', () => {
+    const page = 'https://planetario.buenosaires.gob.ar/el-telescopio-espacial-roman';
+    expect(sameAsLinks([{ uri: page, title: 'Más info' }])).toEqual([page]);
+    expect(seedInstitutionFromLinks([page])).toBe('planetario-galileo-galilei');
+    // La portada no identifica ninguna actividad.
+    expect(
+      sameAsLinks([{ uri: 'https://planetario.buenosaires.gob.ar/', title: 'Sitio' }]),
+    ).toEqual([]);
   });
 
   it('BABASÓNICOS no declara nada: Movistar Arena no tiene conector y es una ticketera', () => {

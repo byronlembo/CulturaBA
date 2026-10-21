@@ -163,3 +163,37 @@ insert into public.sources (slug, name, institution_id, base_url, kind, priority
 on conflict (slug) do update set
   name = excluded.name, institution_id = excluded.institution_id,
   base_url = excluded.base_url, priority = excluded.priority;
+
+-- Planetario Galileo Galilei (planetario.buenosaires.gob.ar — Drupal, HTML server-side; ver
+-- docs/research/planetario.md). Primera fuente de divulgación científica: disciplina `ciencia`.
+-- Mismo slug de institución que deriva Linda ("Planetario Galileo Galilei"). Dirección
+-- verificada el 21-oct-2026 en el pie de todas las páginas y en /encontranos ("Av. Sarmiento
+-- s/n, 1425 CABA"; "en la intersección de Avenida Sarmiento y Avenida Figueroa Alcorta, Parque
+-- Tres de Febrero, en el barrio de Palermo"). El sitio no publica coordenadas: quedan en NULL.
+-- Si Linda ya creó el venue "Planetario Galileo Galilei" con su slug derivado, se lo adopta.
+insert into public.institutions (slug, name, website_url) values
+  ('planetario-galileo-galilei', 'Planetario Galileo Galilei', 'https://planetario.buenosaires.gob.ar')
+on conflict (slug) do update set name = excluded.name, website_url = excluded.website_url;
+update public.venues set slug = 'planetario-galileo-galilei'
+where id = (
+    select id from public.venues
+    where name = 'Planetario Galileo Galilei'
+      and institution_id = (select id from public.institutions where slug = 'planetario-galileo-galilei')
+    order by created_at
+    limit 1)
+  and not exists (select 1 from public.venues where slug = 'planetario-galileo-galilei');
+insert into public.venues (slug, institution_id, name, address, neighborhood, city, address_source_url, address_verified_at) values
+  ('planetario-galileo-galilei', (select id from public.institutions where slug = 'planetario-galileo-galilei'),
+    'Planetario Galileo Galilei', 'Av. Sarmiento s/n', 'Palermo', 'CABA',
+    'https://planetario.buenosaires.gob.ar/encontranos', '2026-10-21T18:00:00-03:00')
+on conflict (slug) do update set
+  institution_id = excluded.institution_id, name = excluded.name, address = excluded.address,
+  neighborhood = excluded.neighborhood, address_source_url = excluded.address_source_url,
+  address_verified_at = excluded.address_verified_at;
+insert into public.sources (slug, name, institution_id, base_url, kind, priority) values
+  ('planetario', 'Programación del Planetario Galileo Galilei',
+    (select id from public.institutions where slug = 'planetario-galileo-galilei'),
+    'https://planetario.buenosaires.gob.ar/', 'html', 100)
+on conflict (slug) do update set
+  name = excluded.name, institution_id = excluded.institution_id,
+  base_url = excluded.base_url, priority = excluded.priority;

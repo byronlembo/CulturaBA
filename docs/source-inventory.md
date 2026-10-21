@@ -17,6 +17,7 @@
 | `usina-del-arte` | Usina del Arte (Ciudad) | https://usinadelarte.ar/ | 200 (Hostinger, sin challenge; `robots.txt` vacío) | **REST WordPress** `wp/v2/actividad` + taxonomías; detalle HTML para fecha y hora de cada función | 4 páginas REST + 6 de taxonomías + ~20 detalles ≈ 30 | 100 | **en producción** (18-oct) |
 | `teatro-cervantes` | Teatro Nacional Cervantes (Nación) | https://www.teatrocervantes.gob.ar/ | 200 (sin challenge) | **REST WordPress** `wp/v2/obra` + calendario mensual `/calendario/?mes=` + detalle HTML | 1 REST + 3 meses + ~5 detalles ≈ 10 | 100 | **en producción** (18-oct) |
 | `museo-moderno` | Museo de Arte Moderno de Buenos Aires (Ciudad) | https://museomoderno.org/ | 200 (Cloudflare CDN, sin challenge; `robots.txt` sin `Crawl-delay`) | **REST WordPress** `wp/v2/agenda` (fechas en el texto) + listado y detalle de exposiciones | ~5 de descubrimiento + ~11 detalles ≈ 16 | 100 | **en producción** (18-oct) |
+| `planetario` | Planetario Galileo Galilei (Ciudad) | https://planetario.buenosaires.gob.ar | 200 (Apache + F5, sin challenge; `robots.txt` Drupal por defecto, sin `Crawl-delay`) | HTML server-side (Drupal, sin API): listados `/encuentros-de-ciencia`, `/otras-actividades`, `/cursos`, `/agenda`, `/espectaculos-publico-general` + ficha | 5 listados + 6 fichas de espectáculos + ~5 fichas ≈ 17 | 100 | **en producción** (21-oct) |
 | `mnba` | Museo Nacional de Bellas Artes | https://bellasartes.gob.ar/agenda/ | **403 Cloudflare managed challenge (Turnstile interactivo) en toda la zona** | — | — | 100 | **bloqueado** |
 | `palacio-libertad` | Palacio Libertad | https://palaciolibertad.gob.ar/agenda/ | **403 challenge en toda la zona (incluso robots.txt)** | — | — | 100 | **bloqueado** |
 | `cultura-gob-ar` | Agenda Cultural Federal | https://www.cultura.gob.ar/agenda/filtro/ | **403 challenge**; `datos.cultura.gob.ar` también | — | — | complementaria | bloqueado |
@@ -137,6 +138,23 @@ institución (100) sobrescribe; agregador (10) solo rellena vacíos y aporta fun
   algunas actividades ("Inscribite acá") → misma institución y `sameAsUrls`; el resto se
   funde por título.
 
+### Planetario Galileo Galilei — `planetario` (`docs/research/planetario.md`)
+- Drupal sin API (`/jsonapi` y `/wp-json` 404; `/rss.xml` con 3 nodos viejos). Cada actividad es un
+  nodo `evento` con campos fijos: "¿Cuándo?" (texto libre), Precio, Lugar, Destinatarios, enlace de
+  entradas; `rel=shortlink` = `/node/<id>`. Primera fuente de la disciplina `ciencia`.
+- `/encuentros-de-ciencia` (129 tarjetas desde 2018) y `/otras-actividades` (250) **acumulan años**:
+  una tarjeta se emite solo si alguna fecha cae desde hoy − 7 días. Las fechas casi nunca traen año: lo
+  decide el día de semana dentro de [hoy − 7 días, hoy + 12 meses], y como el día de semana se repite
+  cada 5–6 años ("Jueves 18 de marzo" de 2021 vuelve a ser jueves en 2027) la fecha inferida además
+  tiene que caer cerca del mes de carga de la imagen (`/sites/default/files/AAAA-MM/`). Sin año ni
+  día de semana → ambigua, se omite con aviso.
+- `/cursos` publica temporada ("Inicio…" / "Última clase…") → un `range` con el horario literal.
+  `/agenda` → solo las líneas fechadas con enlace; las funciones del domo, el museo y los telescopios
+  son patrones semanales sin temporada (no se emiten; Linda trae las del domo).
+- Dirección "Av. Sarmiento s/n, 1425 CABA" (pie y `/encontranos`, Palermo), sin coordenadas; la sala
+  ("Sala de Espectáculos", "Domo") va como `room`. Precio solo del campo Precio ("Gratis", "Sin costo",
+  "Libre y por orden de llegada", "$ 1.500.-", "Actividad arancelada").
+
 ### MNBA, Palacio Libertad y cultura.gob.ar (`docs/research/gob-ar-alternatives.md`)
 - Los tres hosts devuelven **`cf-mitigated: challenge`** en HTML y no-HTML (`/feed/`,
   `/wp-json/`, `/sitemap.xml`, `/api`); con Chromium real y 12 s de espera el challenge
@@ -163,7 +181,8 @@ Sondeo HTTP desde el entorno de desarrollo (sin challenge salvo donde se indica)
 | museomoderno.org (Museo Moderno, Ciudad) | WordPress + WPML; REST `wp/v2/agenda` y `wp/v2/exposiciones`; fechas en el texto | conector `museo-moderno` |
 | elculturalsanmartin.org | El dominio sirve spam de apuestas en turco: **no es el sitio oficial** del Centro Cultural San Martín | descartado (lo cubre Linda) |
 | malba.org.ar | WordPress con REST cerrada (401) | pendiente: relevar HTML |
-| proa.org, planetario.buenosaires.gob.ar | Sin API (HTML propio) | pendiente: relevar HTML |
+| proa.org | Sin API (HTML propio) | pendiente: relevar HTML |
+| planetario.buenosaires.gob.ar (Planetario, Ciudad) | Drupal sin API (HTML propio) | conector `planetario` (21-oct) |
 | cckonex.org, teatrocoliseo.org.ar, museoevita.org.ar | WordPress sin tipo de evento expuesto | pendiente |
 | centroculturalrecoleta.org, bn.gob.ar, centroculturalborges.org.ar | Sin respuesta desde el entorno (bloqueo de red) | pendiente; Recoleta llega por Linda |
 
