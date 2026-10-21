@@ -612,6 +612,46 @@ describe('deduplication', () => {
     });
   });
 
+  describe('exhibition ranges whose source trims the past', () => {
+    const expo = (id: string, start: string, rangeId = `${id}|range`): Item => ({
+      id,
+      title: 'Bosques umbral',
+      url: `https://sample.culturaba.test/${id}`,
+      discipline: 'museos_exposiciones',
+      venue: { slug: 'sample-sala' },
+      range: { start, end: day(60), id: rangeId },
+    });
+    const starts = async (eventId: string) =>
+      (
+        await sql<{ d: string }[]>`
+          select start_date::text as d from public.occurrences where event_id = ${eventId}
+          order by start_date`
+      ).map((r) => r.d);
+
+    it('keeps the opening day when the source moves the start to today', async () => {
+      await run([expo('expo', day(-3))]);
+      await run([expo('expo', day(0))]);
+      expect(await starts((await q.event('expo')).id)).toEqual([day(-3)]);
+    });
+
+    it('stores a start moved to the future (the opening was postponed)', async () => {
+      await run([expo('expo', day(2))]);
+      await run([expo('expo', day(9))]);
+      expect(await starts((await q.event('expo')).id)).toEqual([day(9)]);
+    });
+
+    it('two sources of the same exhibition both trimming to today do not collide', async () => {
+      await run([expo('expo', day(-3))]);
+      await runAggregator([expo('agg-expo', day(-2))]);
+      const id = (await q.event('expo')).id;
+      expect((await q.event('agg-expo')).id).toBe(id);
+      await run([expo('expo', day(0))]);
+      const s = await runAggregator([expo('agg-expo', day(0))]);
+      expect(s.stats.records_failed).toBe(0);
+      expect(await starts(id)).toEqual([day(-3), day(-2)]);
+    });
+  });
+
   describe('across sources by title words', () => {
     const show = (over: Partial<Item> = {}): Item => ({
       id: 'charly',

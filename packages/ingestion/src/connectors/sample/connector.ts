@@ -53,7 +53,12 @@ const ItemSchema = z.object({
     )
     .optional(),
   range: z
-    .object({ start: z.string(), end: z.string(), schedule: z.string().optional() })
+    .object({
+      start: z.string(),
+      end: z.string(),
+      schedule: z.string().optional(),
+      id: z.string().optional(),
+    })
     .optional(),
   price: z.string().optional(),
   free: z.boolean().optional(),
@@ -153,6 +158,7 @@ function parseItem(raw: RawRecord): ParseResult {
       scheduleText: item.range.schedule ?? null,
       recurrenceRule: null,
       sourceDateText: `${item.range.start} – ${item.range.end}`,
+      ...(item.range.id ? { externalId: item.range.id } : {}),
       venue,
       status: 'scheduled',
       ticketsUrl: item.tickets ?? null,

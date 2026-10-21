@@ -130,6 +130,20 @@ export async function reconcileOccurrences(
     if (!row) continue;
     const patch = occurrencePatch(inc, ctx);
     const changes = statusAndVenueChanges(row, inc, ctx.eventId);
+    // Una muestra que ya abrió no "empieza" de nuevo cada día: las fuentes que recortan el
+    // pasado (Linda, Moderno sin día de inicio) mueven el inicio a hoy. Se queda el que había;
+    // si no, dos fuentes de la misma muestra chocan en el mismo turno (occurrences_unique_slot).
+    // Un inicio nuevo en el futuro sí es un cambio (se posterga) y se guarda.
+    const newStart = Date.parse(String(patch.starts_at));
+    if (
+      row.kind === 'range' &&
+      inc.occ.kind === 'range' &&
+      Date.parse(row.starts_at) < newStart &&
+      newStart <= ctx.nowMs
+    ) {
+      delete (patch as Record<string, unknown>).starts_at;
+      delete (patch as Record<string, unknown>).start_date;
+    }
     // No pisar un estado "rescheduled" informativo con "scheduled".
     if (row.status === 'rescheduled' && inc.occ.status === 'scheduled') {
       delete (patch as Record<string, unknown>).status;
