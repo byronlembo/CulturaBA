@@ -167,6 +167,22 @@ Sondeo HTTP desde el entorno de desarrollo (sin challenge salvo donde se indica)
 | cckonex.org, teatrocoliseo.org.ar, museoevita.org.ar | WordPress sin tipo de evento expuesto | pendiente |
 | centroculturalrecoleta.org, bn.gob.ar, centroculturalborges.org.ar | Sin respuesta desde el entorno (bloqueo de red) | pendiente; Recoleta llega por Linda |
 
+## Relevamiento del 21-oct-2026 (divulgación científica)
+
+Nueva disciplina elegible `ciencia` ("Ciencia y divulgación"). Linda la asigna a todo lo
+del Planetario, el Museo Participativo de Ciencias y el C3, y la suma por título con
+palabras inequívocas (ciencia —no "ciencia ficción"—, científico, neurociencia,
+astronomía, paleontología, dinosaurios, divulgación). Al 21-oct: 9 eventos publicados.
+
+| Sitio | Resultado | Decisión |
+|---|---|---|
+| planetario.buenosaires.gob.ar (Planetario Galileo Galilei, Ciudad) | Drupal, HTML server-side; `/encuentros-de-ciencia` con charlas fechadas (sin año: lo fija el día de la semana) y `/agenda` con especiales fechados y funciones del domo semanales **sin temporada** | conector `planetario` (las funciones semanales sin temporada no se emiten) |
+| macnconicet.gob.ar (Museo Argentino de Ciencias Naturales, CONICET) | **Sitio secuestrado**: sirve spam de apuestas en indonesio ("KENZO188 … Link Slot Gacor") en la home y en `/wp-json/` | descartado; avisar al museo |
+| ccciencia.gob.ar (Centro Cultural de la Ciencia, C3, Nación) | Sin respuesta desde el entorno de desarrollo | pendiente: probar desde los runners de GitHub |
+| exactas.uba.ar/popularizacion | Programas (Semanas de las Ciencias, Ciencia en Marcha) sin agenda fechada; la REST solo tiene noticias | no por ahora |
+| mpc.org.ar (Museo Participativo de Ciencias) | WordPress con salas y kits, sin eventos | no (horario fijo; Linda lo cubre si publica algo) |
+| conicet.gov.ar | REST cerrada (401); agenda nacional | no |
+
 ## Protocolo de relevamiento (para fuentes nuevas)
 
 1. `robots.txt` y sitemaps; respetar `Crawl-delay` y rutas prohibidas.
