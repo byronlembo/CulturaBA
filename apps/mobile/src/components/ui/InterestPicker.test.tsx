@@ -27,7 +27,7 @@ describe('<InterestPicker />', () => {
   it('renders the 9 categories and enforces the 2–3 rule through taps', async () => {
     const user = userEvent.setup();
     await render(<Harness />);
-    expect(screen.getAllByRole('button')).toHaveLength(9);
+    expect(screen.getAllByRole('button')).toHaveLength(10);
     expect(screen.getByText('Elegí al menos 2 (hasta 3)')).toBeTruthy();
 
     await user.press(screen.getByText('Cine'));

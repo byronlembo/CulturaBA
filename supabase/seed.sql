@@ -15,6 +15,7 @@ insert into public.disciplines (slug, label_es, short_label_es, selectable, sort
   ('literatura_charlas',        'Literatura y charlas',        'Literatura',      true,  70,  'literatura_charlas'),
   ('fotografia_artes_visuales', 'Fotografía y artes visuales', 'Artes visuales',  true,  80,  'fotografia_artes_visuales'),
   ('historia_patrimonio',       'Historia y patrimonio',       'Patrimonio',      true,  90,  'historia_patrimonio'),
+  ('ciencia',                   'Ciencia y divulgación',       'Ciencia',         true,  100, 'ciencia'),
   ('otros',                     'Otros',                       'Otros',           false, 999, 'otros')
 on conflict (slug) do update set
   label_es = excluded.label_es,

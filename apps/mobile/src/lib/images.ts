@@ -12,6 +12,7 @@ const FALLBACKS: Record<DisciplineSlug, ImageSourcePropType> = {
   literatura_charlas: require('../../assets/images/fallback/literatura_charlas.png'),
   fotografia_artes_visuales: require('../../assets/images/fallback/fotografia_artes_visuales.png'),
   historia_patrimonio: require('../../assets/images/fallback/historia_patrimonio.png'),
+  ciencia: require('../../assets/images/fallback/ciencia.png'),
   otros: require('../../assets/images/fallback/otros.png'),
 };
 

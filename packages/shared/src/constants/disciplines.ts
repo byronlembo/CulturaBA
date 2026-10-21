@@ -1,6 +1,7 @@
 /**
- * Taxonomía de disciplinas: las 9 categorías elegibles por el usuario (definidas en el
- * encargo) más `otros`, interna, para registros que no encajan en ninguna.
+ * Taxonomía de disciplinas: las 9 categorías elegibles del encargo más "Ciencia y
+ * divulgación" (sumada el 21-oct con las fuentes científicas), y `otros`, interna, para
+ * registros que no encajan en ninguna.
  * Es una tabla lookup en la base (`disciplines`), no un enum, para poder renombrar
  * etiquetas sin migración de tipos. Mantener en sincronía con supabase/seed.sql.
  */
@@ -55,6 +56,13 @@ export const DISCIPLINES = [
     shortLabel: 'Patrimonio',
     selectable: true,
     sortOrder: 90,
+  },
+  {
+    slug: 'ciencia',
+    label: 'Ciencia y divulgación',
+    shortLabel: 'Ciencia',
+    selectable: true,
+    sortOrder: 100,
   },
   { slug: 'otros', label: 'Otros', shortLabel: 'Otros', selectable: false, sortOrder: 999 },
 ] as const;

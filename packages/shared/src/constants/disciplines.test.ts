@@ -7,9 +7,9 @@ import {
 } from './disciplines';
 
 describe('disciplines', () => {
-  it('exposes the 9 user-selectable categories from the brief plus an internal "otros"', () => {
-    expect(SELECTABLE_DISCIPLINES).toHaveLength(9);
-    expect(DISCIPLINES).toHaveLength(10);
+  it('exposes the 9 categories from the brief plus science, and an internal "otros"', () => {
+    expect(SELECTABLE_DISCIPLINES).toHaveLength(10);
+    expect(DISCIPLINES).toHaveLength(11);
     expect(isDisciplineSlug('otros')).toBe(true);
     expect(SELECTABLE_DISCIPLINES.map((d) => d.slug)).not.toContain('otros');
   });

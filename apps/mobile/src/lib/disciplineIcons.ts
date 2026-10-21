@@ -12,6 +12,7 @@ export const DISCIPLINE_ICONS: Record<string, IoniconName> = {
   literatura_charlas: 'book-outline',
   fotografia_artes_visuales: 'camera-outline',
   historia_patrimonio: 'business-outline',
+  ciencia: 'planet-outline',
   otros: 'sparkles-outline',
 };
 
