@@ -46,6 +46,12 @@ cuando una función próxima se cancela, se posterga o se reprograma.
 
 ## Etapa 2b — Cuenta, diario y puntos
 
+**21-oct (ciencia):** interés "Ciencia y divulgación" (`ciencia`); conector del
+Planetario (Encuentros de Ciencia, especiales fechados y cursos con temporada); Linda
+clasifica lo del Planetario y los títulos de ciencia. 11 eventos de ciencia al 21-oct.
+Pendientes: C3 (no responde desde el entorno de desarrollo; probar desde GitHub), MACN
+(su sitio está secuestrado por spam de apuestas), Exactas UBA (sin agenda con fechas).
+
 **19-oct (mapa):** mapa nativo con `react-native-maps` (Apple Maps oscuro en iPhone,
 Google Maps con estilo Telón en Android), mismos puntos y hoja que la web; "cerca de mí"
 con `expo-location`. Explorar abre en el mapa también en el teléfono. Falta probarlo en

@@ -5,8 +5,9 @@ que se actualiza solo desde las agendas oficiales, con intereses, fichas verific
 acciones sociales y compartir. Monorepo con el worker de ingestión, el esquema de
 base de datos (Supabase/Postgres) y la app móvil (Expo).
 
-**Estado (18-oct-2026):** fuentes en producción: Teatro Colón, Usina del Arte, Teatro
-Nacional Cervantes, Museo Moderno y la agenda oficial de la Ciudad (Linda). Complejo Teatral corregido pero fuera del cron (su sitio responde 403 a los
+**Estado (21-oct-2026):** fuentes en producción: Teatro Colón, Usina del Arte, Teatro
+Nacional Cervantes, Museo Moderno, Planetario Galileo Galilei (divulgación científica) y la
+agenda oficial de la Ciudad (Linda). Interés "Ciencia y divulgación" desde el 21-oct. Complejo Teatral corregido pero fuera del cron (su sitio responde 403 a los
 runners de GitHub); MNBA y Palacio Libertad bloqueados por Cloudflare.
 La app suma mapa de la ciudad, cuenta con Google o email y contraseña, calendario, diario de funciones, puntos
 por asistencia ("Fui", de buena fe), amigos y ranking. Detalle en [`docs/informe-etapa-1.md`](docs/informe-etapa-1.md) y
