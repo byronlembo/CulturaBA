@@ -26,7 +26,8 @@ export type SeedInstitutionSlug =
   | 'palacio-libertad'
   | 'usina-del-arte'
   | 'teatro-cervantes'
-  | 'museo-moderno';
+  | 'museo-moderno'
+  | 'planetario-galileo-galilei';
 
 /** Host (sin "www.") → institución del seed. */
 export const SEED_INSTITUTION_HOSTS: Readonly<Record<string, SeedInstitutionSlug>> = {
@@ -37,6 +38,7 @@ export const SEED_INSTITUTION_HOSTS: Readonly<Record<string, SeedInstitutionSlug
   'usinadelarte.ar': 'usina-del-arte',
   'teatrocervantes.gob.ar': 'teatro-cervantes',
   'museomoderno.org': 'museo-moderno',
+  'planetario.buenosaires.gob.ar': 'planetario-galileo-galilei',
 };
 
 /** Institución de respaldo: quien publica el evento cuando no hay un espacio con nombre propio. */

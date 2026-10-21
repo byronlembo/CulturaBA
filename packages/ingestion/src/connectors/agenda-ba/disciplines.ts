@@ -32,6 +32,9 @@ import { type DisciplineSlug, stripDiacriticsLower } from '@culturaba/shared';
  *     "ópera" (no "Teatro Ópera") → musica_vivo_jazz pasa a opera_clasica (o se agrega).
  *  4. Título con "danza", "ballet" o "coreográfico/a" → teatro_escenicas pasa a danza (o se agrega).
  *  5. Título con "fotografía"/"fotográfico/a" → + fotografia_artes_visuales.
+ *  6. Institución de ciencia (Planetario, Museo Participativo de Ciencias, C3) → ciencia
+ *     primero; título con palabras inequívocas de ciencia (ciencia —no "ciencia ficción"—,
+ *     científico, neurociencia, astronomía, paleontología, dinosaurios…) → + ciencia.
  *
  * Resultado: las disciplinas reales sin `otros`; si no hay ninguna pero sí una etiqueta
  * cultural no mapeable → ['otros']; si solo hay etiquetas no culturales o ninguna → []
@@ -74,6 +77,15 @@ const CLASSICAL_TITLE_RE =
 const DANCE_TITLE_RE = /\b(?:danza|ballet|coreografic[oa]s?)\b/;
 const DANCE_TEXT_RE = /\b(?:danza|ballet|coreograf[a-z]*|bailarin[a-z]*)\b/;
 const PHOTO_TITLE_RE = /\bfotograf(?:ic[oa]s?|ia)\b/;
+const SCIENCE_TITLE_RE =
+  /\b(?:ciencias?(?! ficcion)|cientific[oa]s?|neurociencias?|astronomi[a-z]*|astrofisic[a-z]*|astrobiolog[a-z]*|cosmolog[a-z]*|paleontolog[a-z]*|dinosaurios?|divulgacion)\b/;
+
+/** Instituciones cuya agenda entera es divulgación científica. */
+export const SCIENCE_INSTITUTIONS = new Set([
+  'planetario-galileo-galilei',
+  'museo-participativo-de-ciencias',
+  'centro-cultural-de-la-ciencia',
+]);
 
 /** "Teatro\u200B y artes escénicas" (con U+200B) → "teatro y artes escenicas". */
 export function etiquetaKey(raw: string): string {
@@ -165,6 +177,9 @@ export function mapDisciplines(input: DisciplineInput): DisciplineMapping {
     out.push('danza');
   }
   if (PHOTO_TITLE_RE.test(title)) out.push('fotografia_artes_visuales');
+  // 6. Ciencia: primera en sus instituciones; sumada por título en el resto.
+  if (SCIENCE_INSTITUTIONS.has(input.institutionSlug)) out.unshift('ciencia');
+  else if (SCIENCE_TITLE_RE.test(title)) out.push('ciencia');
 
   const real = [...new Set(out.filter((d) => d !== 'otros'))];
   if (real.length > 0) return { disciplines: real, warnings };

@@ -48,6 +48,7 @@ const SEED_INSTITUTIONS = new Set([
   'usina-del-arte',
   'teatro-cervantes',
   'museo-moderno',
+  'planetario-galileo-galilei',
 ]);
 const SEED_VENUES = new Set(['teatro-colon', 'mnba', 'palacio-libertad']);
 
@@ -850,6 +851,23 @@ describe('agenda-ba · disciplinas (tabla explícita)', () => {
     expect(
       map({ tipoEvento: 'descubrir_la_ciudad', etiquetas: ['Arte y cultura'] }).disciplines,
     ).toEqual(['historia_patrimonio']);
+  });
+
+  it('ciencia: primera en el Planetario; por título en el resto, sin confundir ciencia ficción', () => {
+    expect(
+      map({ etiquetas: ['Charlas y encuentros'], institutionSlug: 'planetario-galileo-galilei' })
+        .disciplines,
+    ).toEqual(['ciencia', 'literatura_charlas']);
+    expect(
+      map({ etiquetas: ['Entretenimiento'], institutionSlug: 'planetario-galileo-galilei' })
+        .disciplines,
+    ).toEqual(['ciencia']);
+    expect(
+      map({ etiquetas: ['Charlas y encuentros'], title: 'Neurociencia para todos' }).disciplines,
+    ).toEqual(['literatura_charlas', 'ciencia']);
+    expect(
+      map({ etiquetas: ['Cine'], title: 'Ciclo de cine de ciencia ficción' }).disciplines,
+    ).toEqual(['cine']);
   });
 
   it('cultural no mapeable → otros; no cultural o sin datos → [] con aviso', () => {
